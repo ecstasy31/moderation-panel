@@ -44,6 +44,8 @@
         #modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
         
         .btn-mini-del { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
+        
+        .warn-text { color: var(--danger); font-weight: bold; font-size: 14px; margin: 10px 0; display: block; }
     </style>
 </head>
 <body>
@@ -73,7 +75,7 @@
         <div class="nav-group">
             <button class="btn-nav" onclick="showProfile(currentUser)">ПРОФИЛЬ</button>
             <button class="btn-nav approval-hide" onclick="nav('scores')">ТОП</button>
-            <button class="btn-nav approval-hide" onclick="nav('report')">ОТЧЕТ</button>
+            <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">ОТЧЕТ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">ПРАВА</button>
             <button class="btn-logout" onclick="logout()">ВЫЙТИ</button>
@@ -84,10 +86,15 @@
         <div id="pending-msg" class="hidden" style="color:var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
             ОЖИДАЙТЕ ОДОБРЕНИЯ
         </div>
+        <div id="banned-msg" class="hidden" style="color:white; background:var(--danger); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold;">
+            АККАУНТ ЗАБЛОКИРОВАН (3/3)
+        </div>
         <img id="view-ava" class="avatar" src="">
         <h2 id="view-nick">---</h2>
         <div id="view-rank" style="opacity: 0.6; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">---</div>
         
+        <span class="warn-text" id="view-warns">Выговоры: 0 / 3</span>
+
         <div style="margin-top: 10px;">
             <span id="view-score" style="font-size: 40px; font-weight: 900; color: var(--primary);">0</span><br>
             <span class="stat-label">Баллов за всё время</span>
@@ -108,12 +115,17 @@
             <button class="btn-nav" style="flex:1" onclick="changeAva()">Сменить фото</button>
             <button class="btn-nav" style="flex:1" onclick="changeNick()">Сменить ник</button>
         </div>
+
+        <div id="admin-warn-controls" class="hidden" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn-logout" style="flex:1" id="btn-add-warn">+ ВЫГОВОР</button>
+            <button class="btn-nav" style="flex:1; border-color:white; color:white;" id="btn-rem-warn">СНЯТЬ</button>
+        </div>
     </div>
 
     <div id="sec-scores" class="container hidden">
         <h3>🏆 ТОП СОСТАВА</h3>
         <table>
-            <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th class="admin-only hidden">❌</th></tr></thead>
+            <thead><tr><th>Ник</th><th>Баллы</th><th>⚠</th><th class="admin-only hidden">❌</th></tr></thead>
             <tbody id="list-scores"></tbody>
         </table>
     </div>
@@ -181,7 +193,7 @@ function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return;
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0 });
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0 });
     loginSuccess(l, 'pending');
 }
 
@@ -209,13 +221,28 @@ function loginSuccess(l, role) {
 function showProfile(nick) {
     nav('profile');
     document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
+    
+    const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    document.getElementById('admin-warn-controls').classList.toggle('hidden', !isAdmin || nick === OWNER);
+
     db.ref('users/' + nick).on('value', s => {
         const d = s.val() || {};
+        const warns = d.warns || 0;
         document.getElementById('view-nick').innerText = d.nick || nick;
         document.getElementById('view-rank').innerText = d.rank || "Участник";
         document.getElementById('view-score').innerText = d.score || 0;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
+        document.getElementById('view-warns').innerText = `Выговоры: ${warns} / 3`;
         
+        if(nick === currentUser) {
+            const isBanned = warns >= 3;
+            document.getElementById('banned-msg').classList.toggle('hidden', !isBanned);
+            document.getElementById('nav-rep-btn').classList.toggle('hidden', isBanned);
+        }
+
+        document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
+        document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
+
         const count = d.reportsCount || 0;
         const total = d.score || 0;
         document.getElementById('stat-count').innerText = count;
@@ -235,43 +262,28 @@ function loadData() {
         
         Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
             if (isAdmin) {
-                // Выбор роли доступен только Владельцу
                 let roleControl = `<span style="font-size:10px; opacity:0.6;">${u.role}</span>`;
                 if(isOwner && id !== OWNER) {
-                    roleControl = `
-                        <select style="width:90px; margin:0 5px; padding:3px; font-size:10px;" onchange="db.ref('users/${id}/role').set(this.value)">
-                            <option value="pending" ${u.role === 'pending' ? 'selected' : ''}>Ожидание</option>
-                            <option value="user" ${u.role === 'user' ? 'selected' : ''}>Модер</option>
-                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
-                        </select>
-                    `;
+                    roleControl = `<select style="width:90px; margin:0 5px; padding:3px; font-size:10px;" onchange="db.ref('users/${id}/role').set(this.value)">
+                        <option value="pending" ${u.role === 'pending' ? 'selected' : ''}>Ожидание</option>
+                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>Модер</option>
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
+                    </select>`;
                 }
-
-                // Кнопка удаления доступна и Админам, и Владельцу (кроме Владельца)
-                let deleteBtn = '';
-                if(id !== OWNER) {
-                    deleteBtn = `<button class="btn-mini-del" onclick="if(confirm('УДАЛИТЬ АККАУНТ ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>`;
-                } else {
-                    deleteBtn = '👑';
-                }
+                let deleteBtn = id !== OWNER ? `<button class="btn-mini-del" onclick="if(confirm('УДАЛИТЬ АККАУНТ ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>` : '👑';
                 
-                listAdmin.innerHTML += `
-                    <div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px;">
-                        <span style="font-size:12px;"><b>${id}</b></span>
-                        <div style="display:flex; align-items:center;">
-                            ${roleControl}
-                            ${deleteBtn}
-                            ${u.role === 'pending' ? `<button class="btn-nav" style="margin-left:5px" onclick="db.ref('users/${id}/role').set('user')">OK</button>` : ''}
-                        </div>
-                    </div>`;
+                listAdmin.innerHTML += `<div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px;">
+                    <span style="font-size:12px;"><b>${id}</b></span>
+                    <div style="display:flex; align-items:center;">${roleControl}${deleteBtn}${u.role === 'pending' ? `<button class="btn-nav" style="margin-left:5px" onclick="db.ref('users/${id}/role').set('user')">OK</button>` : ''}</div>
+                </div>`;
             }
 
             if (u.role !== 'pending') {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
-                    <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
-                    <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
+                    <td>${u.score || 0}</td>
+                    <td style="color:red; font-weight:bold;">${u.warns || 0}</td>
                     <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Скрыть из ТОПа?')) db.ref('users/${id}/role').set('pending')">❌</button>` : '👑'}</td>
                 `;
                 listTop.appendChild(tr);
@@ -282,8 +294,7 @@ function loadData() {
     db.ref('reports').on('value', s => {
         const container = document.getElementById('list-reports');
         container.innerHTML = "";
-        const data = s.val() || {};
-        Object.entries(data).reverse().forEach(([id, r]) => {
+        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
             let imgsHtml = "";
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')">`);
             container.innerHTML += `<div class="report-card">
@@ -316,10 +327,7 @@ async function sendReport() {
 
     db.ref('reports').push({ author: currentUser, rank, work, score, date, imgs });
     db.ref('users/' + currentUser).transaction(u => {
-        if(u) {
-            u.score = (u.score || 0) + score;
-            u.reportsCount = (u.reportsCount || 0) + 1;
-        }
+        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; }
         return u;
     });
     alert("Отправлено!");
