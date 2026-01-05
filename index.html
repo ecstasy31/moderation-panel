@@ -109,7 +109,7 @@
             <option>Старший модератор</option>
         </select>
         <textarea id="rep-work" rows="3" placeholder="Что вы сделали за неделю?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Количество наказании выданых за неделю?(Только число)">
+        <input type="number" id="rep-punish" placeholder="Количество выданых наказании за неделю?(Только число)">
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
         <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
@@ -122,7 +122,7 @@
 
     <div class="container hidden" id="sec-base" style="max-width: 98%;">
         <h3>📁 База отчётов</h3>
-        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Работа</th><th>Скрины</th><th>Дата</th><th>X</th></tr></thead><tbody id="out-reports"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Работа</th><th>Скрины</th><th>Дата</th><th id="th-del-report">X</th></tr></thead><tbody id="out-reports"></tbody></table></div>
     </div>
 
     <div class="container hidden" id="sec-admin" style="max-width: 98%;">
@@ -146,15 +146,25 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
+let userRole = 'user'; // По умолчанию
 
 window.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('ekb_user');
     if (saved) {
-        if (saved === OWNER) loginSuccess(OWNER, {role: 'owner'});
-        else db.ref('users/' + saved).once('value', s => { 
-            if (s.exists()) loginSuccess(saved, s.val());
-            else localStorage.removeItem('ekb_user');
-        });
+        if (saved === OWNER) {
+            userRole = 'owner';
+            loginSuccess(OWNER, {role: 'owner'});
+        } else {
+            db.ref('users/' + saved).once('value', s => { 
+                if (s.exists()) {
+                    const d = s.val();
+                    userRole = d.role;
+                    loginSuccess(saved, d);
+                } else {
+                    localStorage.removeItem('ekb_user');
+                }
+            });
+        }
     }
 });
 
@@ -176,9 +186,13 @@ function loginSuccess(l, d){
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = l.toUpperCase();
+    
     if(d.role === 'admin' || d.role === 'owner') {
         document.getElementById('nav-admin').classList.remove('hidden');
         document.getElementById('nav-base').classList.remove('hidden');
+        document.getElementById('th-del-report').classList.remove('hidden');
+    } else {
+        document.getElementById('th-del-report').classList.add('hidden');
     }
     nav('report');
 }
@@ -237,19 +251,24 @@ db.ref('users').on('value', s => {
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
     
-    // Рейтинг с кнопкой удаления
+    // РЕЙТИНГ
     Object.keys(data).forEach(key => {
         const u = data[key];
         if (u.role !== 'pending') {
+            // Кнопка удаления только для админов/владельца
+            const delIcon = (userRole === 'admin' || userRole === 'owner') 
+                ? `<button class="del-user-score" onclick="if(confirm('Удалить из системы?')) db.ref('users/${key}').remove()">X</button>` 
+                : '';
+            
             outS.innerHTML += `<tr>
-                <td>${u.nick} <button class="del-user-score" onclick="if(confirm('Удалить из системы?')) db.ref('users/${key}').remove()">X</button></td>
+                <td>${u.nick} ${delIcon}</td>
                 <td>${u.rank}</td>
                 <td class="score-val">${u.score}</td>
             </tr>`;
         }
     });
 
-    // Админка
+    // АДМИН ПАНЕЛЬ
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
@@ -279,7 +298,13 @@ db.ref('reports').on('value', s => {
         const r = data[id];
         let imgs = "";
         if(r.images) r.images.forEach(src => { imgs += `<img src="${src}" style="width:50px; height:50px; object-fit:cover; margin:2px; cursor:pointer;" onclick="openImg('${src}')">`; });
-        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td><td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
+        
+        // Кнопка удаления отчета только для админов
+        const delBtn = (userRole === 'admin' || userRole === 'owner') 
+            ? `<td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td>` 
+            : `<td></td>`;
+            
+        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td>${delBtn}</tr>`;
     });
 });
 </script>
