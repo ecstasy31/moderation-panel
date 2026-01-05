@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | MANAGEMENT SYSTEM</title>
+    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
@@ -17,19 +17,16 @@
         .container { background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 700px; margin: 20px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; box-sizing: border-box; }
         .hidden { display: none !important; }
         
-        /* Header */
         .header { background: rgba(0,0,0,0.9); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100; }
         .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; font-size: 10px; cursor: pointer; border-radius: 5px; margin-left: 3px; text-transform: uppercase; }
         .btn-logout { background: var(--danger); color: white; border: none; padding: 5px 10px; font-size: 10px; border-radius: 5px; cursor: pointer; }
 
-        /* Profile Stats */
         .avatar { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin-bottom: 10px; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .stat-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .stat-val { font-size: 24px; font-weight: bold; color: var(--primary); display: block; }
         .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
 
-        /* Tables */
         table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
         th { color: var(--primary); padding: 12px; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 11px; }
         td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -37,12 +34,12 @@
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid var(--border); color: white; border-radius: 10px; box-sizing: border-box; }
         .btn-action { background: var(--primary); color: black; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; }
 
-        /* Report Base */
         .report-card { background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: left; }
         .report-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
         .report-imgs img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
 
-        /* Modal */
+        .green-link { color: var(--primary); font-weight: bold; text-decoration: none; cursor: pointer; }
+
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; }
         #modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
     </style>
@@ -57,14 +54,14 @@
         <input type="text" id="in-log-login" placeholder="Rp NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-action" onclick="doLogin()">Войти</button>
-        <p onclick="toggleAuth(true)" style="cursor:pointer; font-size:12px; margin-top:15px; opacity:0.7;">У вас нет аккаунта? Зарегистрироваться</p>
+        <p style="font-size:12px; margin-top:15px; opacity:0.9;">У вас нет аккаунта? <span class="green-link" onclick="toggleAuth(true)">Зарегистрироваться</span></p>
     </div>
     <div id="box-reg" class="hidden">
         <h2>РЕГИСТРАЦИЯ</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-action" onclick="doRegister()">Создать</button>
-        <p onclick="toggleAuth(false)" style="cursor:pointer; font-size:12px; margin-top:15px; opacity:0.7;">Есть аккаунт? Войти</p>
+        <p style="font-size:12px; margin-top:15px; opacity:0.9;">Есть аккаунт? <span class="green-link" onclick="toggleAuth(false)">Войти</span></p>
     </div>
 </div>
 
@@ -126,8 +123,8 @@
             <option value="Модератор">Модератор</option>
             <option value="Старший Модератор">Старший Модератор</option>
         </select>
-        <textarea id="rep-work" rows="3" placeholder="Описание работы..."></textarea>
-        <input type="number" id="rep-val" placeholder="Баллы">
+        <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы..."></textarea>
+        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю(без префиксов)">
         <input type="file" id="rep-files" multiple accept="image/*">
         <input type="date" id="rep-date">
         <button class="btn-action" onclick="sendReport()">Отправить</button>
@@ -230,19 +227,40 @@ function loadData() {
         const listTop = document.getElementById('list-scores');
         const listAdmin = document.getElementById('list-users-admin');
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        const isOwner = (userRole === 'owner');
+        
         listTop.innerHTML = ""; listAdmin.innerHTML = "";
         
         Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
-            if (u.role === 'pending' && isAdmin) {
-                listAdmin.innerHTML += `<div class="report-card" style="display:flex; justify-content:space-between;"><span>${id}</span><button onclick="db.ref('users/${id}/role').set('user')">ОДОБРИТЬ</button></div>`;
+            if (isAdmin) {
+                let roleSelect = '';
+                if(isOwner && id !== OWNER) {
+                    roleSelect = `
+                        <select style="width:100px; margin:0 10px; padding:5px;" onchange="db.ref('users/${id}/role').set(this.value)">
+                            <option value="pending" ${u.role === 'pending' ? 'selected' : ''}>Ожидание</option>
+                            <option value="user" ${u.role === 'user' ? 'selected' : ''}>Модер</option>
+                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
+                        </select>
+                    `;
+                }
+                
+                listAdmin.innerHTML += `
+                    <div class="report-card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span><b>${id}</b> <small>(${u.role})</small></span>
+                        <div style="display:flex; align-items:center;">
+                            ${roleSelect}
+                            ${u.role === 'pending' ? `<button class="btn-nav" onclick="db.ref('users/${id}/role').set('user')">ОДОБРИТЬ</button>` : ''}
+                        </div>
+                    </div>`;
             }
+
             if (u.role !== 'pending') {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
                     <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
                     <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
-                    <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button onclick="db.ref('users/${id}').remove()">❌</button>` : '👑'}</td>
+                    <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Удалить?')) db.ref('users/${id}').remove()">❌</button>` : '👑'}</td>
                 `;
                 listTop.appendChild(tr);
             }
@@ -260,7 +278,7 @@ function loadData() {
                 <div class="report-header"><b>${r.author}</b> (${r.rank}) <span style="float:right; color:var(--primary)">+${r.score}</span></div>
                 <div style="margin:10px 0; font-size:13px;">${r.work}</div>
                 <div class="report-imgs">${imgsHtml}</div>
-                <div style="font-size:10px; opacity:0.4; margin-top:10px;">${r.date} <span style="float:right; cursor:pointer; color:var(--danger)" onclick="db.ref('reports/${id}').remove()">УДАЛИТЬ</span></div>
+                <div style="font-size:10px; opacity:0.4; margin-top:10px;">${r.date} <span style="float:right; cursor:pointer; color:var(--danger)" onclick="if(confirm('Удалить отчет?')) db.ref('reports/${id}').remove()">УДАЛИТЬ</span></div>
             </div>`;
         });
     });
