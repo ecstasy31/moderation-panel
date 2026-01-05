@@ -1,5 +1,3 @@
-
-Вы сказали:
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,7 +5,6 @@
 <title>MOD PANEL | GLOBAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -20,17 +17,16 @@
 body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#333;}
 .hidden { display:none !important; }
 
-/* Новый фон с твоей картинкой */
 .overlay {
     position: fixed;
     inset: 0;
-    background: #000 url('/mnt/data/6282a185-7622-4ed8-a5b7-9e6358d4cb7e.png') center/cover no-repeat;
+    background: #000 url('https://sun9-33.userapi.com/s/v1/ig2/PItSUlt-hrdc8Yj2l7nvVSL-sqpSIrH1P7T_fZVQOHietbD8GF2qEU1_jwp53uzUL5dNdn1mhRYn0z5Rbzt7bVy5.jpg?quality=95&as=32x8,48x12,72x17,108x26,160x39,240x58,360x87,480x116,540x130,638x154&from=bu&cs=638x0') center/cover no-repeat;
     filter: brightness(0.35);
     z-index: -1;
 }
 
 .container { background:var(--bg); max-width:450px; margin:50px auto; padding:30px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.5); text-align:center; }
-input,select,textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; }
+input,select,textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing: border-box; }
 button { padding:12px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:0.3s; }
 .btn-main { background:var(--primary); color:#fff; width:100%; margin-top:10px; }
 .btn-main:hover { background:#2e7d32; opacity:0.9; }
@@ -45,7 +41,7 @@ th { background:#f8f8f8; }
 #modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:1000; }
 #modal img { max-width:90%; max-height:90%; border:2px solid #fff; }
 .auth-link { cursor:pointer; color:#1565c0; text-decoration:underline; font-weight:bold; }
-#btn-logout { background: #c62828; }
+#btn-logout { background: #c62828; color: white; }
 </style>
 </head>
 <body>
@@ -56,7 +52,6 @@ th { background:#f8f8f8; }
     <img id="modal-img" src="">
 </div>
 
-<!-- Авторизация -->
 <div id="auth-section">
     <div class="container" id="box-reg">
         <h2 style="margin-top:0">Регистрация</h2>
@@ -75,7 +70,6 @@ th { background:#f8f8f8; }
     </div>
 </div>
 
-<!-- Панель -->
 <div id="app-section" class="hidden">
     <div class="header">
         <div id="display-user">Загрузка...</div>
@@ -83,7 +77,7 @@ th { background:#f8f8f8; }
             <button class="btn-nav" onclick="nav('report')">ОТЧЁТ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-users" onclick="nav('users')">ПРАВА</button>
-            <button id="btn-logout" class="btn-danger" onclick="doLogout()">ВЫХОД</button>
+            <button id="btn-logout" onclick="doLogout()">ВЫХОД</button>
         </div>
     </div>
 
@@ -134,6 +128,7 @@ const firebaseConfig = {
   storageBucket: "modersekb.firebasestorage.app",
   messagingSenderId: "302735757040",
   appId: "1:302735757040:web:ad074398f186934cfa7c35",
+  measurementId: "G-D9V7CQQC1E",
   databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
@@ -143,7 +138,6 @@ const OWNER_LOGIN = "Ecstasy9988";
 const OWNER_PASS = "Ecstasy20036";
 let userNow = null;
 
-// --- Сессия при загрузке ---
 window.onload = function(){
     const saved = localStorage.getItem("session_user");
     if(saved){
@@ -152,14 +146,13 @@ window.onload = function(){
         } else {
             db.ref('users/'+saved).once('value')
             .then(s=>{ if(s.exists()) loginSuccess(saved,s.val()); else localStorage.removeItem("session_user"); })
-            .catch(e=>alert("Ошибка базы: "+e.message));
+            .catch(e=>console.log("Ошибка сессии: "+e.message));
         }
     }
     db.ref('reports').on('value', renderReports);
     db.ref('users').on('value', renderUsers);
 }
 
-// --- Авторизация ---
 function showAuthBox(type){
     document.getElementById('box-reg').classList.toggle('hidden', type==='log');
     document.getElementById('box-log').classList.toggle('hidden', type==='reg');
@@ -177,7 +170,6 @@ function doRegister(){
         const data={pass:p,role:'user'};
         return db.ref('users/'+l).set(data)
         .then(()=>{
-            localStorage.setItem("session_user", l);
             loginSuccess(l,data);
             alert("Регистрация успешна!");
         });
@@ -190,7 +182,6 @@ function doLogin(){
     if(!l||!p) return alert("Введите логин и пароль!");
 
     if(l===OWNER_LOGIN && p===OWNER_PASS){
-        localStorage.setItem("session_user", OWNER_LOGIN);
         loginSuccess(OWNER_LOGIN,{role:'owner'});
         return;
     }
@@ -199,7 +190,6 @@ function doLogin(){
     .then(s=>{
         const data=s.val();
         if(data && data.pass===p){
-            localStorage.setItem("session_user", l);
             loginSuccess(l,data);
         } else alert("Неверные данные!");
     }).catch(e=>alert("Ошибка базы: "+e.message));
@@ -214,23 +204,19 @@ function loginSuccess(login,data){
 
     document.getElementById('nav-base').classList.toggle('hidden',!(data.role==='admin'||data.role==='owner'));
     document.getElementById('nav-users').classList.toggle('hidden',data.role!=='owner');
-
     nav('report');
 }
 
-// --- Выход ---
 function doLogout(){
     localStorage.removeItem("session_user");
     location.reload();
 }
 
-// --- Навигация ---
 function nav(id){
     ['report','base','users'].forEach(sec=>document.getElementById('sec-'+sec).classList.add('hidden'));
     document.getElementById('sec-'+id).classList.remove('hidden');
 }
 
-// --- Отчёты ---
 async function sendReport(){
     const nick=document.getElementById('rep-nick').value.trim();
     const work=document.getElementById('rep-work').value.trim();
@@ -255,49 +241,44 @@ async function sendReport(){
       .catch(e=>{ alert("Ошибка отправки: "+e.message); btn.disabled=false; btn.innerText="ОТПРАВИТЬ В БАЗУ"; });
 }
 
-// --- Рендер отчетов ---
 function renderReports(snap){
     const box=document.getElementById('out-reports'); box.innerHTML="";
     const data=snap.val(); if(!data) return;
     Object.keys(data).reverse().forEach(id=>{
         const r=data[id]; let imgs="";
-        if(r.images) r.images.forEach(i=>imgs+=<img src="${i}" class="preview" onclick="openImg('${i}')">);
-        box.innerHTML+=<tr>
+        if(r.images) r.images.forEach(i=>imgs+=`<img src="${i}" class="preview" onclick="openImg('${i}')">`);
+        box.innerHTML+=`<tr>
             <td><b>${r.nick}</b><br><small>${r.author}</small></td>
             <td style="text-align:left">${r.work}</td>
             <td>${imgs||"нет"}</td>
             <td>${r.date}</td>
             <td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">УДАЛИТЬ</button></td>
-        </tr>;
+        </tr>`;
     });
 }
 
-// --- Рендер пользователей ---
 function renderUsers(snap){
     const box=document.getElementById('out-users'); box.innerHTML="";
     const data=snap.val(); if(!data) return;
     Object.keys(data).forEach(u=>{
         if(u===OWNER_LOGIN) return;
         const role=data[u].role;
-        box.innerHTML+=<tr>
+        box.innerHTML+=`<tr>
             <td>${u}</td><td><b>${role}</b></td>
             <td>
                 <button class="btn-nav" onclick="toggleAdmin('${u}','${role}')">${role==='admin'?'Снять admin':'Выдать admin'}</button>
                 <button class="btn-danger" onclick="db.ref('users/${u}').remove()">Удалить</button>
             </td>
-        </tr>;
+        </tr>`;
     });
 }
 
-// --- Выдать/снять admin ---
 function toggleAdmin(login,role){
     const newRole=role==='admin'?'user':'admin';
     db.ref('users/'+login+'/role').set(newRole);
 }
 
-// --- Просмотр изображения ---
 function openImg(s){ document.getElementById('modal-img').src=s; document.getElementById('modal').classList.remove('hidden'); }
-
 </script>
 </body>
 </html>
