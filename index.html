@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | СИСТЕМА УПРАВЛЕНИЯ</title>
+    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image">
     
@@ -85,14 +85,14 @@
 <div id="auth-section">
     <div class="container" id="box-reg">
         <h2>Регистрация</h2>
-        <input type="text" id="in-reg-login" placeholder="Придумайте Логин (Nick_Name)">
+        <input type="text" id="in-reg-login" placeholder="Логин (Rp Nick_Name)">
         <input type="password" id="in-reg-pass" placeholder="Придумайте Пароль">
         <button class="btn-main" onclick="doRegister()">Создать аккаунт</button>
         <p style="margin-top:20px;">Уже в составе? <span style="color:var(--primary) !important; cursor:pointer; font-weight:bold" onclick="showAuthBox('log')">Войти</span></p>
     </div>
     <div class="container hidden" id="box-log">
         <h2>Вход</h2>
-        <input type="text" id="in-log-login" placeholder="Логин (Nick_Name)">
+        <input type="text" id="in-log-login" placeholder="Логин (Rp Nick_Name)">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">Войти в систему</button>
         <p style="margin-top:20px;">Нет аккаунта? <span style="color:var(--primary) !important; cursor:pointer; font-weight:bold" onclick="showAuthBox('reg')">Регистрация</span></p>
@@ -290,3 +290,4 @@ db.ref('reports').on('value', s => {
 </script>
 </body>
 </html>
+
