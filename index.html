@@ -44,7 +44,6 @@
         #modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
         
         .btn-mini-del { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
-        
         .warn-text { color: var(--danger); font-weight: bold; font-size: 14px; margin: 10px 0; display: block; }
     </style>
 </head>
@@ -125,7 +124,7 @@
     <div id="sec-scores" class="container hidden">
         <h3>🏆 ТОП СОСТАВА</h3>
         <table>
-            <thead><tr><th>Ник</th><th>Баллы</th><th>⚠</th><th class="admin-only hidden">❌</th></tr></thead>
+            <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th class="admin-only hidden">❌</th></tr></thead>
             <tbody id="list-scores"></tbody>
         </table>
     </div>
@@ -221,7 +220,6 @@ function loginSuccess(l, role) {
 function showProfile(nick) {
     nav('profile');
     document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
-    
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     document.getElementById('admin-warn-controls').classList.toggle('hidden', !isAdmin || nick === OWNER);
 
@@ -282,8 +280,8 @@ function loadData() {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
-                    <td>${u.score || 0}</td>
-                    <td style="color:red; font-weight:bold;">${u.warns || 0}</td>
+                    <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
+                    <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
                     <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Скрыть из ТОПа?')) db.ref('users/${id}/role').set('pending')">❌</button>` : '👑'}</td>
                 `;
                 listTop.appendChild(tr);
