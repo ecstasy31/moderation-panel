@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | СИСТЕМА</title>
+    <title>MOD EKB | СИСТЕМА ОТЧЕТНОСТИ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="icon" type="image/png" href="https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,18 +19,20 @@
             --border: rgba(0, 230, 118, 0.3);
         }
 
-        /* ЗАДНИЙ ФОН */
+        /* ГАРАНТИРОВАННЫЙ ЗАДНИЙ ФОН */
         body {
             margin: 0;
             padding: 0;
             min-height: 100vh;
             font-family: 'Segoe UI', sans-serif;
+            /* Твоя картинка как фон */
             background: #000 url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') no-repeat center center fixed;
             background-size: cover;
-            color: white; /* Основной текст теперь всегда белый */
+            color: white;
+            overflow-x: hidden;
         }
 
-        /* Затемнение фона для читаемости */
+        /* Затемнение для читаемости */
         body::before {
             content: "";
             position: fixed;
@@ -43,7 +46,7 @@
             backdrop-filter: blur(15px);
             width: 95%;
             max-width: 600px;
-            margin: 50px auto;
+            margin: 40px auto;
             padding: 30px;
             border-radius: 20px;
             border: 1px solid var(--border);
@@ -55,7 +58,7 @@
         .hidden { display: none !important; }
         h2, h3 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
         
-        /* Исправление черного текста */
+        /* ИСПРАВЛЕНИЕ ЧЕРНОГО ТЕКСТА */
         p, span, label { color: #ffffff !important; }
 
         input, select, textarea {
@@ -64,7 +67,7 @@
             box-sizing: border-box;
         }
 
-        /* Фикс белого выпадающего списка */
+        /* ТЕМНЫЙ ВЫПАДАЮЩИЙ СПИСОК */
         select option { background-color: #1a1a1a; color: white; }
 
         button {
@@ -74,7 +77,7 @@
         .btn-main { background: var(--primary); color: #000; margin-top: 15px; }
         .btn-main:hover { background: var(--primary-dark); transform: scale(1.02); }
 
-        /* Шапка */
+        /* ШАПКА САЙТА */
         .header {
             background: rgba(0, 0, 0, 0.9); padding: 15px 20px; display: flex; justify-content: space-between;
             align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100;
@@ -83,13 +86,17 @@
         .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary) !important; width: auto; padding: 6px 12px; font-size: 11px; }
         .btn-logout { background: var(--danger); color: white !important; width: auto; padding: 6px 12px; font-size: 11px; }
 
-        /* Таблицы */
+        /* ТАБЛИЦЫ */
         .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 10px; background: rgba(0,0,0,0.4); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { background: rgba(0, 230, 118, 0.2); padding: 15px; color: var(--primary); border-bottom: 2px solid var(--border); }
         td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; vertical-align: middle; }
         
-        .btn-del { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        /* СКРИНШОТЫ В БАЗЕ */
+        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid var(--primary); margin: 2px; transition: 0.2s; }
+        .img-preview:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+        .btn-del { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .score-val { color: var(--primary); font-weight: bold; }
     </style>
 </head>
@@ -107,7 +114,7 @@
     <div class="container hidden" id="box-log">
         <h2>Авторизация</h2>
         <input type="text" id="in-log-login" placeholder="Логин (RP NickName)">
-        <input type="password" id="in-log-pass" placeholder="Пароль">
+        <input type="password" id="in-log-pass" placeholder="Ваш пароль">
         <button class="btn-main" onclick="doLogin()">Войти в систему</button>
         <p style="margin-top:20px;">Новый модератор? <span style="color:var(--primary) !important; cursor:pointer; font-weight:bold;" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
@@ -115,7 +122,7 @@
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="display-user" style="color:var(--primary); font-weight:bold; border: 1px solid var(--primary); padding: 5px 10px; border-radius: 5px; font-size:12px;">MODERATOR</div>
+        <div id="display-user" style="color:var(--primary); font-weight:bold; border: 1px solid var(--primary); padding: 5px 12px; border-radius: 6px; font-size:12px;">MODERATOR</div>
         <div class="nav-group">
             <button class="btn-nav" onclick="nav('report')">ОТЧЕТ</button>
             <button class="btn-nav" onclick="nav('scores')">БАЛЛЫ</button>
@@ -126,16 +133,20 @@
     </div>
 
     <div class="container" id="sec-report">
-        <h3 style="color:var(--primary)">Новый отчёт о работе</h3>
-        <input type="text" id="rep-nick" placeholder="Ваш игровой ник">
+        <h3>Новый отчёт о работе</h3>
+        <input type="text" id="rep-nick" placeholder="Ваш игровой Nick_Name">
         <select id="rep-rank">
             <option>Младший модератор</option>
             <option>Модератор</option>
             <option>Старший модератор</option>
         </select>
         <textarea id="rep-work" rows="3" placeholder="Что вы сделали за сегодня?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Сколько наказаний выдали? (только число)">
+        <input type="number" id="rep-punish" placeholder="Количество баллов (число)">
         <input type="date" id="rep-date">
+        
+        <p style="text-align:left; font-size:13px; margin-bottom: 5px;">Скриншоты работы:</p>
+        <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
+        
         <button class="btn-main" onclick="sendReport()">Отправить отчёт в базу</button>
     </div>
 
@@ -149,21 +160,21 @@
         </div>
     </div>
 
-    <div class="container hidden" id="sec-base" style="max-width: 95%;">
-        <h3>📁 База отчётов</h3>
+    <div class="container hidden" id="sec-base" style="max-width: 98%;">
+        <h3>📁 База всех отчётов</h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Ник</th><th>Описание</th><th>Дата</th><th>Удалить</th></tr></thead>
+                <thead><tr><th>Ник</th><th>Описание</th><th>Скрины</th><th>Дата</th><th>Удалить</th></tr></thead>
                 <tbody id="out-reports"></tbody>
             </table>
         </div>
     </div>
 
     <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ Управление модераторами</h3>
+        <h3>⚙️ Панель управления</h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Логин</th><th>Баллы</th><th>Доступ</th><th>Удалить</th></tr></thead>
+                <thead><tr><th>Логин</th><th>Баллы</th><th>Статус</th><th>Действие</th></tr></thead>
                 <tbody id="out-users"></tbody>
             </table>
         </div>
@@ -183,15 +194,14 @@ const db = firebase.database();
 
 const OWNER = "Ecstasy9988";
 let userLogin = null;
-let userRole = 'user';
 
-// АВТО-ВХОД
+// ПРОВЕРКА СЕССИИ (ЧТОБЫ НЕ ВЫКИДЫВАЛО)
 window.onload = function() {
-    const savedUser = localStorage.getItem('ekb_user');
+    const savedUser = localStorage.getItem('ekb_session_user');
     if(savedUser) {
         db.ref('users/' + savedUser).once('value', s => {
             if(s.exists()) loginSuccess(savedUser, s.val());
-            else localStorage.removeItem('ekb_user');
+            else localStorage.removeItem('ekb_session_user');
         });
     }
 };
@@ -211,28 +221,28 @@ function doRegister(){
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполните все поля!");
     db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(() => {
-        alert("Заявка отправлена на одобрение!"); showAuthBox('log');
+        alert("Заявка отправлена! Ожидайте одобрения."); showAuthBox('log');
     });
 }
 
 function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
+    
     if(l === OWNER && p === "Ecstasy20036") return loginSuccess(l, {role:'owner', nick:l});
     
     db.ref('users/'+l).once('value', s => {
         const d = s.val();
         if(d && d.pass === p) {
-            if(d.role === 'pending') return alert("Ваш аккаунт еще не одобрен!");
+            if(d.role === 'pending') return alert("Ваш аккаунт еще не одобрен администрацией!");
             loginSuccess(l, d);
-        } else alert("Неверный логин или пароль!");
+        } else alert("Неверные данные для входа!");
     });
 }
 
 function loginSuccess(l, d){
     userLogin = l;
-    userRole = d.role;
-    localStorage.setItem('ekb_user', l);
+    localStorage.setItem('ekb_session_user', l);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = l.toUpperCase();
@@ -245,56 +255,73 @@ function loginSuccess(l, d){
 }
 
 function doLogout(){
-    localStorage.removeItem('ekb_user');
+    localStorage.removeItem('ekb_session_user');
     location.reload();
 }
 
-// ОТПРАВКА ОТЧЕТА (СУММИРОВАНИЕ БАЛЛОВ)
-function sendReport(){
+// ОТПРАВКА ОТЧЕТА С ФОТО И СУММИРОВАНИЕМ БАЛЛОВ
+async function sendReport(){
     const nick = document.getElementById('rep-nick').value;
     const addScore = parseInt(document.getElementById('rep-punish').value) || 0;
     const work = document.getElementById('rep-work').value;
     const date = document.getElementById('rep-date').value;
     const rank = document.getElementById('rep-rank').value;
+    const files = document.getElementById('rep-files').files;
 
-    if(!nick || !date) return alert("Заполните ник и дату!");
+    if(!nick || !date) return alert("Введите NickName и дату!");
+
+    let images = [];
+    for(let f of files) {
+        const b64 = await new Promise(r => { 
+            const fr = new FileReader(); 
+            fr.onload=()=>r(fr.result); 
+            fr.readAsDataURL(f); 
+        });
+        images.push(b64);
+    }
 
     db.ref('users/' + userLogin).once('value').then(s => {
         const current = s.val().score || 0;
+        // Обновляем общие баллы пользователя
         db.ref('users/' + userLogin).update({ score: current + addScore, nick: nick, rank: rank });
-        db.ref('reports').push({ author: userLogin, nick, work, date, score: addScore });
-        alert("Отчёт успешно отправлен! Баллы добавлены.");
+        // Добавляем запись в общую базу
+        db.ref('reports').push({ author: userLogin, nick, work, date, score: addScore, images });
+        
+        alert("Отчёт успешно сохранен! Баллы добавлены в профиль.");
         location.reload();
     });
 }
 
-// ОБНОВЛЕНИЕ ТАБЛИЦ (РЕАЛТАЙМ)
+// РЕАЛТАЙМ ОБНОВЛЕНИЕ ТАБЛИЦ
 db.ref('users').on('value', s => {
     const data = s.val(); if(!data) return;
     const outS = document.getElementById('out-scores');
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
 
+    // Сортировка рейтинга
     const sorted = Object.values(data).filter(u => u.role !== 'pending').sort((a,b) => b.score - a.score);
     sorted.forEach(u => {
         outS.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
     });
 
+    // Список пользователей для админа
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
         outU.innerHTML += `<tr>
             <td>${u}</td>
-            <td><input style="width:60px; text-align:center;" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
+            <td><input style="width:60px; text-align:center; padding:5px;" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
             <td>${d.role}</td>
             <td>
-                ${d.role==='pending' ? `<button onclick="db.ref('users/${u}/role').set('user')" style="background:var(--primary); padding:5px; border-radius:5px; margin-right:5px;">ОК</button>` : ''}
-                <button class="btn-del" onclick="if(confirm('Удалить модератора?')) db.ref('users/${u}').remove()">X</button>
+                ${d.role==='pending' ? `<button onclick="db.ref('users/${u}/role').set('user')" style="background:var(--primary); padding:5px; border-radius:5px; margin-right:5px; font-size:10px;">ОК</button>` : ''}
+                <button class="btn-del" style="padding:5px 10px;" onclick="if(confirm('Удалить модератора?')) db.ref('users/${u}').remove()">X</button>
             </td>
         </tr>`;
     });
 });
 
+// ВЫВОД БАЗЫ ОТЧЕТОВ СО СКРИНШОТАМИ
 db.ref('reports').on('value', s => {
     const outR = document.getElementById('out-reports');
     outR.innerHTML = "";
@@ -302,11 +329,21 @@ db.ref('reports').on('value', s => {
     
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
+        let imgHtml = "";
+        if(r.images && r.images.length > 0) {
+            r.images.forEach(src => {
+                imgHtml += `<img src="${src}" class="img-preview" onclick="window.open(this.src)">`;
+            });
+        } else {
+            imgHtml = "<span style='color:#666 !important'>Нет фото</span>";
+        }
+
         outR.innerHTML += `<tr>
             <td>${r.nick}</td>
             <td style="text-align:left; font-size:12px;">${r.work}</td>
+            <td>${imgHtml}</td>
             <td>${r.date}</td>
-            <td><button class="btn-del" onclick="if(confirm('Удалить отчёт?')) db.ref('reports/${id}').remove()">X</button></td>
+            <td><button class="btn-del" onclick="if(confirm('Удалить этот отчет?')) db.ref('reports/${id}').remove()">X</button></td>
         </tr>`;
     });
 });
