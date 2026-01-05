@@ -42,6 +42,8 @@
 
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; }
         #modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
+        
+        .btn-mini-del { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -136,7 +138,7 @@
     </div>
 
     <div id="sec-admin" class="container hidden">
-        <h3>⚙️ УПРАВЛЕНИЕ</h3>
+        <h3>⚙️ УПРАВЛЕНИЕ СОСТАВОМ</h3>
         <div id="list-users-admin"></div>
     </div>
 </div>
@@ -233,23 +235,33 @@ function loadData() {
         
         Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
             if (isAdmin) {
-                let roleSelect = '';
+                // Выбор роли доступен только Владельцу
+                let roleControl = `<span style="font-size:10px; opacity:0.6;">${u.role}</span>`;
                 if(isOwner && id !== OWNER) {
-                    roleSelect = `
-                        <select style="width:100px; margin:0 10px; padding:5px;" onchange="db.ref('users/${id}/role').set(this.value)">
+                    roleControl = `
+                        <select style="width:90px; margin:0 5px; padding:3px; font-size:10px;" onchange="db.ref('users/${id}/role').set(this.value)">
                             <option value="pending" ${u.role === 'pending' ? 'selected' : ''}>Ожидание</option>
                             <option value="user" ${u.role === 'user' ? 'selected' : ''}>Модер</option>
                             <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
                         </select>
                     `;
                 }
+
+                // Кнопка удаления доступна и Админам, и Владельцу (кроме Владельца)
+                let deleteBtn = '';
+                if(id !== OWNER) {
+                    deleteBtn = `<button class="btn-mini-del" onclick="if(confirm('УДАЛИТЬ АККАУНТ ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>`;
+                } else {
+                    deleteBtn = '👑';
+                }
                 
                 listAdmin.innerHTML += `
-                    <div class="report-card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span><b>${id}</b> <small>(${u.role})</small></span>
+                    <div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px;">
+                        <span style="font-size:12px;"><b>${id}</b></span>
                         <div style="display:flex; align-items:center;">
-                            ${roleSelect}
-                            ${u.role === 'pending' ? `<button class="btn-nav" onclick="db.ref('users/${id}/role').set('user')">ОДОБРИТЬ</button>` : ''}
+                            ${roleControl}
+                            ${deleteBtn}
+                            ${u.role === 'pending' ? `<button class="btn-nav" style="margin-left:5px" onclick="db.ref('users/${id}/role').set('user')">OK</button>` : ''}
                         </div>
                     </div>`;
             }
@@ -260,7 +272,7 @@ function loadData() {
                     <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
                     <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
                     <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
-                    <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Удалить?')) db.ref('users/${id}').remove()">❌</button>` : '👑'}</td>
+                    <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Скрыть из ТОПа?')) db.ref('users/${id}/role').set('pending')">❌</button>` : '👑'}</td>
                 `;
                 listTop.appendChild(tr);
             }
