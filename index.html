@@ -10,16 +10,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --primary: #00e676; --danger: #ff5252; --warning: #ffd600; --glass: rgba(15, 15, 15, 0.95); --border: rgba(0, 230, 118, 0.3); }
+        :root { --primary: #00e676; --danger: #ff5252; --glass: rgba(15, 15, 15, 0.95); --border: rgba(0, 230, 118, 0.3); }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #000 url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') no-repeat center center fixed; background-size: cover; color: white; overflow-x: hidden; }
         body::before { content: ""; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: -1; }
 
         .container { background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 700px; margin: 20px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; box-sizing: border-box; }
         .hidden { display: none !important; }
         
-        #news-banner { background: var(--warning); color: black; padding: 12px; font-weight: bold; font-size: 13px; position: relative; display: none; border-bottom: 2px solid rgba(0,0,0,0.1); }
-        #news-banner .close-news { position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 18px; }
-
         .header { background: rgba(0,0,0,0.9); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100; }
         .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; font-size: 10px; cursor: pointer; border-radius: 5px; margin-left: 3px; text-transform: uppercase; }
         .btn-logout { background: var(--danger); color: white; border: none; padding: 5px 10px; font-size: 10px; border-radius: 5px; cursor: pointer; }
@@ -29,8 +26,6 @@
         .stat-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .stat-val { font-size: 24px; font-weight: bold; color: var(--primary); display: block; }
         .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
-
-        .warn-box { background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 10px; border-radius: 10px; margin-top: 15px; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
         th { color: var(--primary); padding: 12px; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 11px; }
@@ -43,24 +38,33 @@
         .report-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
         .report-imgs img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
 
+        .green-link { color: var(--primary); font-weight: bold; text-decoration: none; cursor: pointer; }
+
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; }
         #modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
+        
+        .btn-mini-del { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="modal" onclick="this.style.display='none'"><img src="" id="modal-img"></div>
 
-<div id="news-banner">
-    <span id="news-text"></span>
-    <span class="close-news" onclick="this.parentElement.style.display='none'">×</span>
-</div>
-
 <div id="auth-section" class="container">
-    <h2>ВХОД</h2>
-    <input type="text" id="in-log-login" placeholder="Rp NickName">
-    <input type="password" id="in-log-pass" placeholder="Пароль">
-    <button class="btn-action" onclick="doLogin()">Войти</button>
+    <div id="box-log">
+        <h2>ВХОД</h2>
+        <input type="text" id="in-log-login" placeholder="Rp NickName">
+        <input type="password" id="in-log-pass" placeholder="Пароль">
+        <button class="btn-action" onclick="doLogin()">Войти</button>
+        <p style="font-size:12px; margin-top:15px; opacity:0.9;">У вас нет аккаунта? <span class="green-link" onclick="toggleAuth(true)">Зарегистрироваться</span></p>
+    </div>
+    <div id="box-reg" class="hidden">
+        <h2>РЕГИСТРАЦИЯ</h2>
+        <input type="text" id="in-reg-login" placeholder="Rp NickName">
+        <input type="password" id="in-reg-pass" placeholder="Пароль">
+        <button class="btn-action" onclick="doRegister()">Создать</button>
+        <p style="font-size:12px; margin-top:15px; opacity:0.9;">Есть аккаунт? <span class="green-link" onclick="toggleAuth(false)">Войти</span></p>
+    </div>
 </div>
 
 <div id="app-section" class="hidden">
@@ -69,7 +73,7 @@
         <div class="nav-group">
             <button class="btn-nav" onclick="showProfile(currentUser)">ПРОФИЛЬ</button>
             <button class="btn-nav approval-hide" onclick="nav('scores')">ТОП</button>
-            <button class="btn-nav approval-hide" id="btn-rep-nav" onclick="nav('report')">ОТЧЕТ</button>
+            <button class="btn-nav approval-hide" onclick="nav('report')">ОТЧЕТ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">ПРАВА</button>
             <button class="btn-logout" onclick="logout()">ВЫЙТИ</button>
@@ -77,38 +81,52 @@
     </div>
 
     <div id="sec-profile" class="container">
-        <div id="pending-msg" class="hidden" style="color:var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 10px; margin-bottom: 15px;">ОЖИДАЙТЕ ОДОБРЕНИЯ</div>
-        <div id="banned-msg" class="hidden" style="color:var(--danger); background:rgba(255,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight:bold;">АККАУНТ ЗАБЛОКИРОВАН (3/3)</div>
-        
+        <div id="pending-msg" class="hidden" style="color:var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+            ОЖИДАЙТЕ ОДОБРЕНИЯ
+        </div>
         <img id="view-ava" class="avatar" src="">
         <h2 id="view-nick">---</h2>
-        <div id="view-rank" style="opacity: 0.6; text-transform: uppercase; font-size: 12px;">---</div>
+        <div id="view-rank" style="opacity: 0.6; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">---</div>
         
-        <div class="warn-box" id="warn-display">⚠ Выговоры: 0 / 3</div>
-
-        <div class="stat-grid">
-            <div class="stat-card"><span class="stat-val" id="view-score">0</span><span class="stat-label">Баллы</span></div>
-            <div class="stat-card"><span class="stat-val" id="stat-count">0</span><span class="stat-label">Отчеты</span></div>
+        <div style="margin-top: 10px;">
+            <span id="view-score" style="font-size: 40px; font-weight: 900; color: var(--primary);">0</span><br>
+            <span class="stat-label">Баллов за всё время</span>
         </div>
 
-        <div id="admin-warn-controls" class="hidden" style="margin-top:20px; display:flex; gap:10px;">
-            <button class="btn-logout" style="flex:1" id="btn-add-warn"> + ВЫГОВОР </button>
-            <button class="btn-nav" style="flex:1; border-color:white; color:white;" id="btn-rem-warn"> СНЯТЬ </button>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <span class="stat-val" id="stat-count">0</span>
+                <span class="stat-label">Отчетов</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val" id="stat-avg">0</span>
+                <span class="stat-label">Ср. балл</span>
+            </div>
+        </div>
+        
+        <div id="my-profile-controls" class="hidden" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn-nav" style="flex:1" onclick="changeAva()">Сменить фото</button>
+            <button class="btn-nav" style="flex:1" onclick="changeNick()">Сменить ник</button>
         </div>
     </div>
 
     <div id="sec-scores" class="container hidden">
         <h3>🏆 ТОП СОСТАВА</h3>
         <table>
-            <thead><tr><th>Ник</th><th>Баллы</th><th>⚠</th></tr></thead>
+            <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th class="admin-only hidden">❌</th></tr></thead>
             <tbody id="list-scores"></tbody>
         </table>
     </div>
 
     <div id="sec-report" class="container hidden">
         <h3>ПОДАТЬ ОТЧЕТ</h3>
-        <textarea id="rep-work" placeholder="Описание работы..."></textarea>
-        <input type="number" id="rep-val" placeholder="Баллы">
+        <select id="rep-rank">
+            <option value="Младший Модератор">Младший Модератор</option>
+            <option value="Модератор">Модератор</option>
+            <option value="Старший Модератор">Старший Модератор</option>
+        </select>
+        <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы..."></textarea>
+        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю(без префиксов)">
         <input type="file" id="rep-files" multiple accept="image/*">
         <input type="date" id="rep-date">
         <button class="btn-action" onclick="sendReport()">Отправить</button>
@@ -120,9 +138,7 @@
     </div>
 
     <div id="sec-admin" class="container hidden">
-        <h3>⚙️ УПРАВЛЕНИЕ</h3>
-        <textarea id="news-input" placeholder="Текст новости..."></textarea>
-        <button class="btn-nav" style="width:100%; margin-bottom:20px;" onclick="db.ref('settings/news').set(document.getElementById('news-input').value)">Опубликовать новость</button>
+        <h3>⚙️ УПРАВЛЕНИЕ СОСТАВОМ</h3>
         <div id="list-users-admin"></div>
     </div>
 </div>
@@ -145,6 +161,11 @@ function nav(id) {
     document.getElementById('sec-' + id).classList.remove('hidden');
 }
 
+function toggleAuth(reg) {
+    document.getElementById('box-log').classList.toggle('hidden', reg);
+    document.getElementById('box-reg').classList.toggle('hidden', !reg);
+}
+
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
@@ -152,57 +173,53 @@ function doLogin() {
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
         if (d && d.pass === p) loginSuccess(l, d.role);
-        else if (!d) {
-            db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, warns: 0, reportsCount: 0 });
-            loginSuccess(l, 'pending');
-        } else alert("Ошибка!");
+        else alert("Ошибка!");
     });
+}
+
+function doRegister() {
+    const l = document.getElementById('in-reg-login').value.trim();
+    const p = document.getElementById('in-reg-pass').value.trim();
+    if (!l || !p) return;
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0 });
+    loginSuccess(l, 'pending');
 }
 
 function loginSuccess(l, role) {
     currentUser = l;
     userRole = (l === OWNER) ? 'owner' : (role || 'pending');
+    localStorage.setItem('mod_user', l);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('user-tag').innerText = l;
     
+    const isApproved = userRole !== 'pending';
+    document.querySelectorAll('.approval-hide').forEach(el => el.classList.toggle('hidden', !isApproved));
+    document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
+
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
-    db.ref('settings/news').on('value', s => {
-        const t = s.val();
-        document.getElementById('news-banner').style.display = t ? 'block' : 'none';
-        document.getElementById('news-text').innerText = t;
-    });
-
     showProfile(l);
     loadData();
 }
 
 function showProfile(nick) {
     nav('profile');
-    const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    document.getElementById('admin-warn-controls').classList.toggle('hidden', !isAdmin || nick === OWNER);
-    
+    document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
     db.ref('users/' + nick).on('value', s => {
         const d = s.val() || {};
-        const warns = d.warns || 0;
         document.getElementById('view-nick').innerText = d.nick || nick;
-        document.getElementById('view-rank').innerText = d.rank || "Модератор";
+        document.getElementById('view-rank').innerText = d.rank || "Участник";
         document.getElementById('view-score').innerText = d.score || 0;
-        document.getElementById('stat-count').innerText = d.reportsCount || 0;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
-        document.getElementById('warn-display').innerText = `⚠ Выговоры: ${warns} / 3`;
         
-        const isBanned = warns >= 3;
-        if(nick === currentUser) {
-            document.getElementById('banned-msg').classList.toggle('hidden', !isBanned);
-            document.getElementById('btn-rep-nav').classList.toggle('hidden', isBanned);
-        }
-
-        document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
-        document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
+        const count = d.reportsCount || 0;
+        const total = d.score || 0;
+        document.getElementById('stat-count').innerText = count;
+        document.getElementById('stat-avg').innerText = count > 0 ? (total / count).toFixed(1) : 0;
     });
 }
 
@@ -211,21 +228,53 @@ function loadData() {
         const users = s.val() || {};
         const listTop = document.getElementById('list-scores');
         const listAdmin = document.getElementById('list-users-admin');
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        const isOwner = (userRole === 'owner');
+        
         listTop.innerHTML = ""; listAdmin.innerHTML = "";
         
-        Object.entries(users).forEach(([id, u]) => {
-            if (u.role !== 'pending') {
-                listTop.innerHTML += `<tr>
-                    <td onclick="showProfile('${id}')" style="color:var(--primary); cursor:pointer">${id}</td>
-                    <td>${u.score || 0}</td>
-                    <td style="color:red">${u.warns || 0}</td>
-                </tr>`;
+        Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
+            if (isAdmin) {
+                // Выбор роли доступен только Владельцу
+                let roleControl = `<span style="font-size:10px; opacity:0.6;">${u.role}</span>`;
+                if(isOwner && id !== OWNER) {
+                    roleControl = `
+                        <select style="width:90px; margin:0 5px; padding:3px; font-size:10px;" onchange="db.ref('users/${id}/role').set(this.value)">
+                            <option value="pending" ${u.role === 'pending' ? 'selected' : ''}>Ожидание</option>
+                            <option value="user" ${u.role === 'user' ? 'selected' : ''}>Модер</option>
+                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
+                        </select>
+                    `;
+                }
+
+                // Кнопка удаления доступна и Админам, и Владельцу (кроме Владельца)
+                let deleteBtn = '';
+                if(id !== OWNER) {
+                    deleteBtn = `<button class="btn-mini-del" onclick="if(confirm('УДАЛИТЬ АККАУНТ ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>`;
+                } else {
+                    deleteBtn = '👑';
+                }
+                
+                listAdmin.innerHTML += `
+                    <div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px;">
+                        <span style="font-size:12px;"><b>${id}</b></span>
+                        <div style="display:flex; align-items:center;">
+                            ${roleControl}
+                            ${deleteBtn}
+                            ${u.role === 'pending' ? `<button class="btn-nav" style="margin-left:5px" onclick="db.ref('users/${id}/role').set('user')">OK</button>` : ''}
+                        </div>
+                    </div>`;
             }
-            if (userRole === 'admin' || userRole === 'owner') {
-                listAdmin.innerHTML += `<div class="report-card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span>${id} (${u.role})</span>
-                    <button class="btn-logout" onclick="if(confirm('Удалить ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>
-                </div>`;
+
+            if (u.role !== 'pending') {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
+                    <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
+                    <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
+                    <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Скрыть из ТОПа?')) db.ref('users/${id}/role').set('pending')">❌</button>` : '👑'}</td>
+                `;
+                listTop.appendChild(tr);
             }
         });
     });
@@ -233,38 +282,44 @@ function loadData() {
     db.ref('reports').on('value', s => {
         const container = document.getElementById('list-reports');
         container.innerHTML = "";
-        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
-            let imgs = "";
-            if(r.imgs) r.imgs.forEach(src => imgs += `<img src="${src}" onclick="viewImg('${src}')">`);
+        const data = s.val() || {};
+        Object.entries(data).reverse().forEach(([id, r]) => {
+            let imgsHtml = "";
+            if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')">`);
             container.innerHTML += `<div class="report-card">
-                <b>${r.author}</b> <span style="float:right; color:var(--primary)">+${r.score}</span>
-                <div style="margin:10px 0">${r.work}</div>
-                <div class="report-imgs">${imgs}</div>
-                <button class="btn-logout" style="margin-top:10px; padding:2px 5px" onclick="db.ref('reports/${id}').remove()">УДАЛИТЬ</button>
+                <div class="report-header"><b>${r.author}</b> (${r.rank}) <span style="float:right; color:var(--primary)">+${r.score}</span></div>
+                <div style="margin:10px 0; font-size:13px;">${r.work}</div>
+                <div class="report-imgs">${imgsHtml}</div>
+                <div style="font-size:10px; opacity:0.4; margin-top:10px;">${r.date} <span style="float:right; cursor:pointer; color:var(--danger)" onclick="if(confirm('Удалить отчет?')) db.ref('reports/${id}').remove()">УДАЛИТЬ</span></div>
             </div>`;
         });
     });
 }
 
 async function sendReport() {
+    const rank = document.getElementById('rep-rank').value;
     const work = document.getElementById('rep-work').value;
     const score = parseInt(document.getElementById('rep-val').value);
+    const date = document.getElementById('rep-date').value;
     const files = document.getElementById('rep-files').files;
-    if(!work || !score) return alert("Заполни поля!");
+    if(!work || isNaN(score) || !date) return alert("Заполни всё!");
 
     let imgs = [];
     for(let f of files) {
         const b64 = await new Promise(res => {
-            const r = new FileReader();
-            r.onload = () => res(r.result);
-            r.readAsDataURL(f);
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(f);
         });
         imgs.push(b64);
     }
 
-    db.ref('reports').push({ author: currentUser, work, score, imgs });
+    db.ref('reports').push({ author: currentUser, rank, work, score, date, imgs });
     db.ref('users/' + currentUser).transaction(u => {
-        if(u) { u.score += score; u.reportsCount = (u.reportsCount || 0) + 1; }
+        if(u) {
+            u.score = (u.score || 0) + score;
+            u.reportsCount = (u.reportsCount || 0) + 1;
+        }
         return u;
     });
     alert("Отправлено!");
@@ -272,7 +327,14 @@ async function sendReport() {
 }
 
 function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
-function logout() { location.reload(); }
+function changeAva() { const url = prompt("Прямая ссылка на фото:"); if(url) db.ref('users/' + currentUser).update({ avatar: url }); }
+function changeNick() { const name = prompt("Новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
+function logout() { localStorage.clear(); location.reload(); }
+
+window.onload = () => {
+    const saved = localStorage.getItem('mod_user');
+    if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
+};
 </script>
 </body>
 </html>
