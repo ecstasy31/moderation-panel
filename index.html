@@ -24,7 +24,7 @@
             background-size: cover; color: white;
         }
 
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: -1; }
 
         .container {
             background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 650px;
@@ -38,44 +38,45 @@
         /* Profile UI */
         .profile-card { position: relative; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .avatar-box { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
-        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); box-shadow: 0 0 15px var(--primary); cursor: pointer; }
-        .online-badge { position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: var(--primary); border: 2px solid #000; border-radius: 50%; box-shadow: 0 0 10px var(--primary); }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); cursor: pointer; }
+        .online-badge { position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: var(--primary); border: 2px solid #000; border-radius: 50%; }
         
         .nick-row { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: bold; }
-        .edit-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 16px; opacity: 0.7; width: auto; padding: 5px; }
-        .edit-btn:hover { opacity: 1; }
+        .edit-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 16px; width: auto; padding: 5px; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .stat-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-val { display: block; font-size: 20px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.6; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-item { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
+        .stat-val { display: block; font-size: 18px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
 
-        .score-big { font-size: 48px; font-weight: 900; color: var(--primary); text-shadow: 0 0 20px rgba(0,230,118,0.5); margin: 10px 0; }
+        .score-big { font-size: 40px; font-weight: 900; color: var(--primary); margin: 5px 0; }
 
         /* General */
         input, select, textarea {
             width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a !important;
-            border: 1px solid var(--border); border-radius: 10px; color: white !important; outline: none; box-sizing: border-box;
+            border: 1px solid var(--border); border-radius: 10px; color: white !important; box-sizing: border-box;
         }
         button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-main { background: var(--primary); color: #000; margin-top: 15px; }
+        .btn-main { background: var(--primary); color: #000; }
         .btn-alt { background: var(--accent); color: #fff; margin-top: 10px; }
+        .auth-link { background: none; color: var(--primary); display: inline; padding: 0; width: auto; text-decoration: underline; }
 
         .header {
-            background: rgba(0, 0, 0, 0.9); padding: 12px 20px; display: flex; justify-content: space-between;
+            background: rgba(0, 0, 0, 0.95); padding: 10px 15px; display: flex; justify-content: space-between;
             align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100;
         }
-        .nav-group { display: flex; gap: 5px; flex-wrap: wrap; }
-        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary) !important; width: auto; padding: 6px 10px; font-size: 10px; }
-        .btn-logout { background: var(--danger); color: white !important; width: auto; padding: 6px 10px; font-size: 10px; }
+        .nav-group { display: flex; gap: 5px; }
+        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 5px 8px; font-size: 10px; }
+        .btn-logout { background: var(--danger); color: white; width: auto; padding: 5px 8px; font-size: 10px; }
 
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 10px; background: rgba(0,0,0,0.4); }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: rgba(0, 230, 118, 0.2); padding: 12px; color: var(--primary); }
-        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; }
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 10px; background: rgba(0,0,0,0.5); }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: rgba(0, 230, 118, 0.15); padding: 10px; color: var(--primary); }
+        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
-        .btn-del { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .status-msg { padding: 20px; border: 1px dashed var(--primary); color: var(--primary); border-radius: 10px; font-weight: bold; }
+        .btn-del { background: var(--danger); color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; width: auto; }
+        .btn-approve { background: var(--primary); color: black; padding: 4px 8px; margin-bottom: 3px; font-size: 10px; }
+        .score-val { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -86,24 +87,24 @@
 
 <div id="auth-section">
     <div class="container" id="box-log">
-        <h2>Вход в систему</h2>
-        <input type="text" id="in-log-login" placeholder="Логин (Rp NickName)">
+        <h2>Вход</h2>
+        <input type="text" id="in-log-login" placeholder="Rp NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">Войти</button>
-        <p>Новый модератор? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
+        <p style="font-size: 13px;">Впервые тут? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
     </div>
     <div class="container hidden" id="box-reg">
         <h2>Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doRegister()">Создать аккаунт</button>
-        <p>Уже есть аккаунт? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
+        <button class="btn-main" onclick="doRegister()">Создать</button>
+        <p style="font-size: 13px;">Уже есть аккаунт? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="display-user" style="color:var(--primary); font-weight:bold; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 12px;">ЗАГРУЗКА...</div>
+        <div id="display-user" style="color:var(--primary); font-weight:bold; font-size: 12px;">ЗАГРУЗКА...</div>
         <div class="nav-group">
             <button class="btn-nav" onclick="nav('profile')">ПРОФИЛЬ</button>
             <button class="btn-nav" onclick="nav('report')">ОТЧЕТ</button>
@@ -117,286 +118,239 @@
     <div class="container" id="sec-profile">
         <div class="profile-card">
             <div class="avatar-box">
-                <img id="prof-ava" class="avatar" src="https://i.pravatar.cc/150?u=1" onclick="changeAvatar()" title="Нажмите, чтобы изменить фото">
+                <img id="prof-ava" class="avatar" src="https://i.pravatar.cc/150?u=1" onclick="changeAvatar()">
                 <div class="online-badge"></div>
             </div>
-            
             <div class="nick-row">
-                <span id="prof-nick">Загрузка...</span>
+                <span id="prof-nick">...</span>
                 <button class="edit-btn" onclick="changeNick()">✏️</button>
             </div>
-            <div id="prof-rank" style="opacity: 0.6; font-size: 14px; margin-top: 5px;">Младший модератор</div>
-
+            <div id="prof-rank" style="opacity: 0.6; font-size: 13px;">Модератор</div>
             <div class="score-big" id="prof-score">0</div>
-            <div style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; opacity: 0.8;">Личных баллов</div>
+            <div style="font-size: 10px; opacity: 0.7; letter-spacing: 1px;">БАЛЛОВ НАЧИСЛЕНО</div>
 
             <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-val" id="prof-top">#--</span>
-                    <span class="stat-label">Место в топе</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="prof-avg">0</span>
-                    <span class="stat-label">Ср. балл / отчет</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="prof-count">0</span>
-                    <span class="stat-label">Всего отчетов</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="prof-last" style="font-size: 12px;">--.--.--</span>
-                    <span class="stat-label">Последний отчет</span>
-                </div>
+                <div class="stat-item"><span class="stat-val" id="prof-top">#--</span><span class="stat-label">Место</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-count">0</span><span class="stat-label">Отчетов</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-avg">0</span><span class="stat-label">Ср. балл</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-last" style="font-size: 11px;">--</span><span class="stat-label">Последний</span></div>
             </div>
-
-            <button class="btn-alt" onclick="showMyReports()">📜 Моя история отчетов</button>
-            <div id="last-seen" style="font-size: 10px; margin-top: 15px; opacity: 0.4;">Был в сети: только что</div>
+            <button class="btn-alt" onclick="nav('base')">📜 ИСТОРИЯ ОТЧЕТОВ</button>
+            <div id="last-seen" style="font-size: 9px; margin-top: 15px; opacity: 0.4;">...</div>
         </div>
     </div>
 
     <div class="container hidden" id="sec-report">
         <div id="report-form-box">
-            <h3>Новый отчёт</h3>
-            <input type="text" id="rep-nick" placeholder="Ваш ник для отчета">
+            <h3>Создать отчёт</h3>
+            <input type="text" id="rep-nick" placeholder="Ваш ник">
             <select id="rep-rank">
                 <option>Младший модератор</option>
                 <option>Модератор</option>
                 <option>Старший модератор</option>
             </select>
-            <textarea id="rep-work" rows="3" placeholder="Что вы сделали за неделю?"></textarea>
-            <input type="number" id="rep-punish" placeholder="Количество выданых наказании (число)">
+            <textarea id="rep-work" rows="3" placeholder="Описание работы..."></textarea>
+            <input type="number" id="rep-punish" placeholder="Кол-во наказаний (баллы)">
             <input type="date" id="rep-date">
             <input type="file" id="rep-files" multiple accept="image/*">
-            <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
+            <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
         </div>
         <div id="report-pending-box" class="hidden">
-            <div class="status-msg">⚠️ ОЖИДАЙТЕ ОДОБРЕНИЯ ВЛАДЕЛЬЦЕМ.</div>
+            <div style="color: var(--primary); padding: 20px; border: 1px dashed var(--primary); border-radius: 10px;">
+                ⚙️ ВАШ АККАУНТ НА ПРОВЕРКЕ У АДМИНИСТРАЦИИ.
+            </div>
         </div>
     </div>
 
-    <div class="container hidden" id="sec-scores" style="max-width: 800px;">
-        <h3>🏆 Рейтинг состава</h3>
-        <div class="table-wrap"><table><thead><tr><th>№</th><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
+    <div class="container hidden" id="sec-scores">
+        <h3>🏆 ТОП СОСТАВА</h3>
+        <div class="table-wrap"><table><thead><tr><th>#</th><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
     </div>
 
-    <div class="container hidden" id="sec-base" style="max-width: 98%;">
-        <h3>📁 База отчётов</h3>
-        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Работа</th><th>Скрины</th><th>Дата</th><th id="th-del-report">X</th></tr></thead><tbody id="out-reports"></tbody></table></div>
+    <div class="container hidden" id="sec-base" style="max-width: 95%;">
+        <h3>📁 ВСЕ ОТЧЕТЫ</h3>
+        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Описание</th><th>Скрины</th><th>Дата</th><th></th></tr></thead><tbody id="out-reports"></tbody></table></div>
     </div>
 
-    <div class="container hidden" id="sec-admin" style="max-width: 98%;">
-        <h3>⚙️ Панель управления</h3>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead>
-                <tbody id="out-users"></tbody>
-            </table>
-        </div>
+    <div class="container hidden" id="sec-admin" style="max-width: 95%;">
+        <h3>⚙️ УПРАВЛЕНИЕ</h3>
+        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead><tbody id="out-users"></tbody></table></div>
     </div>
 </div>
 
 <script>
+// Настройки Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
-  authDomain: "modersekb.firebaseapp.com",
-  projectId: "modersekb",
-  databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
+    authDomain: "modersekb.firebaseapp.com",
+    projectId: "modersekb",
+    databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
-let userRole = 'user'; 
+let currentUser = "";
+let userRole = 'user';
 
-function watchUserStatus(nick) {
-    db.ref('users/' + nick).on('value', s => {
-        if (s.exists()) {
-            const d = s.val();
-            userRole = d.role;
-            localStorage.setItem('ekb_user', nick);
-            loginSuccess(nick, d);
-            updateProfileUI(nick, d);
-            
-            const isApproved = d.role !== 'pending';
-            document.getElementById('report-form-box').classList.toggle('hidden', !isApproved);
-            document.getElementById('report-pending-box').classList.toggle('hidden', isApproved);
-            
-            // Обновляем время в сети
-            db.ref('users/' + nick + '/lastSeen').set(new Date().toLocaleString());
-        }
+// Навигация
+function nav(id) {
+    const sections = ['profile', 'report', 'scores', 'base', 'admin'];
+    sections.forEach(s => {
+        const el = document.getElementById('sec-' + s);
+        if (el) el.classList.add('hidden');
     });
+    document.getElementById('sec-' + id).classList.remove('hidden');
 }
 
-function updateProfileUI(nick, d) {
-    document.getElementById('prof-nick').innerText = d.nick || nick;
-    document.getElementById('prof-score').innerText = d.score || 0;
-    document.getElementById('prof-rank').innerText = d.rank || 'Модератор';
-    document.getElementById('prof-ava').src = d.avatar || 'https://i.pravatar.cc/150?u=' + nick;
-    document.getElementById('last-seen').innerText = 'Был в сети: ' + (d.lastSeen || 'только что');
-    
-    // Статистика по отчетам
-    db.ref('reports').once('value', s => {
-        const reports = s.val();
-        let myReps = [];
-        if(reports) {
-            myReps = Object.values(reports).filter(r => r.author === nick);
-        }
-        document.getElementById('prof-count').innerText = myReps.length;
-        
-        if(myReps.length > 0) {
-            const total = myReps.reduce((acc, curr) => acc + (parseInt(curr.score) || 0), 0);
-            document.getElementById('prof-avg').innerText = (total / myReps.length).toFixed(1);
-            document.getElementById('prof-last').innerText = myReps[myReps.length-1].date || '--.--.--';
-        }
-    });
-
-    // Место в топе
-    db.ref('users').once('value', s => {
-        const users = s.val();
-        if(!users) return;
-        const sorted = Object.entries(users)
-            .filter(u => u[1].role !== 'pending')
-            .sort((a,b) => (b[1].score || 0) - (a[1].score || 0));
-        const myIndex = sorted.findIndex(u => u[0] === nick) + 1;
-        document.getElementById('prof-top').innerText = '#' + (myIndex || '--');
-    });
+function showAuthBox(type) {
+    document.getElementById('box-log').classList.toggle('hidden', type === 'reg');
+    document.getElementById('box-reg').classList.toggle('hidden', type === 'log');
 }
 
-function changeNick() {
-    const newNick = prompt("Введите новый Rp NickName:");
-    if(newNick) {
-        const l = localStorage.getItem('ekb_user');
-        db.ref('users/' + l).update({ nick: newNick });
-    }
-}
-
-function changeAvatar() {
-    const url = prompt("Введите прямую ссылку на фото (JPG/PNG):");
-    if(url) {
-        const l = localStorage.getItem('ekb_user');
-        db.ref('users/' + l).update({ avatar: url });
-    }
-}
-
-function showMyReports() {
-    nav('base');
-    const nick = localStorage.getItem('ekb_user');
-    // Небольшой хак: фильтруем отображение базы (визуально)
-    alert("Вы перешли в базу. Ваши отчеты помечены вашим ником.");
-}
-
-// Стандартные функции
-window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('ekb_user');
-    if (saved) watchUserStatus(saved);
-});
-
-function showAuthBox(t){
-    document.getElementById('box-reg').classList.toggle('hidden', t==='log');
-    document.getElementById('box-log').classList.toggle('hidden', t==='reg');
-}
-
-function nav(id){
-    ['profile','report','scores','admin','base'].forEach(s => {
-        const el = document.getElementById('sec-'+s);
-        if(el) el.classList.add('hidden');
-    });
-    document.getElementById('sec-'+id).classList.remove('hidden');
-}
-
-function loginSuccess(l, d){
-    document.getElementById('auth-section').classList.add('hidden');
-    document.getElementById('app-section').classList.remove('hidden');
-    document.getElementById('display-user').innerText = l.toUpperCase();
-    
-    if(d.role === 'admin' || d.role === 'owner') {
-        document.getElementById('nav-admin').classList.remove('hidden');
-        document.getElementById('nav-base').classList.remove('hidden');
-        document.getElementById('th-del-report').classList.remove('hidden');
-    }
-}
-
-function doLogin(){
+// Авторизация
+function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if(l === OWNER && p === "Ecstasy20036") { watchUserStatus(l); return; }
-    db.ref('users/'+l).once('value', s => {
+    if (l === OWNER && p === "Ecstasy20036") { 
+        initUser(l, 'owner'); 
+        return; 
+    }
+    db.ref('users/' + l).once('value', s => {
         const d = s.val();
-        if(d && d.pass === p) watchUserStatus(l);
-        else alert("Ошибка входа!");
+        if (d && d.pass === p) initUser(l, d.role);
+        else alert("Ошибка: Неверный ник или пароль!");
     });
 }
 
-function doRegister(){
+function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
-    if(!l || !p) return alert("Заполните поля!");
-    db.ref('users/'+l).set({ pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор' }).then(() => watchUserStatus(l));
+    if (!l || !p) return alert("Заполните все поля!");
+    db.ref('users/' + l).set({
+        pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший модератор', avatar: ''
+    }).then(() => initUser(l, 'pending'));
 }
 
-function doLogout(){ localStorage.clear(); location.reload(); }
+function initUser(nick, role) {
+    currentUser = nick;
+    localStorage.setItem('ekb_user', nick);
+    db.ref('users/' + nick).on('value', snap => {
+        const data = snap.val() || {};
+        userRole = data.role || role;
+        renderApp(nick, data);
+    });
+}
 
-async function sendReport(){
-    const l = localStorage.getItem('ekb_user');
+function renderApp(nick, data) {
+    document.getElementById('auth-section').classList.add('hidden');
+    document.getElementById('app-section').classList.remove('hidden');
+    document.getElementById('display-user').innerText = nick.toUpperCase();
+    
+    // Показ вкладок для админов
+    const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
+
+    // Доступ к форме отчета
+    const isApproved = userRole !== 'pending';
+    document.getElementById('report-form-box').classList.toggle('hidden', !isApproved);
+    document.getElementById('report-pending-box').classList.toggle('hidden', isApproved);
+
+    // Профиль
+    document.getElementById('prof-nick').innerText = data.nick || nick;
+    document.getElementById('prof-score').innerText = data.score || 0;
+    document.getElementById('prof-rank').innerText = data.rank || 'Модератор';
+    document.getElementById('prof-ava').src = data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
+    document.getElementById('last-seen').innerText = 'Был(а) в сети: ' + new Date().toLocaleString();
+    
+    updateStats(nick);
+}
+
+function updateStats(nick) {
+    db.ref('reports').once('value', s => {
+        const reps = Object.values(s.val() || {}).filter(r => r.author === nick);
+        document.getElementById('prof-count').innerText = reps.length;
+        if(reps.length > 0) {
+            const sum = reps.reduce((a, b) => a + (parseInt(b.score) || 0), 0);
+            document.getElementById('prof-avg').innerText = (sum / reps.length).toFixed(1);
+            document.getElementById('prof-last').innerText = reps[reps.length-1].date;
+        }
+    });
+    db.ref('users').once('value', s => {
+        const users = Object.entries(s.val() || {})
+            .filter(u => u[1].role !== 'pending')
+            .sort((a,b) => b[1].score - a[1].score);
+        const idx = users.findIndex(u => u[0] === nick) + 1;
+        document.getElementById('prof-top').innerText = '#' + (idx || '--');
+    });
+}
+
+// Функции профиля
+function changeNick() {
+    const n = prompt("Новый ник:");
+    if(n) db.ref('users/' + currentUser).update({ nick: n });
+}
+function changeAvatar() {
+    const a = prompt("Ссылка на фото:");
+    if(a) db.ref('users/' + currentUser).update({ avatar: a });
+}
+
+// Отчеты
+async function sendReport() {
     const n = document.getElementById('rep-nick').value;
     const s = parseInt(document.getElementById('rep-punish').value) || 0;
     const w = document.getElementById('rep-work').value;
     const d = document.getElementById('rep-date').value;
-    const r = document.getElementById('rep-rank').value;
     const files = document.getElementById('rep-files').files;
-    
-    if(!n || !w || !d) return alert("Заполните все поля!");
+
+    if(!n || !w || !d) return alert("Заполните данные!");
 
     let images = [];
     for(let f of files) {
-        const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(f); });
+        const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(f); });
         images.push(b64);
     }
-    
-    db.ref('users/' + l).once('value').then(snap => {
-        const current = snap.exists() ? (snap.val().score || 0) : 0;
-        db.ref('users/' + l).update({ score: current + s, nick: n, rank: r });
-        db.ref('reports').push({ author: l, nick:n, work:w, date:d, score:s, images });
-        alert("Отчёт отправлен!"); 
+
+    db.ref('users/' + currentUser).once('value').then(snap => {
+        const curScore = snap.val().score || 0;
+        db.ref('users/' + currentUser).update({ score: curScore + s });
+        db.ref('reports').push({ author: currentUser, nick: n, work: w, date: d, score: s, images });
+        alert("Отправлено!");
         nav('profile');
     });
 }
 
-function openImg(src) {
-    document.getElementById('modalImg').src = src;
-    document.getElementById('imgModal').style.display = 'flex';
-}
-
-// Рендеринг ТОПа и Админки
+// Списки (ТОП, Отчеты, Юзеры)
 db.ref('users').on('value', s => {
-    const data = s.val(); if(!data) return;
+    const users = s.val(); if(!users) return;
     const outS = document.getElementById('out-scores');
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
-    
-    const sorted = Object.entries(data)
-        .filter(u => u[1].role !== 'pending')
-        .sort((a,b) => (b[1].score || 0) - (a[1].score || 0));
 
-    sorted.forEach((u, index) => {
-        const d = u[1];
-        const delIcon = (userRole === 'admin' || userRole === 'owner') ? `<button class="del-user-score" onclick="db.ref('users/${u[0]}').remove()">X</button>` : '';
-        outS.innerHTML += `<tr><td>${index+1}</td><td>${d.nick} ${delIcon}</td><td>${d.rank}</td><td class="score-val">${d.score}</td></tr>`;
-    });
+    // ТОП
+    Object.entries(users).filter(u => u[1].role !== 'pending')
+        .sort((a,b) => b[1].score - a[1].score)
+        .forEach((u, i) => {
+            outS.innerHTML += `<tr><td>${i+1}</td><td>${u[1].nick}</td><td>${u[1].rank}</td><td class="score-val">${u[1].score}</td></tr>`;
+        });
 
-    Object.keys(data).forEach(u => {
-        if(u === OWNER) return;
-        const d = data[u];
-        const approveBtn = d.role === 'pending' ? `<button class="btn-approve" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : '';
+    // Админка
+    Object.keys(users).forEach(id => {
+        if(id === OWNER) return;
+        const u = users[id];
         outU.innerHTML += `<tr>
-            <td><input class="admin-edit" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
-            <td><input class="admin-edit" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
-            <td><input class="admin-edit" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))" style="width:40px"></td>
-            <td><select onchange="db.ref('users/${u}/role').set(this.value)">
-                <option value="pending" ${d.role==='pending'?'selected':''}>Ожидание</option>
-                <option value="user" ${d.role==='user'?'selected':''}>Модер</option>
-                <option value="admin" ${d.role==='admin'?'selected':''}>Админ</option>
+            <td><input style="font-size:10px" value="${u.nick}" onchange="db.ref('users/${id}/nick').set(this.value)"></td>
+            <td><input style="font-size:10px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)"></td>
+            <td><input type="number" style="font-size:10px" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))"></td>
+            <td><select style="font-size:10px" onchange="db.ref('users/${id}/role').set(this.value)">
+                <option value="pending" ${u.role==='pending'?'selected':''}>Ожидание</option>
+                <option value="user" ${u.role==='user'?'selected':''}>Модер</option>
+                <option value="admin" ${u.role==='admin'?'selected':''}>Админ</option>
             </select></td>
-            <td>${approveBtn}<button class="btn-del" onclick="db.ref('users/${u}').remove()">X</button></td>
+            <td>
+                ${u.role==='pending' ? `<button class="btn-approve" onclick="db.ref('users/${id}/role').set('user')">ОК</button>` : ''}
+                <button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${id}').remove()">X</button>
+            </td>
         </tr>`;
     });
 });
@@ -408,11 +362,16 @@ db.ref('reports').on('value', s => {
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
         let imgs = "";
-        if(r.images) r.images.forEach(src => { imgs += `<img src="${src}" style="width:50px; height:50px; object-fit:cover; margin:2px; cursor:pointer;" onclick="openImg('${src}')">`; });
-        const delBtn = (userRole === 'admin' || userRole === 'owner') ? `<td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td>` : `<td></td>`;
-        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td>${delBtn}</tr>`;
+        if(r.images) r.images.forEach(src => imgs += `<img src="${src}" onclick="openImg('${src}')" style="width:40px;height:40px;margin:2px;cursor:pointer">`);
+        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td>
+        <td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
     });
 });
+
+function openImg(s) { document.getElementById('modalImg').src = s; document.getElementById('imgModal').style.display = 'flex'; }
+function doLogout() { localStorage.clear(); location.reload(); }
+
+window.onload = () => { const saved = localStorage.getItem('ekb_user'); if(saved) initUser(saved); };
 </script>
 </body>
 </html>
