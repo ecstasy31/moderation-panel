@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
+    <link rel="icon" type="image/png" href="https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -12,7 +12,6 @@
     <style>
         :root {
             --primary: #00e676;
-            --primary-dark: #00c853;
             --danger: #ff5252;
             --glass: rgba(15, 15, 15, 0.95);
             --border: rgba(0, 230, 118, 0.3);
@@ -34,18 +33,12 @@
 
         .hidden { display: none !important; }
         h2, h3 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
-        
-        /* Исправление ссылок (убираем синий фон) */
-        .auth-link { color: var(--primary) !important; cursor: pointer; text-decoration: none; background: none !important; }
-        .auth-link:hover { text-decoration: underline; }
+        .auth-link { color: var(--primary) !important; cursor: pointer; background: none !important; border: none; padding: 0; font-weight: bold; }
 
-        /* Темные селекторы и инпуты */
         input, select, textarea {
             width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a !important;
             border: 1px solid var(--border); border-radius: 10px; color: white !important; outline: none; box-sizing: border-box;
         }
-        
-        /* Исправление белого фона в выпадающем списке */
         select option { background: #1a1a1a; color: white; }
 
         button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
@@ -64,20 +57,18 @@
         th { background: rgba(0, 230, 118, 0.2); padding: 12px; color: var(--primary); border-bottom: 2px solid var(--border); }
         td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
         
-        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--primary); margin: 2px; }
-        #imgModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        #imgModal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
-
-        .btn-del { background: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-approve { background: var(--primary); color: black; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; display: block; width: 100%; }
         .score-val { color: var(--primary); font-weight: bold; font-size: 14px; }
         
         .admin-edit { background: #222; border: 1px solid var(--border); color: white; padding: 5px; border-radius: 5px; width: 90%; font-size: 11px; }
+        .del-user-score { color: var(--danger); cursor: pointer; font-weight: bold; margin-left: 10px; font-size: 14px; border: none; background: none; }
     </style>
 </head>
 <body>
 
-<div id="imgModal" onclick="this.style.display='none'">
-    <img id="modalImg" src="">
+<div id="imgModal" onclick="this.style.display='none'" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <img id="modalImg" src="" style="max-width: 90%; max-height: 90%; border-radius: 10px;">
 </div>
 
 <div id="auth-section">
@@ -86,14 +77,14 @@
         <input type="text" id="in-log-login" placeholder="Логин (Rp NickName)">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">Войти</button>
-        <p style="color:white !important;">Новый модератор? <span class="auth-link" onclick="showAuthBox('reg')">Регистрация</span></p>
+        <p>Новый модератор? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
     </div>
     <div class="container hidden" id="box-reg">
         <h2>Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doRegister()">Создать аккаунт</button>
-        <p style="color:white !important;">Уже есть аккаунт? <span class="auth-link" onclick="showAuthBox('log')">Войти</span></p>
+        <p>Уже есть аккаунт? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
     </div>
 </div>
 
@@ -117,8 +108,8 @@
             <option>Модератор</option>
             <option>Старший модератор</option>
         </select>
-        <textarea id="rep-work" rows="3" placeholder="Что сделали за неделю?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Сколько наказании выдали за неделю?(Только число)">
+        <textarea id="rep-work" rows="3" placeholder="Что вы сделали за неделю?"></textarea>
+        <input type="number" id="rep-punish" placeholder="Количество наказании выданых за неделю?(Только число)">
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
         <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
@@ -138,7 +129,7 @@
         <h3>⚙️ Панель управления</h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Удалить</th></tr></thead>
+                <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead>
                 <tbody id="out-users"></tbody>
             </table>
         </div>
@@ -201,7 +192,7 @@ function doLogin(){
         if(d && d.pass === p) {
             if(d.role === 'pending') return alert("Ожидайте одобрения владельцем!");
             loginSuccess(l, d);
-        } else alert("Ошибка входа! Проверьте ник и пароль.");
+        } else alert("Ошибка входа!");
     });
 }
 
@@ -209,8 +200,7 @@ function doRegister(){
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполните все поля!");
-    db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'})
-    .then(()=>alert("Заявка отправлена! Дождитесь одобрения администратором."));
+    db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(()=>alert("Заявка отправлена!"));
 }
 
 function doLogout(){ localStorage.clear(); location.reload(); }
@@ -223,20 +213,16 @@ async function sendReport(){
     const d = document.getElementById('rep-date').value;
     const r = document.getElementById('rep-rank').value;
     const files = document.getElementById('rep-files').files;
-
-    if(!n || !w || !d) return alert("Заполните отчет полностью!");
-
     let images = [];
     for(let f of files) {
         const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(f); });
         images.push(b64);
     }
-
     db.ref('users/' + l).once('value').then(snap => {
         const current = snap.exists() ? (snap.val().score || 0) : 0;
         db.ref('users/' + l).update({ score: current + s, nick: n, rank: r });
         db.ref('reports').push({ author: l, nick:n, work:w, date:d, score:s, images });
-        alert("Отчёт успешно отправлен!"); location.reload();
+        alert("Отчёт отправлен!"); location.reload();
     });
 }
 
@@ -250,26 +236,37 @@ db.ref('users').on('value', s => {
     const outS = document.getElementById('out-scores');
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
-
-    // Рейтинг
-    Object.values(data).filter(u => u.role !== 'pending').sort((a,b)=>b.score-a.score).forEach(u => {
-        outS.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
+    
+    // Рейтинг с кнопкой удаления
+    Object.keys(data).forEach(key => {
+        const u = data[key];
+        if (u.role !== 'pending') {
+            outS.innerHTML += `<tr>
+                <td>${u.nick} <button class="del-user-score" onclick="if(confirm('Удалить из системы?')) db.ref('users/${key}').remove()">X</button></td>
+                <td>${u.rank}</td>
+                <td class="score-val">${u.score}</td>
+            </tr>`;
+        }
     });
 
     // Админка
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
+        const approveBtn = d.role === 'pending' ? `<button class="btn-approve" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : '';
         outU.innerHTML += `<tr>
             <td><input class="admin-edit" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
             <td><input class="admin-edit" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
             <td><input class="admin-edit" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))" style="width:40px"></td>
-            <td><select class="role-select" onchange="db.ref('users/${u}/role').set(this.value)" style="background:#222; color:white;">
+            <td><select onchange="db.ref('users/${u}/role').set(this.value)" style="background:#222; color:white; width: 80px; font-size:10px;">
                 <option value="pending" ${d.role==='pending'?'selected':''}>Ожидание</option>
                 <option value="user" ${d.role==='user'?'selected':''}>Модер</option>
                 <option value="admin" ${d.role==='admin'?'selected':''}>Админ</option>
             </select></td>
-            <td><button class="btn-del" onclick="if(confirm('Удалить пользователя из списка навсегда?')) db.ref('users/${u}').remove()">X</button></td>
+            <td>
+                ${approveBtn}
+                <button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button>
+            </td>
         </tr>`;
     });
 });
@@ -281,12 +278,10 @@ db.ref('reports').on('value', s => {
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
         let imgs = "";
-        if(r.images) r.images.forEach(src => { imgs += `<img src="${src}" class="img-preview" onclick="openImg('${src}')">`; });
-        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td><td><button class="btn-del" onclick="if(confirm('Удалить отчет?')) db.ref('reports/${id}').remove()">X</button></td></tr>`;
+        if(r.images) r.images.forEach(src => { imgs += `<img src="${src}" style="width:50px; height:50px; object-fit:cover; margin:2px; cursor:pointer;" onclick="openImg('${src}')">`; });
+        outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td><td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
     });
 });
 </script>
 </body>
 </html>
-
-
