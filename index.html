@@ -2,9 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
+    <title>MOD EKB | СИСТЕМА ОТЧЕТНОСТИ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <link rel="icon" type="image/png" href="https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,118 +14,82 @@
             --primary: #00e676;
             --primary-dark: #00c853;
             --danger: #ff5252;
-            --glass: rgba(10, 10, 10, 0.85);
-            --border: rgba(0, 230, 118, 0.2);
+            --glass: rgba(10, 10, 10, 0.9);
+            --border: rgba(0, 230, 118, 0.3);
         }
 
-        body {
+        /* ГАРАНТИРОВАННЫЙ ЗАДНИЙ ФОН */
+        html, body {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #050505;
-            color: white;
+            padding: 0;
             min-height: 100vh;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #000;
         }
 
         .bg-ekb {
             position: fixed;
-            inset: 0;
-            background: 
-                linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,230,118,0.1) 100%),
-                url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image');
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Прямая ссылка на твое игровое изображение */
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), 
+                              url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            background-repeat: no-repeat;
             z-index: -1;
-            filter: brightness(0.6) contrast(1.1);
+            filter: brightness(0.7) contrast(1.1);
         }
 
-        .bg-ekb::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(0, 230, 118, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            pointer-events: none;
-        }
-
+        /* Контейнеры */
         .container {
             background: var(--glass);
-            backdrop-filter: blur(10px);
-            width: 95%;
-            max-width: 550px;
-            margin: 40px auto;
-            padding: 30px;
-            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 20px;
             border: 1px solid var(--border);
-            box-shadow: 0 0 20px rgba(0, 230, 118, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.1);
             box-sizing: border-box;
         }
 
         .hidden { display: none !important; }
+        h2, h3 { color: var(--primary); text-align: center; text-transform: uppercase; margin-top: 0; letter-spacing: 2px; }
 
-        h2, h3 { 
-            color: var(--primary); 
-            text-align: center; 
-            text-transform: uppercase; 
-            margin-top: 0; 
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
-        }
-
+        /* Поля ввода и фикс белого фона */
         input, select, textarea {
-            width: 100%;
-            padding: 14px;
-            margin: 12px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 12px; margin: 10px 0; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; outline: none; font-size: 14px;
         }
-
-        select option { background-color: #1a1a1a; color: white; }
+        select option { background: #151515; color: white; } /* Тёмный список */
 
         button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
+            width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
+        .btn-main { background: var(--primary); color: #000; margin-top: 10px; }
+        .btn-main:hover { background: var(--primary-dark); transform: scale(1.02); }
 
-        .btn-main { background: var(--primary); color: #000; }
-        .btn-main:hover { background: var(--primary-dark); transform: translateY(-2px); }
-
+        /* Навигация */
         .header {
-            background: rgba(0, 0, 0, 0.85);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: rgba(0, 0, 0, 0.9); padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100;
         }
-
-        .user-tag { color: var(--primary); font-weight: 800; border: 1px solid var(--primary); padding: 5px 12px; border-radius: 6px; font-size: 12px; }
         .nav-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 7px 15px; font-size: 12px; }
-        .btn-logout { background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); color: var(--danger); width: auto; padding: 7px 15px; font-size: 12px; }
-        .btn-logout:hover { background: var(--danger); color: white; }
+        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 6px 15px; font-size: 12px; }
+        .btn-logout { background: var(--danger); color: white; width: auto; padding: 6px 15px; font-size: 12px; }
 
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 10px; background: rgba(0, 0, 0, 0.3); }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: rgba(0, 230, 118, 0.1); padding: 15px; color: var(--primary); text-align: left; }
-        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .score-val { color: var(--primary); font-weight: bold; }
+        /* Таблицы */
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; color: #fff; }
+        th { background: rgba(0, 230, 118, 0.2); padding: 12px; color: var(--primary); border-bottom: 1px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; }
+        .score-val { color: var(--primary); font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -136,59 +99,79 @@
 <div id="auth-section">
     <div class="container" id="box-reg">
         <h2>РЕГИСТРАЦИЯ</h2>
-        <input type="text" id="in-reg-login" placeholder="RP NickName">
-        <input type="password" id="in-reg-pass" placeholder="Пароль">
+        <input type="text" id="in-reg-login" placeholder="Придумайте Логин (RP Nick)">
+        <input type="password" id="in-reg-pass" placeholder="Придумайте Пароль">
         <button class="btn-main" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
-        <p style="text-align:center; font-size:13px; margin-top:15px; color: #aaa;">Есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="showAuthBox('log')">Войти</span></p>
+        <p style="text-align:center; font-size:12px">Есть аккаунт? <span style="color:var(--primary); cursor:pointer" onclick="showAuthBox('log')">Войти</span></p>
     </div>
-
     <div class="container hidden" id="box-log">
-        <h2>АВТОРИЗАЦИЯ</h2>
-        <input type="text" id="in-log-login" placeholder="RP NickName">
+        <h2>ВХОД В СИСТЕМУ</h2>
+        <input type="text" id="in-log-login" placeholder="Логин (RP Nick)">
         <input type="password" id="in-log-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
-        <p style="text-align:center; font-size:13px; margin-top:15px; color: #aaa;">Нет аккаунта? <span style="color:var(--primary); cursor:pointer;" onclick="showAuthBox('reg')">Регистрация</span></p>
+        <button class="btn-main" onclick="doLogin()">ВОЙТИ</button>
+        <p style="text-align:center; font-size:12px">Нет аккаунта? <span style="color:var(--primary); cursor:pointer" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <span class="user-tag" id="display-user">MODERATOR</span>
+        <div id="display-user" style="color:var(--primary); font-weight:bold; border: 1px solid var(--primary); padding: 5px 10px; border-radius: 5px;">USER</div>
         <div class="nav-group">
             <button class="btn-nav" onclick="nav('report')">ОТЧЕТ</button>
             <button class="btn-nav" onclick="nav('scores')">БАЛЛЫ</button>
+            <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">АДМИН</button>
-            <button class="btn-logout" onclick="doLogout()">ВЫЙТИ</button>
+            <button class="btn-logout" onclick="doLogout()">ВЫХОД</button>
         </div>
     </div>
 
     <div class="container" id="sec-report">
         <h3>ПОДАТЬ ОТЧЕТ</h3>
-        <input type="text" id="rep-nick" placeholder="Ваш Nick_Name">
+        <input type="text" id="rep-nick" placeholder="Ваш игровой Nick_Name">
         <select id="rep-rank">
             <option>Младший модератор</option>
             <option>Модератор</option>
             <option>Старший модератор</option>
         </select>
-        <textarea id="rep-work" rows="3" placeholder="Что сделали?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Баллы за работу">
+        <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы"></textarea>
+        <input type="number" id="rep-punish" placeholder="Количество баллов (число)">
         <input type="date" id="rep-date">
-        <input type="file" id="rep-files" multiple accept="image/*" style="padding: 10px;">
-        <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
+        <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ В БАЗУ</button>
     </div>
 
     <div class="container hidden" id="sec-scores" style="max-width: 800px;">
         <h3>🏆 РЕЙТИНГ СОСТАВА</h3>
-        <div class="table-wrap"><table id="table-scores"><thead><tr><th>Ник</th><th>Должность</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>NickName</th><th>Должность</th><th>Баллы</th></tr></thead>
+                <tbody id="out-scores"></tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
-        <div class="table-wrap"><table><thead><tr><th>Логин</th><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Доступ</th><th>Удалить</th></tr></thead><tbody id="out-users"></tbody></table></div>
+    <div class="container hidden" id="sec-base" style="max-width: 900px;">
+        <h3>📁 БАЗА ВСЕХ ОТЧЕТОВ</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Дата</th><th>Автор</th><th>Работа</th><th>Баллы</th></tr></thead>
+                <tbody id="out-reports"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container hidden" id="sec-admin" style="max-width: 900px;">
+        <h3>⚙️ УПРАВЛЕНИЕ</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Логин</th><th>Баллы</th><th>Статус</th><th>Действие</th></tr></thead>
+                <tbody id="out-users"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
+// ИНИЦИАЛИЗАЦИЯ
 const firebaseConfig = {
   apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
   authDomain: "modersekb.firebaseapp.com",
@@ -201,13 +184,14 @@ const db = firebase.database();
 const OWNER = "Ecstasy9988";
 let userLogin = null;
 
-// ПРОВЕРКА ВХОДА ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+// ПРОВЕРКА СЕССИИ ПРИ ЗАГРУЗКЕ
 window.onload = function() {
-    const savedUser = localStorage.getItem('loggedUser');
-    const savedData = localStorage.getItem('userData');
-    
-    if (savedUser && savedData) {
-        loginSuccess(savedUser, JSON.parse(savedData));
+    const savedUser = localStorage.getItem('ekb_login');
+    if(savedUser) {
+        db.ref('users/' + savedUser).once('value', s => {
+            if(s.exists()) loginSuccess(savedUser, s.val());
+            else doLogout();
+        });
     }
 };
 
@@ -217,7 +201,7 @@ function showAuthBox(t){
 }
 
 function nav(id){
-    ['report','scores','admin'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
+    ['report','scores','admin','base'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
     document.getElementById('sec-'+id).classList.remove('hidden');
 }
 
@@ -226,96 +210,111 @@ function doRegister(){
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполни поля!");
     db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(() => {
-        alert("Заявка отправлена!"); showAuthBox('log');
+        alert("Заявка отправлена! Ждите одобрения."); showAuthBox('log');
     });
 }
 
 function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    
-    if(l === OWNER && p === "Ecstasy20036") {
-        return loginSuccess(l, {role:'owner'});
-    }
+    if(l === OWNER && p === "Ecstasy20036") return loginSuccess(l, {role:'owner', nick:l});
     
     db.ref('users/'+l).once('value', s => {
         const d = s.val();
         if(d && d.pass === p) {
-            if(d.role === 'pending') return alert("Ждите одобрения!");
+            if(d.role === 'pending') return alert("Аккаунт еще не одобрен!");
             loginSuccess(l, d);
-        } else alert("Неверные данные!");
+        } else alert("Неверный логин или пароль!");
     });
 }
 
 function loginSuccess(l, d){
     userLogin = l;
-    // СОХРАНЯЕМ В ПАМЯТЬ БРАУЗЕРА
-    localStorage.setItem('loggedUser', l);
-    localStorage.setItem('userData', JSON.stringify(d));
-
+    localStorage.setItem('ekb_login', l);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = l.toUpperCase();
-    if(d.role === 'admin' || d.role === 'owner') document.getElementById('nav-admin').classList.remove('hidden');
+    
+    if(d.role === 'admin' || d.role === 'owner') {
+        document.getElementById('nav-admin').classList.remove('hidden');
+        document.getElementById('nav-base').classList.remove('hidden');
+    }
     nav('report');
 }
 
 function doLogout(){
-    localStorage.removeItem('loggedUser');
-    localStorage.removeItem('userData');
+    localStorage.removeItem('ekb_login');
     location.reload();
 }
 
-async function sendReport(){
+// ОТПРАВКА ОТЧЕТА С СУММИРОВАНИЕМ
+function sendReport(){
     const nick = document.getElementById('rep-nick').value;
-    const punishInput = parseInt(document.getElementById('rep-punish').value) || 0;
+    const addScore = parseInt(document.getElementById('rep-punish').value) || 0;
     const work = document.getElementById('rep-work').value;
     const date = document.getElementById('rep-date').value;
     const rank = document.getElementById('rep-rank').value;
-    const files = document.getElementById('rep-files').files;
 
-    if(!nick || !date) return alert("Ник и дата обязательны!");
+    if(!nick || !date) return alert("Заполни Nick и Дату!");
 
-    db.ref('users/' + userLogin).once('value').then(async (snap) => {
-        const userData = snap.val();
-        const currentScore = userData.score || 0;
-        const newTotalScore = currentScore + punishInput;
+    db.ref('users/' + userLogin).once('value').then(s => {
+        const currentScore = s.val().score || 0;
+        const total = currentScore + addScore;
 
-        let images = [];
-        for(let f of files){
-            const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(f); });
-            images.push(b64);
-        }
+        // Обновляем баллы юзера
+        db.ref('users/' + userLogin).update({ score: total, nick: nick, rank: rank });
+        
+        // Пишем в базу отчетов
+        db.ref('reports').push({ 
+            author: userLogin, nick, score: addScore, work, date 
+        });
 
-        db.ref('users/' + userLogin).update({ score: newTotalScore, nick: nick, rank: rank });
-        db.ref('reports').push({ author: userLogin, nick, punish: punishInput, work, date, images });
-
-        alert(`Баллы обновлены! Итого: ${newTotalScore}`);
+        alert("Отчет принят! Добавлено: " + addScore + " баллов.");
         location.reload();
     });
 }
 
+// РЕНДЕР ДАННЫХ
 db.ref('users').on('value', s => {
     const data = s.val(); if(!data) return;
-    const outScores = document.getElementById('out-scores');
-    const outUsers = document.getElementById('out-users');
-    outScores.innerHTML = ""; outUsers.innerHTML = "";
+    const outS = document.getElementById('out-scores');
+    const outU = document.getElementById('out-users');
+    outS.innerHTML = ""; outU.innerHTML = "";
 
     const sorted = Object.values(data).filter(u => u.role !== 'pending').sort((a,b) => b.score - a.score);
     sorted.forEach(u => {
-        outScores.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
+        outS.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
     });
 
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
-        outUsers.innerHTML += `<tr>
+        outU.innerHTML += `<tr>
             <td>${u}</td>
-            <td><input style="width:100px;padding:5px" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
-            <td><input style="width:100px;padding:5px" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
-            <td><input style="width:60px;padding:5px" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
-            <td>${d.role === 'pending' ? `<button onclick="db.ref('users/${u}/role').set('user')">OK</button>` : d.role}</td>
-            <td><button class="btn-logout" onclick="db.ref('users/${u}').remove()">X</button></td>
+            <td><input style="width:60px;padding:5px;margin:0" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
+            <td>${d.role}</td>
+            <td>
+                ${d.role==='pending' ? `<button onclick="db.ref('users/${u}/role').set('user')" style="padding:5px;background:var(--primary);font-size:10px">Одобрить</button>` : ''}
+                <button onclick="db.ref('users/${u}').remove()" style="padding:5px;background:var(--danger);font-size:10px;color:white">X</button>
+            </td>
+        </tr>`;
+    });
+});
+
+// РЕНДЕР ОТЧЕТОВ (БАЗА)
+db.ref('reports').on('value', s => {
+    const outR = document.getElementById('out-reports');
+    outR.innerHTML = "";
+    const data = s.val();
+    if(!data) return;
+    
+    Object.keys(data).reverse().forEach(id => {
+        const r = data[id];
+        outR.innerHTML += `<tr>
+            <td>${r.date}</td>
+            <td>${r.author}</td>
+            <td>${r.work}</td>
+            <td class="score-val">+${r.score}</td>
         </tr>`;
     });
 });
