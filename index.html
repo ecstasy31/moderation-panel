@@ -2,72 +2,59 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ЕКБ | ОТЧЕТНОСТЬ</title>
+<title>MOD ЕКБ | ОТЧЕТНОСТЬ</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <style>
-:root {
-  --primary: #1b5e20;
-  --danger: #c62828;
-  --bg: rgba(232, 245, 233, 0.96);
-}
-body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#333;}
+:root { --primary: #1b5e20; --danger: #c62828; --bg: rgba(232, 245, 233, 0.98); }
+body { margin:0; font-family:'Segoe UI', sans-serif; background:#111; color:#333;}
 .hidden { display:none !important; }
 
-/* Фон с твоей картинкой */
 .overlay {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: #000 url('https://sun9-33.userapi.com/s/v1/ig2/PItSUlt-hrdc8Yj2l7nvVSL-sqpSIrH1P7T_fZVQOHietbD8GF2qEU1_jwp53uzUL5dNdn1mhRYn0z5Rbzt7bVy5.jpg?quality=95&from=bu&cs=638x0') center/cover no-repeat;
-    filter: brightness(0.35);
-    z-index: -1;
+    filter: brightness(0.35); z-index: -1;
 }
 
 .container { background:var(--bg); max-width:450px; margin:50px auto; padding:30px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.5); text-align:center; }
-input,select,textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing: border-box; }
+input, select, textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing: border-box; }
 button { padding:12px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:0.3s; }
+
 .btn-main { background:var(--primary); color:#fff; width:100%; margin-top:10px; }
-.btn-main:hover { background:#2e7d32; opacity:0.9; }
 .btn-nav { background:#fff; border:1px solid var(--primary); color:var(--primary); margin:2px; font-size:12px; }
 .btn-danger { background:var(--danger); color:#fff; padding:5px 10px; font-size:11px; }
+
 .header { background:var(--primary); color:#fff; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
 .table-wrap { width:100%; overflow-x:auto; margin-top:20px; background:#fff; border-radius:8px; }
 table { width:100%; border-collapse:collapse; font-size:12px; }
-th,td { border:1px solid #eee; padding:10px; text-align:center; }
-th { background:#f8f8f8; }
-.preview { width:50px; height:35px; object-fit:cover; border-radius:4px; cursor:pointer; margin:2px; border:1px solid #ddd; }
-#modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:1000; }
-#modal img { max-width:90%; max-height:90%; border:2px solid #fff; }
+th, td { border:1px solid #eee; padding:10px; text-align:center; }
+
+.status-pending { color: #f57c00; font-weight: bold; background: #fff3e0; padding: 2px 5px; border-radius: 4px; }
 .auth-link { cursor:pointer; color:#1565c0; text-decoration:underline; font-weight:bold; }
-#btn-logout { background: #c62828; color: white; }
 </style>
 </head>
 <body>
 
 <div class="overlay"></div>
 
-<div id="modal" class="hidden" onclick="this.classList.add('hidden')">
-    <img id="modal-img" src="">
-</div>
-
 <div id="auth-section">
     <div class="container" id="box-reg">
-        <h2 style="margin-top:0">Регистрация</h2>
+        <h2>Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="Логин">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
-        <p>Уже есть? <span class="auth-link" onclick="showAuthBox('log')">Войти</span></p>
+        <button class="btn-main" onclick="doRegister()">ОТПРАВИТЬ ЗАЯВКУ</button>
+        <p><span class="auth-link" onclick="showAuthBox('log')">Уже есть аккаунт? Войти</span></p>
     </div>
 
     <div class="container hidden" id="box-log">
-        <h2 style="margin-top:0">Вход</h2>
+        <h2>Вход</h2>
         <input type="text" id="in-log-login" placeholder="Логин">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">ВОЙТИ</button>
-        <p>Нет аккаунта? <span class="auth-link" onclick="showAuthBox('reg')">Регистрация</span></p>
+        <p><span class="auth-link" onclick="showAuthBox('reg')">Нет аккаунта? Регистрация</span></p>
     </div>
 </div>
 
@@ -78,19 +65,14 @@ th { background:#f8f8f8; }
             <button class="btn-nav" onclick="nav('report')">ОТЧЁТ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-users" onclick="nav('users')">ПРАВА</button>
-            <button id="btn-logout" onclick="doLogout()">ВЫХОД</button>
+            <button class="btn-danger" style="background:#444" onclick="doLogout()">ВЫХОД</button>
         </div>
     </div>
 
     <div class="container" id="sec-report">
         <h3>Новый отчёт</h3>
-        <input type="text" id="rep-nick" placeholder="Ваш ник в игре">
-        <select id="rep-rank">
-            <option>Младший модератор</option>
-            <option>Модератор</option>
-            <option>Старший модератор</option>
-        </select>
-        <textarea id="rep-work" rows="4" placeholder="Описание работы..."></textarea>
+        <input type="text" id="rep-nick" placeholder="Ваш ник">
+        <textarea id="rep-work" rows="4" placeholder="Что сделали?"></textarea>
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
         <button id="btn-send" class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
@@ -98,39 +80,20 @@ th { background:#f8f8f8; }
 
     <div class="container hidden" id="sec-base" style="max-width:95%;">
         <h3>База отчётов</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Модератор</th><th>Описание</th><th>Скрины</th><th>Дата</th><th>Удалить</th></tr>
-                </thead>
-                <tbody id="out-reports"></tbody>
-            </table>
-        </div>
+        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Описание</th><th>Дата</th><th>Удалить</th></tr></thead><tbody id="out-reports"></tbody></table></div>
     </div>
 
     <div class="container hidden" id="sec-users" style="max-width:600px;">
-        <h3>Права доступа</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Логин</th><th>Роль</th><th>Действия</th></tr>
-                </thead>
-                <tbody id="out-users"></tbody>
-            </table>
-        </div>
+        <h3>Управление модераторами</h3>
+        <div class="table-wrap"><table><thead><tr><th>Логин</th><th>Роль</th><th>Действия</th></tr></thead><tbody id="out-users"></tbody></table></div>
     </div>
 </div>
 
 <script>
-// --- КОНФИГ ---
 const firebaseConfig = {
   apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
   authDomain: "modersekb.firebaseapp.com",
   projectId: "modersekb",
-  storageBucket: "modersekb.firebasestorage.app",
-  messagingSenderId: "302735757040",
-  appId: "1:302735757040:web:ad074398f186934cfa7c35",
-  measurementId: "G-D9V7CQQC1E",
   databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
@@ -138,39 +101,37 @@ const db = firebase.database();
 
 const OWNER_LOGIN = "Ecstasy9988";
 const OWNER_PASS = "Ecstasy20036";
-let userNow = null;
+let userRoleNow = null;
+let userLoginNow = null;
 
-// --- ЗАГРУЗКА ---
 window.onload = function(){
     const saved = localStorage.getItem("session_user");
     if(saved){
-        if(saved === OWNER_LOGIN) loginSuccess(OWNER_LOGIN,{role:'owner'});
-        else db.ref('users/'+saved).once('value').then(s => { 
-            if(s.exists()) loginSuccess(saved, s.val()); 
+        if(saved === OWNER_LOGIN) loginSuccess(OWNER_LOGIN, {role:'owner'});
+        else db.ref('users/'+saved).once('value').then(s => {
+            const d = s.val();
+            if(d && d.role !== 'pending') loginSuccess(saved, d);
+            else localStorage.removeItem("session_user");
         });
     }
     db.ref('reports').on('value', renderReports);
     db.ref('users').on('value', renderUsers);
 };
 
-// --- ЛОГИКА АВТОРИЗАЦИИ ---
-function showAuthBox(type){
-    document.getElementById('box-reg').classList.toggle('hidden', type==='log');
-    document.getElementById('box-log').classList.toggle('hidden', type==='reg');
+function showAuthBox(t){
+    document.getElementById('box-reg').classList.toggle('hidden', t==='log');
+    document.getElementById('box-log').classList.toggle('hidden', t==='reg');
 }
 
 function doRegister(){
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполни поля!");
-    if(l === OWNER_LOGIN) return alert("Логин занят!");
-
     db.ref('users/'+l).once('value').then(s => {
         if(s.exists()) return alert("Логин занят!");
-        const data = {pass:p, role:'user'};
-        db.ref('users/'+l).set(data).then(() => {
-            loginSuccess(l, data);
-            alert("Регистрация успешна!");
+        db.ref('users/'+l).set({pass:p, role:'pending'}).then(() => {
+            alert("Заявка отправлена! Ждите одобрения админом.");
+            showAuthBox('log');
         });
     });
 }
@@ -178,71 +139,48 @@ function doRegister(){
 function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if(!l || !p) return alert("Введи данные!");
-
     if(l === OWNER_LOGIN && p === OWNER_PASS){
         loginSuccess(OWNER_LOGIN, {role:'owner'});
         return;
     }
-
     db.ref('users/'+l).once('value').then(s => {
         const d = s.val();
-        if(d && d.pass === p) loginSuccess(l, d);
-        else alert("Ошибка входа!");
+        if(d && d.pass === p){
+            if(d.role === 'pending') return alert("Аккаунт еще не одобрен!");
+            loginSuccess(l, d);
+        } else alert("Ошибка входа!");
     });
 }
 
 function loginSuccess(login, data){
-    userNow = login;
+    userLoginNow = login;
+    userRoleNow = data.role;
     localStorage.setItem("session_user", login);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = login + " (" + data.role.toUpperCase() + ")";
     
-    document.getElementById('nav-base').classList.toggle('hidden', !(data.role==='admin' || data.role==='owner'));
-    document.getElementById('nav-users').classList.toggle('hidden', data.role!=='owner');
+    // Кнопки БАЗА и ПРАВА видят и Owner, и Admin
+    const isAdminOrOwner = (data.role === 'admin' || data.role === 'owner');
+    document.getElementById('nav-base').classList.toggle('hidden', !isAdminOrOwner);
+    document.getElementById('nav-users').classList.toggle('hidden', !isAdminOrOwner);
     nav('report');
 }
 
-function doLogout(){
-    localStorage.removeItem("session_user");
-    location.reload();
-}
-
-// --- НАВИГАЦИЯ ---
-function nav(id){
+function doLogout(){ localStorage.removeItem("session_user"); location.reload(); }
+function nav(id){ 
     ['report','base','users'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
     document.getElementById('sec-'+id).classList.remove('hidden');
 }
 
-// --- ОТЧЕТЫ ---
 async function sendReport(){
     const nick = document.getElementById('rep-nick').value;
     const work = document.getElementById('rep-work').value;
     const date = document.getElementById('rep-date').value;
-    const files = document.getElementById('rep-files').files;
     if(!nick || !work || !date) return alert("Заполни отчет!");
-
-    const btn = document.getElementById('btn-send');
-    btn.disabled = true; btn.innerText = "ОТПРАВКА...";
-
-    let images = [];
-    for(let f of files){
-        const b64 = await new Promise(r => {
-            const fr = new FileReader();
-            fr.onload = () => r(fr.result);
-            fr.readAsDataURL(f);
-        });
-        images.push(b64);
-    }
-
-    db.ref('reports').push({
-        author: userNow, nick, rank: document.getElementById('rep-rank').value,
-        work, date, images, time: Date.now()
-    }).then(() => {
-        alert("Успешно!");
-        document.getElementById('rep-work').value = "";
-        btn.disabled = false; btn.innerText = "ОТПРАВИТЬ";
+    
+    db.ref('reports').push({author:userLoginNow, nick, work, date}).then(() => {
+        alert("Отправлено!"); location.reload();
     });
 }
 
@@ -251,17 +189,7 @@ function renderReports(snap){
     const data = snap.val(); if(!data) return;
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
-        let imgs = "";
-        if(r.images) r.images.forEach(i => {
-            imgs += `<img src="${i}" class="preview" onclick="openImg('${i}')">`;
-        });
-        box.innerHTML += `<tr>
-            <td><b>${r.nick}</b><br><small>${r.author}</small></td>
-            <td>${r.work}</td>
-            <td>${imgs || "нет"}</td>
-            <td>${r.date}</td>
-            <td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">Удалить</button></td>
-        </tr>`;
+        box.innerHTML += `<tr><td>${r.nick}</td><td>${r.work}</td><td>${r.date}</td><td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
     });
 }
 
@@ -270,22 +198,18 @@ function renderUsers(snap){
     const data = snap.val(); if(!data) return;
     Object.keys(data).forEach(u => {
         if(u === OWNER_LOGIN) return;
-        const role = data[u].role;
+        const r = data[u].role;
+        const isPending = r === 'pending';
         box.innerHTML += `<tr>
-            <td>${u}</td><td><b>${role}</b></td>
+            <td>${u}</td>
+            <td class="${isPending ? 'status-pending' : ''}">${r.toUpperCase()}</td>
             <td>
-                <button class="btn-nav" onclick="toggleAdmin('${u}','${role}')">${role==='admin'?'Снять':'Дать'} Admin</button>
-                <button class="btn-danger" onclick="db.ref('users/${u}').remove()">X</button>
+                ${isPending ? `<button class="btn-main" style="padding:5px; font-size:10px" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : `<button class="btn-nav" onclick="db.ref('users/${u}/role').set('${r==='admin'?'user':'admin'}')">РОЛЬ</button>`}
+                ${userRoleNow === 'owner' ? `<button class="btn-danger" onclick="db.ref('users/${u}').remove()">УДАЛИТЬ</button>` : ''}
             </td>
         </tr>`;
     });
 }
-
-function toggleAdmin(l, r){
-    db.ref('users/'+l+'/role').set(r === 'admin' ? 'user' : 'admin');
-}
-
-function openImg(s){ document.getElementById('modal-img').src=s; document.getElementById('modal').classList.remove('hidden'); }
 </script>
 </body>
 </html>
