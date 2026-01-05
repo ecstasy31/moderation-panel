@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | СИСТЕМА УПРАВЛЕНИЯ</title>
+    <title>MOD EKB | MANAGEMENT SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
@@ -27,7 +27,7 @@
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: -1; }
 
         .container {
-            background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 650px;
+            background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 600px;
             margin: 30px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--border);
             box-shadow: 0 10px 40px rgba(0,0,0,0.8); box-sizing: border-box; text-align: center;
         }
@@ -35,7 +35,6 @@
         .hidden { display: none !important; }
         h2, h3 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
         
-        /* Profile UI */
         .profile-card { position: relative; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .avatar-box { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
         .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); cursor: pointer; }
@@ -49,16 +48,14 @@
         .stat-val { display: block; font-size: 18px; font-weight: bold; color: var(--primary); }
         .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
 
-        .score-big { font-size: 40px; font-weight: 900; color: var(--primary); margin: 5px 0; }
+        .score-big { font-size: 44px; font-weight: 900; color: var(--primary); margin: 5px 0; }
 
-        /* General */
         input, select, textarea {
             width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a !important;
             border: 1px solid var(--border); border-radius: 10px; color: white !important; box-sizing: border-box;
         }
         button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-main { background: var(--primary); color: #000; }
-        .btn-alt { background: var(--accent); color: #fff; margin-top: 10px; }
         .auth-link { background: none; color: var(--primary); display: inline; padding: 0; width: auto; text-decoration: underline; }
 
         .header {
@@ -66,8 +63,8 @@
             align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100;
         }
         .nav-group { display: flex; gap: 5px; }
-        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 5px 8px; font-size: 10px; }
-        .btn-logout { background: var(--danger); color: white; width: auto; padding: 5px 8px; font-size: 10px; }
+        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 6px 12px; font-size: 11px; }
+        .btn-logout { background: var(--danger); color: white; width: auto; padding: 6px 12px; font-size: 11px; }
 
         .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 10px; background: rgba(0,0,0,0.5); }
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -75,7 +72,7 @@
         td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .btn-del { background: var(--danger); color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; width: auto; }
-        .btn-approve { background: var(--primary); color: black; padding: 4px 8px; margin-bottom: 3px; font-size: 10px; }
+        .btn-approve { background: var(--primary); color: black; padding: 4px 8px; font-size: 10px; }
         .score-val { color: var(--primary); font-weight: bold; }
     </style>
 </head>
@@ -87,24 +84,24 @@
 
 <div id="auth-section">
     <div class="container" id="box-log">
-        <h2>Вход</h2>
+        <h2>Вход в систему</h2>
         <input type="text" id="in-log-login" placeholder="Rp NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">Войти</button>
-        <p style="font-size: 13px;">Впервые тут? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
+        <p style="font-size: 13px;">Нет аккаунта? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
     </div>
     <div class="container hidden" id="box-reg">
         <h2>Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doRegister()">Создать</button>
-        <p style="font-size: 13px;">Уже есть аккаунт? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
+        <button class="btn-main" onclick="doRegister()">Создать профиль</button>
+        <p style="font-size: 13px;">Уже зарегистрированы? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="display-user" style="color:var(--primary); font-weight:bold; font-size: 12px;">ЗАГРУЗКА...</div>
+        <div id="display-user" style="color:var(--primary); font-weight:bold; font-size: 12px;">MODERATOR</div>
         <div class="nav-group">
             <button class="btn-nav" onclick="nav('profile')">ПРОФИЛЬ</button>
             <button class="btn-nav" onclick="nav('report')">ОТЧЕТ</button>
@@ -118,68 +115,66 @@
     <div class="container" id="sec-profile">
         <div class="profile-card">
             <div class="avatar-box">
-                <img id="prof-ava" class="avatar" src="https://i.pravatar.cc/150?u=1" onclick="changeAvatar()">
+                <img id="prof-ava" class="avatar" src="" onclick="changeAvatar()" title="Изменить фото">
                 <div class="online-badge"></div>
             </div>
             <div class="nick-row">
                 <span id="prof-nick">...</span>
                 <button class="edit-btn" onclick="changeNick()">✏️</button>
             </div>
-            <div id="prof-rank" style="opacity: 0.6; font-size: 13px;">Модератор</div>
+            <div id="prof-rank" style="opacity: 0.6; font-size: 13px;">Младший модератор</div>
             <div class="score-big" id="prof-score">0</div>
-            <div style="font-size: 10px; opacity: 0.7; letter-spacing: 1px;">БАЛЛОВ НАЧИСЛЕНО</div>
+            <div style="font-size: 10px; opacity: 0.7;">ОБЩИЙ СЧЕТ БАЛЛОВ</div>
 
             <div class="stats-grid">
-                <div class="stat-item"><span class="stat-val" id="prof-top">#--</span><span class="stat-label">Место</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-count">0</span><span class="stat-label">Отчетов</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-avg">0</span><span class="stat-label">Ср. балл</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-last" style="font-size: 11px;">--</span><span class="stat-label">Последний</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-top">#--</span><span class="stat-label">Место в ТОП</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-count">0</span><span class="stat-label">Всего отчетов</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-avg">0</span><span class="stat-label">Средний балл</span></div>
+                <div class="stat-item"><span class="stat-val" id="prof-last" style="font-size: 11px;">--</span><span class="stat-label">Дата последнего</span></div>
             </div>
-            <button class="btn-alt" onclick="nav('base')">📜 ИСТОРИЯ ОТЧЕТОВ</button>
-            <div id="last-seen" style="font-size: 9px; margin-top: 15px; opacity: 0.4;">...</div>
+            <div id="last-seen" style="font-size: 9px; margin-top: 15px; opacity: 0.4;">В сети: только что</div>
         </div>
     </div>
 
     <div class="container hidden" id="sec-report">
         <div id="report-form-box">
-            <h3>Создать отчёт</h3>
-            <input type="text" id="rep-nick" placeholder="Ваш ник">
+            <h3>Подать отчет</h3>
+            <input type="text" id="rep-nick" placeholder="Ваш RP Nick">
             <select id="rep-rank">
                 <option>Младший модератор</option>
                 <option>Модератор</option>
                 <option>Старший модератор</option>
             </select>
-            <textarea id="rep-work" rows="3" placeholder="Описание работы..."></textarea>
-            <input type="number" id="rep-punish" placeholder="Кол-во наказаний (баллы)">
+            <textarea id="rep-work" rows="3" placeholder="Что было сделано?"></textarea>
+            <input type="number" id="rep-punish" placeholder="Количество баллов">
             <input type="date" id="rep-date">
             <input type="file" id="rep-files" multiple accept="image/*">
-            <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
+            <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ ОТЧЕТ</button>
         </div>
         <div id="report-pending-box" class="hidden">
             <div style="color: var(--primary); padding: 20px; border: 1px dashed var(--primary); border-radius: 10px;">
-                ⚙️ ВАШ АККАУНТ НА ПРОВЕРКЕ У АДМИНИСТРАЦИИ.
+                ОЖИДАЙТЕ ПОДТВЕРЖДЕНИЯ ВАШЕГО АККАУНТА АДМИНИСТРАЦИЕЙ
             </div>
         </div>
     </div>
 
     <div class="container hidden" id="sec-scores">
-        <h3>🏆 ТОП СОСТАВА</h3>
-        <div class="table-wrap"><table><thead><tr><th>#</th><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
+        <h3>🏆 РЕЙТИНГ МОДЕРАТОРОВ</h3>
+        <div class="table-wrap"><table><thead><tr><th>№</th><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
     </div>
 
     <div class="container hidden" id="sec-base" style="max-width: 95%;">
-        <h3>📁 ВСЕ ОТЧЕТЫ</h3>
-        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Описание</th><th>Скрины</th><th>Дата</th><th></th></tr></thead><tbody id="out-reports"></tbody></table></div>
+        <h3>📁 БАЗА ВСЕХ ОТЧЕТОВ</h3>
+        <div class="table-wrap"><table><thead><tr><th>Автор</th><th>Работа</th><th>Доказательства</th><th>Дата</th><th></th></tr></thead><tbody id="out-reports"></tbody></table></div>
     </div>
 
     <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ УПРАВЛЕНИЕ</h3>
+        <h3>⚙️ ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
         <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead><tbody id="out-users"></tbody></table></div>
     </div>
 </div>
 
 <script>
-// Настройки Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
@@ -192,7 +187,6 @@ const OWNER = "Ecstasy9988";
 let currentUser = "";
 let userRole = 'user';
 
-// Навигация
 function nav(id) {
     const sections = ['profile', 'report', 'scores', 'base', 'admin'];
     sections.forEach(s => {
@@ -207,25 +201,21 @@ function showAuthBox(type) {
     document.getElementById('box-reg').classList.toggle('hidden', type === 'log');
 }
 
-// Авторизация
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === "Ecstasy20036") { 
-        initUser(l, 'owner'); 
-        return; 
-    }
+    if (l === OWNER && p === "Ecstasy20036") { initUser(l, 'owner'); return; }
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
         if (d && d.pass === p) initUser(l, d.role);
-        else alert("Ошибка: Неверный ник или пароль!");
+        else alert("Неверный логин или пароль!");
     });
 }
 
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
-    if (!l || !p) return alert("Заполните все поля!");
+    if (!l || !p) return alert("Заполните поля!");
     db.ref('users/' + l).set({
         pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший модератор', avatar: ''
     }).then(() => initUser(l, 'pending'));
@@ -244,24 +234,21 @@ function initUser(nick, role) {
 function renderApp(nick, data) {
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
-    document.getElementById('display-user').innerText = nick.toUpperCase();
+    document.getElementById('display-user').innerText = nick;
     
-    // Показ вкладок для админов
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
 
-    // Доступ к форме отчета
     const isApproved = userRole !== 'pending';
     document.getElementById('report-form-box').classList.toggle('hidden', !isApproved);
     document.getElementById('report-pending-box').classList.toggle('hidden', isApproved);
 
-    // Профиль
     document.getElementById('prof-nick').innerText = data.nick || nick;
     document.getElementById('prof-score').innerText = data.score || 0;
     document.getElementById('prof-rank').innerText = data.rank || 'Модератор';
     document.getElementById('prof-ava').src = data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
-    document.getElementById('last-seen').innerText = 'Был(а) в сети: ' + new Date().toLocaleString();
+    document.getElementById('last-seen').innerText = 'Последняя активность: ' + new Date().toLocaleString('ru-RU');
     
     updateStats(nick);
 }
@@ -285,17 +272,15 @@ function updateStats(nick) {
     });
 }
 
-// Функции профиля
 function changeNick() {
-    const n = prompt("Новый ник:");
+    const n = prompt("Введите новый RP ник:");
     if(n) db.ref('users/' + currentUser).update({ nick: n });
 }
 function changeAvatar() {
-    const a = prompt("Ссылка на фото:");
+    const a = prompt("Вставьте прямую ссылку на фото:");
     if(a) db.ref('users/' + currentUser).update({ avatar: a });
 }
 
-// Отчеты
 async function sendReport() {
     const n = document.getElementById('rep-nick').value;
     const s = parseInt(document.getElementById('rep-punish').value) || 0;
@@ -303,7 +288,7 @@ async function sendReport() {
     const d = document.getElementById('rep-date').value;
     const files = document.getElementById('rep-files').files;
 
-    if(!n || !w || !d) return alert("Заполните данные!");
+    if(!n || !w || !d) return alert("Заполните все поля отчета!");
 
     let images = [];
     for(let f of files) {
@@ -315,54 +300,55 @@ async function sendReport() {
         const curScore = snap.val().score || 0;
         db.ref('users/' + currentUser).update({ score: curScore + s });
         db.ref('reports').push({ author: currentUser, nick: n, work: w, date: d, score: s, images });
-        alert("Отправлено!");
+        alert("Отчет успешно отправлен!");
         nav('profile');
     });
 }
 
-// Списки (ТОП, Отчеты, Юзеры)
 db.ref('users').on('value', s => {
     const users = s.val(); if(!users) return;
     const outS = document.getElementById('out-scores');
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
 
-    // ТОП
     Object.entries(users).filter(u => u[1].role !== 'pending')
         .sort((a,b) => b[1].score - a[1].score)
         .forEach((u, i) => {
             outS.innerHTML += `<tr><td>${i+1}</td><td>${u[1].nick}</td><td>${u[1].rank}</td><td class="score-val">${u[1].score}</td></tr>`;
         });
 
-    // Админка
-    Object.keys(users).forEach(id => {
-        if(id === OWNER) return;
-        const u = users[id];
-        outU.innerHTML += `<tr>
-            <td><input style="font-size:10px" value="${u.nick}" onchange="db.ref('users/${id}/nick').set(this.value)"></td>
-            <td><input style="font-size:10px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)"></td>
-            <td><input type="number" style="font-size:10px" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))"></td>
-            <td><select style="font-size:10px" onchange="db.ref('users/${id}/role').set(this.value)">
-                <option value="pending" ${u.role==='pending'?'selected':''}>Ожидание</option>
-                <option value="user" ${u.role==='user'?'selected':''}>Модер</option>
-                <option value="admin" ${u.role==='admin'?'selected':''}>Админ</option>
-            </select></td>
-            <td>
-                ${u.role==='pending' ? `<button class="btn-approve" onclick="db.ref('users/${id}/role').set('user')">ОК</button>` : ''}
-                <button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${id}').remove()">X</button>
-            </td>
-        </tr>`;
-    });
+    if(userRole === 'admin' || userRole === 'owner') {
+        Object.keys(users).forEach(id => {
+            if(id === OWNER) return;
+            const u = users[id];
+            outU.innerHTML += `<tr>
+                <td><input value="${u.nick}" onchange="db.ref('users/${id}/nick').set(this.value)"></td>
+                <td><input value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)"></td>
+                <td><input type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))"></td>
+                <td><select onchange="db.ref('users/${id}/role').set(this.value)">
+                    <option value="pending" ${u.role==='pending'?'selected':''}>Ожидание</option>
+                    <option value="user" ${u.role==='user'?'selected':''}>Модер</option>
+                    <option value="admin" ${u.role==='admin'?'selected':''}>Админ</option>
+                </select></td>
+                <td>
+                    ${u.role==='pending' ? `<button class="btn-approve" onclick="db.ref('users/${id}/role').set('user')">ОК</button>` : ''}
+                    <button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${id}').remove()">X</button>
+                </td>
+            </tr>`;
+        });
+    }
 });
 
 db.ref('reports').on('value', s => {
     const outR = document.getElementById('out-reports');
     outR.innerHTML = "";
+    if(!(userRole === 'admin' || userRole === 'owner')) return;
+    
     const data = s.val(); if(!data) return;
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
         let imgs = "";
-        if(r.images) r.images.forEach(src => imgs += `<img src="${src}" onclick="openImg('${src}')" style="width:40px;height:40px;margin:2px;cursor:pointer">`);
+        if(r.images) r.images.forEach(src => imgs += `<img src="${src}" onclick="openImg('${src}')" style="width:40px;height:40px;margin:2px;cursor:pointer;border-radius:4px">`);
         outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td>
         <td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
     });
@@ -370,7 +356,6 @@ db.ref('reports').on('value', s => {
 
 function openImg(s) { document.getElementById('modalImg').src = s; document.getElementById('imgModal').style.display = 'flex'; }
 function doLogout() { localStorage.clear(); location.reload(); }
-
 window.onload = () => { const saved = localStorage.getItem('ekb_user'); if(saved) initUser(saved); };
 </script>
 </body>
