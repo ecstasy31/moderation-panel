@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
+    <title>MOD EKB | MANAGEMENT SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
@@ -10,163 +10,117 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root {
-            --primary: #00e676;
-            --danger: #ff5252;
-            --glass: rgba(15, 15, 15, 0.95);
-            --border: rgba(0, 230, 118, 0.3);
-            --accent: #00b0ff;
-        }
+        :root { --primary: #00e676; --danger: #ff5252; --glass: rgba(15, 15, 15, 0.95); --border: rgba(0, 230, 118, 0.3); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #000 url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') no-repeat center center fixed; background-size: cover; color: white; }
+        body::before { content: ""; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: -1; }
 
-        body {
-            margin: 0; padding: 0; min-height: 100vh; font-family: 'Segoe UI', sans-serif;
-            background: #000 url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') no-repeat center center fixed;
-            background-size: cover; color: white;
-        }
-
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: -1; }
-
-        .container {
-            background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 600px;
-            margin: 30px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--border);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); box-sizing: border-box; text-align: center;
-        }
-
+        .container { background: var(--glass); backdrop-filter: blur(15px); width: 95%; max-width: 700px; margin: 20px auto; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
         .hidden { display: none !important; }
-        h2, h3 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
         
-        /* Profile UI */
-        .profile-card { position: relative; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .avatar-box { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
-        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); cursor: pointer; }
-        .online-badge { position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: var(--primary); border: 2px solid #000; border-radius: 50%; }
+        /* Header */
+        .header { background: rgba(0,0,0,0.9); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100; }
+        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; font-size: 10px; cursor: pointer; border-radius: 5px; margin-left: 3px; }
+        .btn-logout { background: var(--danger); color: white; border: none; padding: 5px 10px; font-size: 10px; border-radius: 5px; }
+
+        /* Profile */
+        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
+        .score-big { font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; }
+
+        /* Tables */
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { color: var(--primary); padding: 10px; border-bottom: 1px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .clickable-nick { color: var(--primary); cursor: pointer; text-decoration: underline; }
         
-        .nick-row { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: bold; }
-        .edit-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 16px; width: auto; padding: 5px; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .stat-item { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-val { display: block; font-size: 18px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.6; }
-
-        .score-big { font-size: 44px; font-weight: 900; color: var(--primary); margin: 5px 0; }
-
-        /* General UI */
-        input, select, textarea {
-            width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a !important;
-            border: 1px solid var(--border); border-radius: 10px; color: white !important; box-sizing: border-box;
-        }
-        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-main { background: var(--primary); color: #000; }
-        .auth-link { background: none; color: var(--primary); display: inline; padding: 0; width: auto; text-decoration: underline; }
-
-        .header {
-            background: rgba(0, 0, 0, 0.95); padding: 10px 15px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100;
-        }
-        .nav-group { display: flex; gap: 5px; }
-        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 6px 12px; font-size: 11px; }
-        .btn-logout { background: var(--danger); color: white; width: auto; padding: 6px 12px; font-size: 11px; }
-
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 10px; background: rgba(0,0,0,0.5); }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th { background: rgba(0, 230, 118, 0.15); padding: 10px; color: var(--primary); }
-        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        
-        .btn-del { background: var(--danger); color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; width: auto; }
-        .btn-approve { background: var(--primary); color: black; padding: 4px 8px; font-size: 10px; }
-        .score-val { color: var(--primary); font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; background: #111; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn-action { background: var(--primary); color: black; border: none; padding: 8px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-del { background: var(--danger); color: white; padding: 3px 7px; border-radius: 4px; cursor: pointer; border: none; }
+        .admin-edit-input { background: transparent; border: 1px dashed var(--border); color: white; text-align: center; width: 80px; }
     </style>
 </head>
 <body>
 
-<div id="imgModal" onclick="this.style.display='none'" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center;">
-    <img id="modalImg" src="" style="max-width: 90%; max-height: 90%; border-radius: 10px;">
-</div>
-
-<div id="auth-section">
-    <div class="container" id="box-log">
-        <h2>Вход</h2>
+<div id="auth-section" class="container">
+    <div id="box-log">
+        <h2>ВХОД</h2>
         <input type="text" id="in-log-login" placeholder="Rp NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doLogin()">Войти</button>
-        <p style="font-size: 13px;">Впервые? <button class="auth-link" onclick="showAuthBox('reg')">Регистрация</button></p>
+        <button class="btn-action" onclick="doLogin()">Войти</button>
+        <p onclick="toggleAuth(true)" style="cursor:pointer; font-size:12px; margin-top:10px;">Нет аккаунта? Регистрация</p>
     </div>
-    <div class="container hidden" id="box-reg">
-        <h2>Регистрация</h2>
+    <div id="box-reg" class="hidden">
+        <h2>РЕГИСТРАЦИЯ</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
         <input type="password" id="in-reg-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doRegister()">Создать</button>
-        <p style="font-size: 13px;">Есть аккаунт? <button class="auth-link" onclick="showAuthBox('log')">Войти</button></p>
+        <button class="btn-action" onclick="doRegister()">Создать аккаунт</button>
+        <p onclick="toggleAuth(false)" style="cursor:pointer; font-size:12px; margin-top:10px;">Есть аккаунт? Войти</p>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="display-user" style="color:var(--primary); font-weight:bold; font-size: 12px;">ЗАГРУЗКА...</div>
+        <div id="user-tag" style="font-size: 11px; color: var(--primary);">MODERATOR</div>
         <div class="nav-group">
-            <button class="btn-nav" onclick="nav('profile')">ПРОФИЛЬ</button>
-            <button class="btn-nav" onclick="nav('report')">ОТЧЕТ</button>
-            <button class="btn-nav" onclick="nav('scores')">ТОП</button>
+            <button class="btn-nav" id="nav-prof-btn" onclick="showProfile(currentUser)">ПРОФИЛЬ</button>
+            <button class="btn-nav approval-hide" onclick="nav('report')">ОТЧЕТ</button>
+            <button class="btn-nav approval-hide" onclick="nav('scores')">ТОП</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
-            <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">АДМИН</button>
-            <button class="btn-logout" onclick="doLogout()">ВЫЙТИ</button>
+            <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">ПРАВА</button>
+            <button class="btn-logout" onclick="logout()">ВЫЙТИ</button>
         </div>
     </div>
 
-    <div class="container" id="sec-profile">
-        <div class="profile-card">
-            <div class="avatar-box">
-                <img id="prof-ava" class="avatar" src="" onclick="changeAvatar()">
-                <div class="online-badge"></div>
-            </div>
-            <div class="nick-row">
-                <span id="prof-nick">...</span>
-                <button class="edit-btn" onclick="changeNick()">✏️</button>
-            </div>
-            <div id="prof-rank" style="opacity: 0.6; font-size: 13px;">Модератор</div>
-            <div class="score-big" id="prof-score">0</div>
-            <div style="font-size: 10px; opacity: 0.7;">БАЛЛОВ НАЧИСЛЕНО</div>
-            <div class="stats-grid">
-                <div class="stat-item"><span class="stat-val" id="prof-top">#--</span><span class="stat-label">Место</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-count">0</span><span class="stat-label">Отчетов</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-avg">0</span><span class="stat-label">Ср. балл</span></div>
-                <div class="stat-item"><span class="stat-val" id="prof-last" style="font-size: 11px;">--</span><span class="stat-label">Последний</span></div>
-            </div>
-            <div id="last-seen" style="font-size: 9px; margin-top: 15px; opacity: 0.4;">...</div>
+    <div id="sec-profile" class="container">
+        <div id="pending-msg" class="hidden" style="color:var(--danger); margin-bottom: 20px; border: 1px solid var(--danger); padding: 10px; border-radius: 10px;">
+            ВАШ АККАУНТ НА ПРОВЕРКЕ. ОЖИДАЙТЕ ОДОБРЕНИЯ АДМИНИСТРАЦИЕЙ.
+        </div>
+        <img id="view-ava" class="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
+        <h2 id="view-nick">---</h2>
+        <div id="view-rank" style="opacity: 0.6;">---</div>
+        <div class="score-big" id="view-score">0</div>
+        <div style="font-size: 10px; opacity: 0.5; margin-bottom: 20px;">ОБЩИЙ СЧЕТ БАЛЛОВ</div>
+        
+        <div class="stats-grid">
+            <div class="stat-item"><div id="stat-count">0</div><small>ОТЧЕТОВ</small></div>
+            <div class="stat-item"><div id="stat-avg">0</div><small>СР. БАЛЛ</small></div>
+        </div>
+        <br>
+        <div id="my-profile-controls" class="hidden">
+            <button class="btn-nav" onclick="changeAva()">Сменить аватар</button>
+            <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
         </div>
     </div>
 
-    <div class="container hidden" id="sec-report">
-        <div id="report-form-box">
-            <h3>Создать отчет</h3>
-            <input type="text" id="rep-nick" placeholder="Ваш ник">
-            <textarea id="rep-work" rows="3" placeholder="Описать проделанную работу"></textarea>
-            <input type="number" id="rep-punish" placeholder="Количество выданных наказании за неделю(Только число)">
-            <input type="date" id="rep-date">
-            <input type="file" id="rep-files" multiple accept="image/*">
-            <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
-        </div>
-        <div id="report-pending-box" class="hidden">
-            <div style="color: var(--primary); padding: 20px; border: 1px dashed var(--primary); border-radius: 10px;">
-                АККАУНТ НА ПРОВЕРКЕ. ЖДИТЕ ОДОБРЕНИЯ.
-            </div>
+    <div id="sec-scores" class="container hidden">
+        <h3>🏆 РЕЙТИНГ СОСТАВА</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th class="admin-only hidden">Действие</th></tr></thead>
+                <tbody id="list-scores"></tbody>
+            </table>
         </div>
     </div>
 
-    <div class="container hidden" id="sec-scores">
-        <h3>🏆 ТОП СОСТАВА</h3>
-        <div class="table-wrap"><table><thead><tr><th>#</th><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
+    <div id="sec-report" class="container hidden">
+        <h3>ПОДАТЬ ОТЧЕТ</h3>
+        <input type="text" id="rep-nick-display" disabled>
+        <textarea id="rep-work" placeholder="Описание проделанной работы..."></textarea>
+        <input type="number" id="rep-val" placeholder="Количество баллов">
+        <input type="date" id="rep-date">
+        <button class="btn-action" onclick="sendReport()">ОТПРАВИТЬ</button>
     </div>
 
-    <div class="container hidden" id="sec-base" style="max-width: 95%;">
+    <div id="sec-base" class="container hidden">
         <h3>📁 БАЗА ОТЧЕТОВ</h3>
-        <div class="table-wrap"><table><thead><tr><th>Автор</th><th>Работа</th><th>Скрины</th><th>Дата</th><th>Удалить</th></tr></thead><tbody id="out-reports"></tbody></table></div>
+        <div id="list-reports"></div>
     </div>
 
-    <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ ПАНЕЛЬ ПРАВ</h3>
-        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead><tbody id="out-users"></tbody></table></div>
+    <div id="sec-admin" class="container hidden">
+        <h3>⚙️ УПРАВЛЕНИЕ ДОСТУПОМ</h3>
+        <div id="list-users-admin"></div>
     </div>
 </div>
 
@@ -181,31 +135,25 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
 let currentUser = "";
-let userRole = 'user';
+let userRole = "pending";
 
 function nav(id) {
-    ['profile', 'report', 'scores', 'base', 'admin'].forEach(s => {
-        const el = document.getElementById('sec-' + s);
-        if (el) el.classList.add('hidden');
-    });
+    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById('sec-' + id).classList.remove('hidden');
 }
 
-function showAuthBox(t) {
-    document.getElementById('box-log').classList.toggle('hidden', t === 'reg');
-    document.getElementById('box-reg').classList.toggle('hidden', t === 'log');
+function toggleAuth(reg) {
+    document.getElementById('box-log').classList.toggle('hidden', reg);
+    document.getElementById('box-reg').classList.toggle('hidden', !reg);
 }
 
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === "Ecstasy20036") { 
-        initUser(l, 'owner'); 
-        return; 
-    }
+    if (l === OWNER && p === "Ecstasy20036") { loginSuccess(l, 'owner'); return; }
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
-        if (d && d.pass === p) initUser(l, d.role);
+        if (d && d.pass === p) loginSuccess(l, d.role);
         else alert("Ошибка входа!");
     });
 }
@@ -213,137 +161,114 @@ function doLogin() {
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
-    if (!l || !p) return alert("Заполните поля!");
-    db.ref('users/' + l).set({
-        pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший модератор', avatar: ''
-    }).then(() => initUser(l, 'pending'));
+    if (!l || !p) return;
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший модератор', avatar: '' });
+    loginSuccess(l, 'pending');
 }
 
-function initUser(nick, role) {
-    currentUser = nick;
-    localStorage.setItem('ekb_user', nick);
-    db.ref('users/' + nick).on('value', snap => {
-        const data = snap.val() || {};
-        userRole = (nick === OWNER) ? 'owner' : (data.role || role);
-        renderApp(nick, data);
-    });
-}
-
-function renderApp(nick, data) {
+function loginSuccess(l, role) {
+    currentUser = l;
+    userRole = (l === OWNER) ? 'owner' : role;
+    localStorage.setItem('mod_user', l);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
-    document.getElementById('display-user').innerText = nick;
     
-    // ПРОВЕРКА РОЛИ ДЛЯ КНОПОК
+    // Ограничение интерфейса для новых
+    if (userRole === 'pending') {
+        document.querySelectorAll('.approval-hide').forEach(el => el.classList.add('hidden'));
+        document.getElementById('pending-msg').classList.remove('hidden');
+    } else {
+        document.querySelectorAll('.approval-hide').forEach(el => el.classList.remove('hidden'));
+        document.getElementById('pending-msg').classList.add('hidden');
+    }
+
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
+    document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
 
-    const isApproved = userRole !== 'pending';
-    document.getElementById('report-form-box').classList.toggle('hidden', !isApproved);
-    document.getElementById('report-pending-box').classList.toggle('hidden', isApproved);
-
-    document.getElementById('prof-nick').innerText = data.nick || nick;
-    document.getElementById('prof-score').innerText = data.score || 0;
-    document.getElementById('prof-rank').innerText = data.rank || 'Модератор';
-    document.getElementById('prof-ava').src = data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
-    document.getElementById('last-seen').innerText = 'В сети: ' + new Date().toLocaleString();
-    
-    updateStats(nick);
+    showProfile(l);
+    loadData();
 }
 
-function updateStats(nick) {
-    db.ref('reports').once('value', s => {
-        const reps = Object.values(s.val() || {}).filter(r => r.author === nick);
-        document.getElementById('prof-count').innerText = reps.length;
-        if(reps.length > 0) {
-            const sum = reps.reduce((a, b) => a + (parseInt(b.score) || 0), 0);
-            document.getElementById('prof-avg').innerText = (sum / reps.length).toFixed(1);
-            document.getElementById('prof-last').innerText = reps[reps.length-1].date;
-        }
+function showProfile(nick) {
+    nav('profile');
+    document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
+    
+    db.ref('users/' + nick).once('value', s => {
+        const d = s.val() || {};
+        document.getElementById('view-nick').innerText = d.nick || nick;
+        document.getElementById('view-rank').innerText = d.rank || "Модератор";
+        document.getElementById('view-score').innerText = d.score || 0;
+        document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
+        
+        db.ref('reports').once('value', rs => {
+            const all = Object.values(rs.val() || {}).filter(r => r.author === nick);
+            document.getElementById('stat-count').innerText = all.length;
+            const sum = all.reduce((a, b) => a + (parseInt(b.score) || 0), 0);
+            document.getElementById('stat-avg').innerText = all.length ? (sum/all.length).toFixed(1) : 0;
+        });
     });
 }
 
-function changeNick() {
-    const n = prompt("Новый ник:");
-    if(n) db.ref('users/' + currentUser).update({ nick: n });
-}
-function changeAvatar() {
-    const a = prompt("Ссылка на фото:");
-    if(a) db.ref('users/' + currentUser).update({ avatar: a });
+function loadData() {
+    // Список ТОП с кнопками удаления и редактирования для админов
+    db.ref('users').on('value', s => {
+        const users = s.val();
+        const list = document.getElementById('list-scores');
+        const adminList = document.getElementById('list-users-admin');
+        list.innerHTML = ""; adminList.innerHTML = "";
+        
+        Object.entries(users).sort((a,b) => b[1].score - a[1].score).forEach(([id, u]) => {
+            if (u.role === 'pending' && (userRole === 'admin' || userRole === 'owner')) {
+                adminList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                    <span>${id}</span>
+                    <button class="btn-nav" onclick="db.ref('users/${id}/role').set('user')">ОДОБРИТЬ</button>
+                </div>`;
+            }
+
+            const isAdmin = (userRole === 'admin' || userRole === 'owner');
+            const row = `<tr>
+                <td><span class="clickable-nick" onclick="showProfile('${id}')">${u.nick || id}</span></td>
+                <td>${isAdmin ? `<input class="admin-edit-input" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
+                <td>${isAdmin ? `<input class="admin-edit-input" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
+                <td class="${isAdmin ? '' : 'hidden'}">
+                    <button class="btn-del" onclick="if(confirm('Удалить модератора?')) db.ref('users/${id}').remove()">❌</button>
+                </td>
+            </tr>`;
+            if (u.role !== 'pending') list.innerHTML += row;
+        });
+    });
 }
 
 async function sendReport() {
-    const n = document.getElementById('rep-nick').value;
-    const s = parseInt(document.getElementById('rep-punish').value) || 0;
     const w = document.getElementById('rep-work').value;
+    const v = parseInt(document.getElementById('rep-val').value);
     const d = document.getElementById('rep-date').value;
-    const files = document.getElementById('rep-files').files;
-    if(!n || !w || !d) return alert("Заполни всё!");
+    if(!w || !v || !d) return alert("Заполни всё!");
 
-    let images = [];
-    for(let f of files) {
-        const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(f); });
-        images.push(b64);
-    }
-    db.ref('users/' + currentUser).once('value').then(snap => {
-        const curScore = snap.val().score || 0;
-        db.ref('users/' + currentUser).update({ score: curScore + s });
-        db.ref('reports').push({ author: currentUser, nick: n, work: w, date: d, score: s, images });
-        alert("Отправлено!");
-        nav('profile');
-    });
+    db.ref('reports').push({ author: currentUser, work: w, score: v, date: d });
+    db.ref('users/' + currentUser + '/score').transaction(s => (s || 0) + v);
+    alert("Отчет отправлен!");
+    showProfile(currentUser);
 }
 
-db.ref('users').on('value', s => {
-    const users = s.val(); if(!users) return;
-    const outS = document.getElementById('out-scores');
-    const outU = document.getElementById('out-users');
-    outS.innerHTML = ""; outU.innerHTML = "";
+function changeAva() {
+    const url = prompt("Вставьте ссылку на картинку:");
+    if(url) db.ref('users/' + currentUser).update({ avatar: url });
+}
+function changeNick() {
+    const n = prompt("Новый Rp Nick:");
+    if(n) db.ref('users/' + currentUser).update({ nick: n });
+}
+function logout() { localStorage.clear(); location.reload(); }
 
-    Object.entries(users).filter(u => u[1].role !== 'pending')
-        .sort((a,b) => b[1].score - a[1].score)
-        .forEach((u, i) => {
-            outS.innerHTML += `<tr><td>${i+1}</td><td>${u[1].nick}</td><td>${u[1].rank}</td><td class="score-val">${u[1].score}</td></tr>`;
-        });
-
-    if(userRole === 'admin' || userRole === 'owner') {
-        Object.keys(users).forEach(id => {
-            if(id === OWNER) return;
-            const u = users[id];
-            outU.innerHTML += `<tr>
-                <td><input value="${u.nick}" onchange="db.ref('users/${id}/nick').set(this.value)"></td>
-                <td><input value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)"></td>
-                <td><input type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))"></td>
-                <td><select onchange="db.ref('users/${id}/role').set(this.value)">
-                    <option value="pending" ${u.role==='pending'?'selected':''}>Ожидание</option>
-                    <option value="user" ${u.role==='user'?'selected':''}>Модер</option>
-                    <option value="admin" ${u.role==='admin'?'selected':''}>Админ</option>
-                </select></td>
-                <td><button class="btn-del" onclick="db.ref('users/${id}').remove()">X</button></td>
-            </tr>`;
-        });
-    }
-});
-
-db.ref('reports').on('value', s => {
-    const outR = document.getElementById('out-reports');
-    outR.innerHTML = "";
-    if(!(userRole === 'admin' || userRole === 'owner')) return;
-    const data = s.val(); if(!data) return;
-    Object.keys(data).reverse().forEach(id => {
-        const r = data[id];
-        let imgs = "";
-        if(r.images) r.images.forEach(src => imgs += `<img src="${src}" onclick="openImg('${src}')" style="width:40px;height:40px;margin:2px;cursor:pointer">`);
-        outR.innerHTML += `<tr><td>${r.nick}</td><td>${r.work}</td><td>${imgs}</td><td>${r.date}</td>
-        <td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
+window.onload = () => {
+    const saved = localStorage.getItem('mod_user');
+    if(saved) db.ref('users/' + saved).once('value', s => {
+        if(s.exists()) loginSuccess(saved, s.val().role);
     });
-});
-
-function openImg(s) { document.getElementById('modalImg').src = s; document.getElementById('imgModal').style.display = 'flex'; }
-function doLogout() { localStorage.clear(); location.reload(); }
-window.onload = () => { const saved = localStorage.getItem('ekb_user'); if(saved) initUser(saved); };
+};
 </script>
 </body>
 </html>
-
