@@ -15,59 +15,90 @@
             --primary: #00e676;
             --primary-dark: #00c853;
             --danger: #ff5252;
-            --glass: rgba(15, 15, 15, 0.95);
-            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(10, 10, 10, 0.85);
+            --border: rgba(0, 230, 118, 0.2);
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #050505;
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Фон EKB */
+        /* Улучшенный игровой фон */
         .bg-ekb {
             position: fixed;
             inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.9)), 
-                        url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') center/cover no-repeat;
+            /* Используем твое изображение с наложением градиента для эффекта глубины */
+            background: 
+                linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,230,118,0.1) 100%),
+                url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             z-index: -1;
+            filter: brightness(0.6) contrast(1.1);
+        }
+
+        /* Эффект сетки поверх фона для игрового стиля */
+        .bg-ekb::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
         }
 
         .container {
             background: var(--glass);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
             width: 95%;
             max-width: 550px;
-            margin: 30px auto;
-            padding: 25px;
-            border-radius: 20px;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 15px;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            box-sizing: border-box; /* Фикс текстур */
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.1);
+            box-sizing: border-box;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hidden { display: none !important; }
 
-        h2, h3 { color: var(--primary); text-align: center; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; }
+        h2, h3 { 
+            color: var(--primary); 
+            text-align: center; 
+            text-transform: uppercase; 
+            margin-top: 0; 
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        }
 
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+            padding: 14px;
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             color: white;
             box-sizing: border-box;
             outline: none;
             font-size: 14px;
+            transition: all 0.3s;
         }
 
-        /* ФИКС БЕЛОГО ФОНА В ВЫПАДАЮЩЕМ СПИСКЕ */
         select option {
             background-color: #1a1a1a;
             color: white;
@@ -75,49 +106,94 @@
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn-main { background: var(--primary); color: #000; }
-        .btn-main:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-main { 
+            background: var(--primary); 
+            color: #000; 
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2);
+        }
+        
+        .btn-main:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.3);
+        }
 
         .header {
-            background: rgba(0,0,0,0.9);
-            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-            gap: 10px;
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .user-tag { color: var(--primary); font-weight: 800; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 12px; }
+        .user-tag { 
+            color: var(--primary); 
+            font-weight: 800; 
+            border: 1px solid var(--primary); 
+            padding: 5px 12px; 
+            border-radius: 6px; 
+            font-size: 12px;
+            background: rgba(0, 230, 118, 0.05);
+        }
 
-        .nav-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-nav { background: transparent; border: 1px solid var(--primary); color: var(--primary); width: auto; padding: 6px 12px; font-size: 11px; }
-        .btn-nav:hover { background: var(--primary); color: #000; }
-        .btn-logout { background: var(--danger); color: white; width: auto; padding: 6px 12px; font-size: 11px; }
+        .nav-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        .btn-nav { 
+            background: transparent; 
+            border: 1px solid var(--primary); 
+            color: var(--primary); 
+            width: auto; 
+            padding: 7px 15px; 
+            font-size: 12px; 
+        }
+        
+        .btn-nav:hover { background: rgba(0, 230, 118, 0.1); }
+        
+        .btn-logout { 
+            background: rgba(255, 82, 82, 0.1); 
+            border: 1px solid var(--danger);
+            color: var(--danger); 
+            width: auto; 
+            padding: 7px 15px; 
+            font-size: 12px; 
+        }
+        
+        .btn-logout:hover { background: var(--danger); color: white; }
 
-        /* Таблицы */
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: rgba(255,255,255,0.05); padding: 12px; color: var(--primary); border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); text-align: center; }
+        .table-wrap { 
+            width: 100%; 
+            overflow-x: auto; 
+            margin-top: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: rgba(0, 230, 118, 0.1); padding: 15px; color: var(--primary); border-bottom: 1px solid var(--border); text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
-        .score-val { color: var(--primary); font-weight: bold; font-size: 15px; }
-        .preview { width: 50px; height: 35px; border-radius: 5px; cursor: pointer; object-fit: cover; }
-        .edit-input { width: 80px !important; padding: 5px !important; margin: 0 !important; text-align: center; }
+        .score-val { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -126,19 +202,19 @@
 
 <div id="auth-section">
     <div class="container" id="box-reg">
-        <h2>EKB РЕГИСТРАЦИЯ</h2>
+        <h2>РЕГИСТРАЦИЯ</h2>
         <input type="text" id="in-reg-login" placeholder="RP NickName">
-        <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
+        <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
-        <p style="text-align:center; font-size:12px; margin-top:15px;">Уже в составе? <span style="color:var(--primary); cursor:pointer" onclick="showAuthBox('log')">Войти</span></p>
+        <p style="text-align:center; font-size:13px; margin-top:15px; color: #aaa;">Уже в составе? <span style="color:var(--primary); cursor:pointer; font-weight: bold;" onclick="showAuthBox('log')">Войти</span></p>
     </div>
 
     <div class="container hidden" id="box-log">
-        <h2>EKB АВТОРИЗАЦИЯ</h2>
+        <h2>АВТОРИЗАЦИЯ</h2>
         <input type="text" id="in-log-login" placeholder="RP NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
-        <p style="text-align:center; font-size:12px; margin-top:15px;">Новый модератор? <span style="color:var(--primary); cursor:pointer" onclick="showAuthBox('reg')">Регистрация</span></p>
+        <p style="text-align:center; font-size:13px; margin-top:15px; color: #aaa;">Новый модератор? <span style="color:var(--primary); cursor:pointer; font-weight: bold;" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
 </div>
 
@@ -154,37 +230,36 @@
     </div>
 
     <div class="container" id="sec-report">
-        <h3>ОТЧЕТ О РАБОТЕ</h3>
+        <h3>ПОДАТЬ ОТЧЕТ</h3>
         <input type="text" id="rep-nick" placeholder="Ваш Nick_Name">
         <select id="rep-rank">
             <option>Младший модератор</option>
             <option>Модератор</option>
             <option>Старший модератор</option>
-            <option>Администратор</option>
         </select>
-        <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы..."></textarea>
-        <input type="number" id="rep-punish" placeholder="Кол-во наказаний за неделю (число)">
+        <textarea id="rep-work" rows="3" placeholder="Что было сделано за сегодня?"></textarea>
+        <input type="number" id="rep-punish" placeholder="Кол-во выданных наказаний (баллы)">
         <input type="date" id="rep-date">
-        <p style="font-size:11px; color:#888; margin:5px 0;">Доказательства (скриншоты):</p>
-        <input type="file" id="rep-files" multiple accept="image/*">
-        <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ ОТЧЕТ</button>
+        <p style="font-size:12px; color:#888; margin:5px 0;">Доказательства работы (скрины):</p>
+        <input type="file" id="rep-files" multiple accept="image/*" style="padding: 10px;">
+        <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ ДАННЫЕ</button>
     </div>
 
     <div class="container hidden" id="sec-scores" style="max-width: 800px;">
         <h3>🏆 РЕЙТИНГ СОСТАВА</h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>NickName</th><th>Должность</th><th>Сумма баллов</th></tr></thead>
+                <thead><tr><th>Ник</th><th>Должность</th><th>Баллы</th></tr></thead>
                 <tbody id="out-scores"></tbody>
             </table>
         </div>
     </div>
 
     <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ УПРАВЛЕНИЕ МОДЕРАТОРАМИ</h3>
+        <h3>⚙️ ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Логин</th><th>Ник (ред)</th><th>Ранг (ред)</th><th>Баллы (ред)</th><th>Доступ</th><th>Удалить</th></tr></thead>
+                <thead><tr><th>Логин</th><th>Ник</th><th>Ранг</th><th>Баллы</th><th>Статус</th><th>Действие</th></tr></thead>
                 <tbody id="out-users"></tbody>
             </table>
         </div>
@@ -192,7 +267,7 @@
 </div>
 
 <script>
-// Твои настройки Firebase
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
   authDomain: "modersekb.firebaseapp.com",
@@ -220,7 +295,7 @@ function doRegister(){
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполни все поля!");
     db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(() => {
-        alert("Заявка отправлена на рассмотрение!"); showAuthBox('log');
+        alert("Заявка успешно отправлена!"); showAuthBox('log');
     });
 }
 
@@ -231,9 +306,9 @@ function doLogin(){
     db.ref('users/'+l).once('value', s => {
         const d = s.val();
         if(d && d.pass === p) {
-            if(d.role === 'pending') return alert("Ваш аккаунт еще не одобрен!");
+            if(d.role === 'pending') return alert("Аккаунт ожидает подтверждения!");
             loginSuccess(l, d);
-        } else alert("Неверный логин или пароль!");
+        } else alert("Ошибка авторизации!");
     });
 }
 
@@ -248,7 +323,6 @@ function loginSuccess(l, d){
 
 function doLogout(){ location.reload(); }
 
-// ИСПРАВЛЕННАЯ ЛОГИКА СУММИРОВАНИЯ БАЛЛОВ
 async function sendReport(){
     const nick = document.getElementById('rep-nick').value;
     const punishInput = parseInt(document.getElementById('rep-punish').value) || 0;
@@ -257,62 +331,53 @@ async function sendReport(){
     const rank = document.getElementById('rep-rank').value;
     const files = document.getElementById('rep-files').files;
 
-    if(!nick || !date) return alert("Заполни обязательные поля!");
+    if(!nick || !date) return alert("Укажите Ник и Дату!");
 
-    // 1. Получаем текущие баллы из базы
     db.ref('users/' + userLogin).once('value').then(async (snap) => {
         const userData = snap.val();
         const currentScore = userData.score || 0;
-        const newTotalScore = currentScore + punishInput; // СУММИРОВАНИЕ
+        const newTotalScore = currentScore + punishInput;
 
-        // 2. Обработка картинок
         let images = [];
         for(let f of files){
             const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(f); });
             images.push(b64);
         }
 
-        // 3. Обновляем юзера
         db.ref('users/' + userLogin).update({
             score: newTotalScore,
             nick: nick,
             rank: rank
         });
 
-        // 4. Сохраняем отчет в историю
         db.ref('reports').push({ author: userLogin, nick, punish: punishInput, work, date, images });
 
-        alert(`Отчет принят! К старым баллам (${currentScore}) добавлено ${punishInput}. Итого: ${newTotalScore}`);
+        alert(`Отчет успешно отправлен! Баллы: +${punishInput}`);
         location.reload();
     });
 }
 
-// Отображение данных
 db.ref('users').on('value', s => {
     const data = s.val(); if(!data) return;
     const outScores = document.getElementById('out-scores');
     const outUsers = document.getElementById('out-users');
     outScores.innerHTML = ""; outUsers.innerHTML = "";
 
-    // Сортировка для топа
     const sorted = Object.values(data).filter(u => u.role !== 'pending').sort((a,b) => b.score - a.score);
     sorted.forEach(u => {
         outScores.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
     });
 
-    // Админка
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
         outUsers.innerHTML += `<tr>
-            <td><small>${u}</small></td>
-            <td><input class="edit-input" style="width:110px !important" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
-            <td><input class="edit-input" style="width:110px !important" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
+            <td>${u}</td>
+            <td><input class="edit-input" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
+            <td><input class="edit-input" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
             <td><input class="edit-input" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
-            <td>
-                ${d.role === 'pending' ? `<button class="btn-nav" style="background:var(--primary);color:#000" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : d.role.toUpperCase()}
-            </td>
-            <td><button class="btn-logout" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button></td>
+            <td>${d.role === 'pending' ? `<button class="btn-nav" style="background:var(--primary);color:#000;font-size:10px" onclick="db.ref('users/${u}/role').set('user')">OK</button>` : d.role.toUpperCase()}</td>
+            <td><button class="btn-logout" style="padding:5px 10px" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button></td>
         </tr>`;
     });
 });
