@@ -120,7 +120,7 @@
             <option>Старший модератор</option>
         </select>
         <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы"></textarea>
-        <input type="number" id="rep-punish" placeholder="Количество баллов">
+        <input type="number" id="rep-punish" placeholder="Сколько наказании выдали за неделю (Не счится префиксы)">
         <input type="date" id="rep-date">
         <p style="text-align:left; font-size:12px;">Доказательства (скриншоты):</p>
         <input type="file" id="rep-files" multiple accept="image/*">
@@ -290,4 +290,5 @@ db.ref('reports').on('value', s => {
 </script>
 </body>
 </html>
+
 
