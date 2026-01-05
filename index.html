@@ -4,66 +4,57 @@
     <meta charset="UTF-8">
     <title>MOD ЕКБ | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --primary: #1b5e20; --danger: #c62828; --bg: rgba(232, 245, 233, 0.98); }
+        :root { --primary: #2e7d32; --danger: #c62828; --bg: rgba(255, 255, 255, 0.95); }
         body { margin:0; font-family:'Segoe UI', sans-serif; background:#111; color:#333; overflow-x: hidden;}
         .hidden { display:none !important; }
 
         .overlay {
             position: fixed; inset: 0;
-            background: #000 url('https://sun9-33.userapi.com/s/v1/ig2/PItSUlt-hrdc8Yj2l7nvVSL-sqpSIrH1P7T_fZVQOHietbD8GF2qEU1_jwp53uzUL5dNdn1mhRYn0z5Rbzt7bVy5.jpg?quality=95&from=bu&cs=638x0') center/cover no-repeat;
-            filter: brightness(0.35); z-index: -1;
+            background: #000 url('https://p16-capcut-va.ibyteimg.com/tos-alisg-i-bv9p7as7k7-sg/6c6509f6111a43a79f53949826e79203~tplv-bv9p7as7k7-sg-origin:720:720.image') center/cover no-repeat;
+            filter: brightness(0.4); z-index: -1;
         }
 
-        .container { background:var(--bg); max-width:500px; margin:50px auto; padding:30px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.5); text-align:center; position: relative; }
-        input, select, textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing: border-box; }
-        button { padding:12px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:0.3s; }
+        .container { background:var(--bg); max-width:700px; margin:30px auto; padding:25px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.5); text-align:center; }
+        input, select, textarea { width:100%; padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing: border-box; }
+        button { padding:10px 15px; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:0.3s; }
 
         .btn-main { background:var(--primary); color:#fff; width:100%; margin-top:10px; }
-        .btn-nav { background:#fff; border:1px solid var(--primary); color:var(--primary); margin:2px; font-size:12px; }
+        .btn-nav { background:#fff; border:1px solid var(--primary); color:var(--primary); margin:2px; font-size:11px; }
         .btn-danger { background:var(--danger); color:#fff; padding:5px 10px; font-size:11px; }
 
-        .header { background:var(--primary); color:#fff; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);}
-        .table-wrap { width:100%; overflow-x:auto; margin-top:20px; background:#fff; border-radius:8px; }
+        .header { background:var(--primary); color:#fff; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+        .table-wrap { width:100%; overflow-x:auto; margin-top:15px; background:#fff; border-radius:8px; }
         table { width:100%; border-collapse:collapse; font-size:12px; }
-        th, td { border:1px solid #eee; padding:10px; text-align:center; }
-        th { background: #f4f4f4; }
-
-        .preview { width:50px; height:35px; object-fit:cover; border-radius:4px; cursor:pointer; border:1px solid #ddd; margin: 2px; }
-        .status-pending { color: #f57c00; font-weight: bold; background: #fff3e0; padding: 2px 5px; border-radius: 4px; }
-        .auth-link { cursor:pointer; color:#1565c0; text-decoration:underline; font-weight:bold; }
+        th, td { border:1px solid #eee; padding:8px; text-align:center; }
+        th { background: #f4f4f4; color: #333; }
+        .preview { width:50px; height:35px; object-fit:cover; border-radius:4px; cursor:pointer; margin: 2px; }
         
-        #modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:1000; }
-        #modal img { max-width:90%; max-height:90%; border:2px solid #fff; }
+        /* Стили для инпутов в таблице управления */
+        .edit-input { width: 100%; border: 1px solid #ddd; padding: 4px; border-radius: 4px; font-size: 11px; }
     </style>
 </head>
 <body>
 
 <div class="overlay"></div>
 
-<div id="modal" class="hidden" onclick="this.classList.add('hidden')">
-    <img id="modal-img" src="">
-</div>
-
 <div id="auth-section">
-    <div class="container" id="box-reg">
-        <h2>Регистрация</h2>
-        <input type="text" id="in-reg-login" placeholder="RP NickName">
-        <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
+    <div class="container" id="box-reg" style="max-width:400px;">
+        <h2>Регистрация EKB</h2>
+        <input type="text" id="in-reg-login" placeholder="Логин для входа">
+        <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doRegister()">ПОДАТЬ ЗАЯВКУ</button>
-        <p><span class="auth-link" onclick="showAuthBox('log')">Уже есть аккаунт? Войти</span></p>
+        <p><span style="cursor:pointer; color:#1565c0" onclick="showAuthBox('log')">Уже есть аккаунт? Войти</span></p>
     </div>
-
-    <div class="container hidden" id="box-log">
+    <div class="container hidden" id="box-log" style="max-width:400px;">
         <h2>Вход</h2>
         <input type="text" id="in-log-login" placeholder="RP NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">ВОЙТИ</button>
-        <p><span class="auth-link" onclick="showAuthBox('reg')">Нет аккаунта? Регистрация</span></p>
+        <p><span style="cursor:pointer; color:#1565c0" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
 </div>
 
@@ -72,6 +63,7 @@
         <div id="display-user">...</div>
         <div>
             <button class="btn-nav" onclick="nav('report')">ОТЧЁТ</button>
+            <button class="btn-nav" onclick="nav('scores')">БАЛЛЫ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
             <button class="btn-nav hidden" id="nav-users" onclick="nav('users')">ПРАВА</button>
             <button class="btn-danger" style="background:#444" onclick="doLogout()">ВЫХОД</button>
@@ -79,32 +71,58 @@
     </div>
 
     <div class="container" id="sec-report">
-        <h3>Новый отчёт</h3>
-        <input type="text" id="rep-nick" placeholder="Ваш ник в игре">
-        <textarea id="rep-work" rows="4" placeholder="Описание работы..."></textarea>
+        <h3>Подача отчёта</h3>
+        <input type="text" id="rep-nick" placeholder="Ваш NickName">
+        <select id="rep-rank">
+            <option>Младший модератор</option>
+            <option>Модератор</option>
+            <option>Старший модератор</option>
+            <option>Администратор</option>
+        </select>
+        <textarea id="rep-work" rows="3" placeholder="Описание проделанной работы..."></textarea>
+        <textarea id="rep-punish" rows="2" placeholder="Наказания за неделю (числом)"></textarea>
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
-        <button id="btn-send" class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
+        <button id="btn-send" class="btn-main" onclick="sendReport()">ОТПРАВИТЬ ОТЧЁТ</button>
     </div>
 
-    <div class="container hidden" id="sec-base" style="max-width:95%;">
-        <h3>База отчётов</h3>
+    <div class="container hidden" id="sec-scores" style="max-width:90%;">
+        <h3>Таблица баллов модераторов</h3>
         <div class="table-wrap">
             <table>
                 <thead>
-                    <tr><th>Ник</th><th>Описание</th><th>Скрины</th><th>Дата</th><th>Удалить</th></tr>
+                    <tr><th>NickName</th><th>Должность</th><th>Баллы</th></tr>
+                </thead>
+                <tbody id="out-scores"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container hidden" id="sec-base" style="max-width:95%;">
+        <h3>История отчётов</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Модератор</th><th>Работа</th><th>Наказания</th><th>Скрины</th><th>Дата</th><th>X</th></tr>
                 </thead>
                 <tbody id="out-reports"></tbody>
             </table>
         </div>
     </div>
 
-    <div class="container hidden" id="sec-users" style="max-width:600px;">
-        <h3>Управление модераторами</h3>
+    <div class="container hidden" id="sec-users" style="max-width:95%;">
+        <h3>Управление составом (Редактирование)</h3>
         <div class="table-wrap">
             <table>
                 <thead>
-                    <tr><th>Логин</th><th>Роль</th><th>Действия</th></tr>
+                    <tr>
+                        <th>Логин</th>
+                        <th>NickName</th>
+                        <th>Должность</th>
+                        <th>Баллы</th>
+                        <th>Роль Доступа</th>
+                        <th>Действия</th>
+                    </tr>
                 </thead>
                 <tbody id="out-users"></tbody>
             </table>
@@ -134,11 +152,10 @@ window.onload = function(){
         else db.ref('users/'+saved).once('value').then(s => {
             const d = s.val();
             if(d && d.role !== 'pending') loginSuccess(saved, d);
-            else localStorage.removeItem("session_user");
         });
     }
     db.ref('reports').on('value', renderReports);
-    db.ref('users').on('value', renderUsers);
+    db.ref('users').on('value', (s) => { renderUsers(s); renderScores(s); });
 };
 
 function showAuthBox(t){
@@ -150,75 +167,74 @@ function doRegister(){
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполни поля!");
-    db.ref('users/'+l).once('value').then(s => {
-        if(s.exists()) return alert("Логин занят!");
-        db.ref('users/'+l).set({pass:p, role:'pending'}).then(() => {
-            alert("Заявка отправлена! Дождитесь одобрения.");
-            showAuthBox('log');
-        });
+    db.ref('users/'+l).set({pass:p, role:'pending', score: 0, nick: l, rank: 'Младший модератор'}).then(() => {
+        alert("Заявка отправлена!"); showAuthBox('log');
     });
 }
 
 function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if(l === OWNER_LOGIN && p === OWNER_PASS){
-        loginSuccess(OWNER_LOGIN, {role:'owner'});
-        return;
-    }
+    if(l === OWNER_LOGIN && p === OWNER_PASS) return loginSuccess(OWNER_LOGIN, {role:'owner'});
     db.ref('users/'+l).once('value').then(s => {
         const d = s.val();
         if(d && d.pass === p){
-            if(d.role === 'pending') return alert("Ваш аккаунт еще не одобрен!");
+            if(d.role === 'pending') return alert("Ждите одобрения!");
             loginSuccess(l, d);
-        } else alert("Ошибка входа!");
+        } else alert("Ошибка данных!");
     });
 }
 
 function loginSuccess(login, data){
-    userLoginNow = login;
-    userRoleNow = data.role;
+    userLoginNow = login; userRoleNow = data.role;
     localStorage.setItem("session_user", login);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = login + " (" + data.role.toUpperCase() + ")";
     
-    const isAdminOrOwner = (data.role === 'admin' || data.role === 'owner');
-    document.getElementById('nav-base').classList.toggle('hidden', !isAdminOrOwner);
-    document.getElementById('nav-users').classList.toggle('hidden', !isAdminOrOwner);
+    const isAdmin = (data.role === 'admin' || data.role === 'owner');
+    document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
+    document.getElementById('nav-users').classList.toggle('hidden', !isAdmin);
     nav('report');
 }
 
-function doLogout(){ localStorage.removeItem("session_user"); location.reload(); }
 function nav(id){ 
-    ['report','base','users'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
+    ['report','base','users','scores'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
     document.getElementById('sec-'+id).classList.remove('hidden');
 }
+
+function doLogout(){ localStorage.removeItem("session_user"); location.reload(); }
 
 async function sendReport(){
     const nick = document.getElementById('rep-nick').value;
     const work = document.getElementById('rep-work').value;
+    const punishText = document.getElementById('rep-punish').value;
     const date = document.getElementById('rep-date').value;
+    const rank = document.getElementById('rep-rank').value;
     const files = document.getElementById('rep-files').files;
-    if(!nick || !work || !date) return alert("Заполни все поля!");
 
-    const btn = document.getElementById('btn-send');
-    btn.disabled = true; btn.innerText = "ОТПРАВКА...";
+    if(!nick || !work || !date) return alert("Заполни поля!");
 
+    const points = parseInt(punishText.replace(/\D/g, "")) || 0;
     let images = [];
     for(let f of files){
-        const b64 = await new Promise(r => { 
-            const fr = new FileReader(); 
-            fr.onload=()=>r(fr.result); 
-            fr.readAsDataURL(f); 
-        });
+        const b64 = await new Promise(r => { const fr = new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(f); });
         images.push(b64);
     }
 
-    db.ref('reports').push({author:userLoginNow, nick, work, date, images}).then(() => {
-        alert("Отчёт отправлен!"); 
-        location.reload();
+    db.ref('reports').push({author:userLoginNow, nick, rank, work, punish: points, date, images});
+
+    db.ref('users/'+userLoginNow).once('value').then(s => {
+        const d = s.val();
+        db.ref('users/'+userLoginNow).update({
+            score: (d.score || 0) + points,
+            nick: nick,
+            rank: rank
+        });
     });
+
+    alert("Отчёт отправлен! Начислено: " + points);
+    location.reload();
 }
 
 function renderReports(snap){
@@ -226,17 +242,18 @@ function renderReports(snap){
     const data = snap.val(); if(!data) return;
     Object.keys(data).reverse().forEach(id => {
         const r = data[id];
-        let imgsHtml = "";
-        if(r.images) r.images.forEach(i => {
-            imgsHtml += `<img src="${i}" class="preview" onclick="openImg('${i}')">`;
-        });
-        box.innerHTML += `<tr>
-            <td><b>${r.nick}</b><br><small>${r.author || '—'}</small></td>
-            <td style="text-align:left">${r.work}</td>
-            <td>${imgsHtml || "нет фото"}</td>
-            <td>${r.date}</td>
-            <td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">X</button></td>
-        </tr>`;
+        let imgs = "";
+        if(r.images) r.images.forEach(i => imgs += `<img src="${i}" class="preview" onclick="window.open('${i}')">`);
+        box.innerHTML += `<tr><td>${r.nick}<br><small>${r.rank}</small></td><td>${r.work}</td><td>+${r.punish}</td><td>${imgs || "—"}</td><td>${r.date}</td><td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">X</button></td></tr>`;
+    });
+}
+
+function renderScores(snap){
+    const box = document.getElementById('out-scores'); box.innerHTML = "";
+    const data = snap.val(); if(!data) return;
+    const sorted = Object.values(data).filter(u => u.role !== 'pending').sort((a,b) => b.score - a.score);
+    sorted.forEach(u => {
+        box.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td><b>${u.score}</b></td></tr>`;
     });
 }
 
@@ -245,22 +262,19 @@ function renderUsers(snap){
     const data = snap.val(); if(!data) return;
     Object.keys(data).forEach(u => {
         if(u === OWNER_LOGIN) return;
-        const r = data[u].role;
-        const isPending = r === 'pending';
+        const d = data[u];
         box.innerHTML += `<tr>
             <td>${u}</td>
-            <td class="${isPending ? 'status-pending' : ''}">${r.toUpperCase()}</td>
+            <td><input class="edit-input" type="text" value="${d.nick || u}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
+            <td><input class="edit-input" type="text" value="${d.rank || 'Младший модератор'}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
+            <td><input class="edit-input" type="number" value="${d.score || 0}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))"></td>
+            <td><b>${d.role.toUpperCase()}</b></td>
             <td>
-                ${isPending ? `<button class="btn-main" style="padding:5px; font-size:10px" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : `<button class="btn-nav" onclick="db.ref('users/${u}/role').set('${r==='admin'?'user':'admin'}')">РОЛЬ</button>`}
-                ${userRoleNow === 'owner' ? `<button class="btn-danger" onclick="db.ref('users/${u}').remove()">УДАЛИТЬ</button>` : ''}
+                ${d.role==='pending' ? `<button class="btn-main" style="padding:4px" onclick="db.ref('users/${u}/role').set('user')">ОДОБРИТЬ</button>` : `<button class="btn-nav" onclick="db.ref('users/${u}/role').set('${d.role==='admin'?'user':'admin'}')">СМЕНИТЬ РОЛЬ</button>`}
+                ${userRoleNow === 'owner' ? `<button class="btn-danger" style="margin-top:2px" onclick="db.ref('users/${u}').remove()">УДАЛИТЬ</button>` : ''}
             </td>
         </tr>`;
     });
-}
-
-function openImg(s){ 
-    document.getElementById('modal-img').src=s; 
-    document.getElementById('modal').classList.remove('hidden'); 
 }
 </script>
 </body>
