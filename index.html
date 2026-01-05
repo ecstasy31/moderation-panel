@@ -169,13 +169,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
+const DELETE_CODE = "9988"; // Секретный код для удаления аккаунтов
 let currentUser = "";
 let userRole = "pending";
 
 function nav(id) {
-    // Если пользователь не одобрен, разрешаем видеть ТОЛЬКО профиль
     if (userRole === 'pending' && id !== 'profile') return;
-    
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById('sec-' + id).classList.remove('hidden');
 }
@@ -200,7 +199,7 @@ function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return;
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false });
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0 });
     loginSuccess(l, 'pending');
 }
 
@@ -213,8 +212,6 @@ function loginSuccess(l, role) {
     document.getElementById('user-tag').innerText = l;
     
     const isApproved = (userRole !== 'pending');
-    
-    // Скрываем/Показываем навигацию в зависимости от статуса одобрения
     document.querySelectorAll('.approval-hide').forEach(el => el.classList.toggle('hidden', !isApproved));
     document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
 
@@ -249,14 +246,11 @@ function showProfile(nick) {
         if(nick === currentUser) {
             const isBanned = warns >= 3;
             document.getElementById('banned-msg').classList.toggle('hidden', !isBanned);
-            
-            // Если роль не одобрена, кнопка отчета скрыта ВСЕГДА
             if (userRole === 'pending') {
                 document.getElementById('nav-rep-btn').classList.add('hidden');
             } else {
                 document.getElementById('nav-rep-btn').classList.toggle('hidden', isBanned);
             }
-            
             document.getElementById('btn-take-inactive').classList.toggle('hidden', isInactive || userRole === 'pending');
             document.getElementById('btn-stop-inactive').classList.toggle('hidden', !isInactive);
         }
@@ -284,6 +278,17 @@ function takeInactive() {
     });
 }
 
+// ЗАЩИТА ОТ УДАЛЕНИЯ ЧЕРЕЗ ФУНКЦИЮ
+function safeDeleteUser(id) {
+    const code = prompt(`Для удаления аккаунта ${id} введите секретный код:`);
+    if (code === DELETE_CODE) {
+        db.ref('users/' + id).remove();
+        alert("Аккаунт удален.");
+    } else {
+        alert("Неверный код доступа!");
+    }
+}
+
 function loadData() {
     db.ref('users').on('value', s => {
         const users = s.val() || {};
@@ -304,7 +309,7 @@ function loadData() {
                         <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Админ</option>
                     </select>`;
                 }
-                let deleteBtn = id !== OWNER ? `<button class="btn-mini-del" onclick="if(confirm('УДАЛИТЬ АККАУНТ ${id}?')) db.ref('users/${id}').remove()">УДАЛИТЬ</button>` : '👑';
+                let deleteBtn = id !== OWNER ? `<button class="btn-mini-del" onclick="safeDeleteUser('${id}')">УДАЛИТЬ</button>` : '👑';
                 
                 listAdmin.innerHTML += `<div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px;">
                     <span style="font-size:12px;"><b>${id}</b></span>
@@ -345,6 +350,17 @@ function loadData() {
 async function sendReport() {
     if (userRole === 'pending') return alert("Дождитесь одобрения!");
     
+    // АНТИ-ФЛУД 10 МИНУТ
+    const userSnap = await db.ref('users/' + currentUser).once('value');
+    const userData = userSnap.val();
+    const now = Date.now();
+    const cooldown = 10 * 60 * 1000; // 10 минут в мс
+
+    if (userData.lastReportTime && (now - userData.lastReportTime < cooldown)) {
+        const minutesLeft = Math.ceil((cooldown - (now - userData.lastReportTime)) / 60000);
+        return alert(`Подождите еще ${minutesLeft} мин. перед отправкой следующего отчета!`);
+    }
+    
     const rank = document.getElementById('rep-rank').value;
     const work = document.getElementById('rep-work').value;
     const score = parseInt(document.getElementById('rep-val').value);
@@ -364,7 +380,11 @@ async function sendReport() {
 
     db.ref('reports').push({ author: currentUser, rank, work, score, date, imgs });
     db.ref('users/' + currentUser).transaction(u => {
-        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; }
+        if(u) { 
+            u.score = (u.score || 0) + score; 
+            u.reportsCount = (u.reportsCount || 0) + 1; 
+            u.lastReportTime = now; // Записываем время отчета
+        }
         return u;
     });
     alert("Отправлено!");
