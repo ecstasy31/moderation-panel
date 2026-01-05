@@ -35,13 +35,13 @@
 
         /* База и Фото */
         .report-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: left; }
-        .report-imgs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .report-imgs img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
-        .report-imgs img:hover { transform: scale(1.1); border-color: white; }
+        .report-imgs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .report-imgs img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+        .report-imgs img:hover { transform: scale(1.05); border-color: white; }
 
         /* Модалка для фото */
-        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        #modal img { max-width: 100%; max-height: 100%; border-radius: 10px; box-shadow: 0 0 20px var(--primary); }
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #modal img { max-width: 100%; max-height: 90vh; border-radius: 10px; border: 1px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -109,9 +109,9 @@
             <option value="Старший Модератор">Старший Модератор</option>
         </select>
         <textarea id="rep-work" rows="3" placeholder="Описание работы..."></textarea>
-        <input type="number" id="rep-val" placeholder="Баллы за работу">
-        <div style="text-align:left; font-size:12px; margin-top:10px;">Прикрепить фото (можно несколько):</div>
-        <input type="file" id="rep-files" multiple accept="image/*">
+        <input type="number" id="rep-val" placeholder="Количаство выданных наказании за неделю(без префиксов)">
+        <div style="text-align:left; font-size:12px; margin-top:10px; color: var(--primary);">Прикрепить фото (можно несколько):</div>
+        <input type="file" id="rep-files" multiple accept="image/*" style="font-size: 11px;">
         <input type="date" id="rep-date">
         <button class="btn-action" onclick="sendReport()">ОТПРАВИТЬ</button>
     </div>
@@ -157,7 +157,7 @@ function doLogin() {
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
         if (d && d.pass === p) loginSuccess(l, d.role);
-        else alert("Ошибка!");
+        else alert("Ошибка входа!");
     });
 }
 
@@ -238,11 +238,13 @@ function loadData() {
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')">`);
             
             container.innerHTML += `<div class="report-card">
-                <div style="color:var(--primary); font-weight:bold;">${r.author} (${r.rank})</div>
-                <div style="font-size:12px; margin:5px 0;">${r.work}</div>
+                <div style="color:var(--primary); font-weight:bold;">${r.author} <span style="font-weight: normal; font-size: 11px; opacity: 0.7;">(${r.rank})</span></div>
+                <div style="font-size:12px; margin:8px 0;">${r.work}</div>
                 <div class="report-imgs">${imgsHtml}</div>
-                <div style="font-size:10px; opacity:0.5; margin-top:10px;">Баллы: +${r.score} | Дата: ${r.date} 
-                <span style="float:right; color:var(--danger); cursor:pointer;" onclick="db.ref('reports/${id}').remove()">Удалить</span></div>
+                <div style="font-size:10px; opacity:0.5; margin-top:12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                    Баллы: +${r.score} | Дата: ${r.date} 
+                    <span style="float:right; color:var(--danger); cursor:pointer;" onclick="db.ref('reports/${id}').remove()">Удалить</span>
+                </div>
             </div>`;
         });
     });
@@ -254,26 +256,41 @@ async function sendReport() {
     const score = parseInt(document.getElementById('rep-val').value);
     const date = document.getElementById('rep-date').value;
     const files = document.getElementById('rep-files').files;
-    if(!work || isNaN(score) || !date) return alert("Заполни все поля!");
+    
+    if(!work || isNaN(score) || !date) return alert("Заполните все поля!");
 
     let imgs = [];
-    for(let f of files) {
-        const b64 = await new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(f);
-        });
-        imgs.push(b64);
+    if (files.length > 0) {
+        for(let f of files) {
+            const b64 = await new Promise(res => {
+                const reader = new FileReader();
+                reader.onload = () => res(reader.result);
+                reader.readAsDataURL(f);
+            });
+            imgs.push(b64);
+        }
     }
 
     db.ref('reports').push({ author: currentUser, rank, work, score, date, imgs });
     db.ref('users/' + currentUser + '/score').transaction(s => (s || 0) + score);
+    
     alert("Отчет отправлен!");
+    document.getElementById('rep-work').value = "";
+    document.getElementById('rep-val').value = "";
+    document.getElementById('rep-files').value = "";
     nav('profile');
 }
 
-function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
-function changeAva() { const url = prompt("Прямая ссылка на фото:"); if(url) db.ref('users/' + currentUser).update({ avatar: url }); }
+function viewImg(src) { 
+    document.getElementById('modal-img').src = src; 
+    document.getElementById('modal').style.display = 'flex'; 
+}
+
+function changeAva() { 
+    const url = prompt("Прямая ссылка на фото (URL):"); 
+    if(url) db.ref('users/' + currentUser).update({ avatar: url }); 
+}
+
 function logout() { localStorage.clear(); location.reload(); }
 
 window.onload = () => {
