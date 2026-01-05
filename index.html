@@ -63,6 +63,8 @@
         
         .admin-edit { background: #222; border: 1px solid var(--border); color: white; padding: 5px; border-radius: 5px; width: 90%; font-size: 11px; }
         .del-user-score { color: var(--danger); cursor: pointer; font-weight: bold; margin-left: 10px; font-size: 14px; border: none; background: none; }
+        
+        .status-msg { padding: 20px; border: 1px dashed var(--primary); color: var(--primary); border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -101,18 +103,26 @@
     </div>
 
     <div class="container" id="sec-report">
-        <h3>Новый отчёт</h3>
-        <input type="text" id="rep-nick" placeholder="Ваш ник">
-        <select id="rep-rank">
-            <option>Младший модератор</option>
-            <option>Модератор</option>
-            <option>Старший модератор</option>
-        </select>
-        <textarea id="rep-work" rows="3" placeholder="Что вы сделали за неделю?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Количество выданых наказании за неделю?(Только число)">
-        <input type="date" id="rep-date">
-        <input type="file" id="rep-files" multiple accept="image/*">
-        <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
+        <div id="report-form-box">
+            <h3>Новый отчёт</h3>
+            <input type="text" id="rep-nick" placeholder="Ваш ник">
+            <select id="rep-rank">
+                <option>Младший модератор</option>
+                <option>Модератор</option>
+                <option>Старший модератор</option>
+            </select>
+            <textarea id="rep-work" rows="3" placeholder="Что вы сделали за неделю?"></textarea>
+            <input type="number" id="rep-punish" placeholder="Количество выданых наказании за неделю?">
+            <input type="date" id="rep-date">
+            <input type="file" id="rep-files" multiple accept="image/*">
+            <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
+        </div>
+        <div id="report-pending-box" class="hidden">
+            <div class="status-msg">
+                ⚠️ ВАШ АККАУНТ ОЖИДАЕТ ОДОБРЕНИЯ ВЛАДЕЛЬЦЕМ.<br>
+                ПОСЛЕ ОДОБРЕНИЯ ФОРМА ПОЯВИТСЯ ЗДЕСЬ АВТОМАТИЧЕСКИ.
+            </div>
+        </div>
     </div>
 
     <div class="container hidden" id="sec-scores" style="max-width: 800px;">
@@ -146,26 +156,32 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
-let userRole = 'user'; // По умолчанию
+let userRole = 'user'; 
+
+// Слушатель состояния пользователя в реальном времени
+function watchUserStatus(nick) {
+    if (nick === OWNER) {
+        userRole = 'owner';
+        loginSuccess(nick, {role: 'owner'});
+        return;
+    }
+    db.ref('users/' + nick).on('value', s => {
+        if (s.exists()) {
+            const d = s.val();
+            userRole = d.role;
+            loginSuccess(nick, d);
+            
+            // Если одобрили - показываем форму, если нет - надпись
+            const isApproved = d.role !== 'pending';
+            document.getElementById('report-form-box').classList.toggle('hidden', !isApproved);
+            document.getElementById('report-pending-box').classList.toggle('hidden', isApproved);
+        }
+    });
+}
 
 window.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('ekb_user');
-    if (saved) {
-        if (saved === OWNER) {
-            userRole = 'owner';
-            loginSuccess(OWNER, {role: 'owner'});
-        } else {
-            db.ref('users/' + saved).once('value', s => { 
-                if (s.exists()) {
-                    const d = s.val();
-                    userRole = d.role;
-                    loginSuccess(saved, d);
-                } else {
-                    localStorage.removeItem('ekb_user');
-                }
-            });
-        }
-    }
+    if (saved) watchUserStatus(saved);
 });
 
 function showAuthBox(t){
@@ -192,21 +208,23 @@ function loginSuccess(l, d){
         document.getElementById('nav-base').classList.remove('hidden');
         document.getElementById('th-del-report').classList.remove('hidden');
     } else {
+        document.getElementById('nav-admin').classList.add('hidden');
+        document.getElementById('nav-base').classList.add('hidden');
         document.getElementById('th-del-report').classList.add('hidden');
     }
-    nav('report');
 }
 
 function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if(l === OWNER && p === "Ecstasy20036") return loginSuccess(l, {role:'owner'});
+    if(l === OWNER && p === "Ecstasy20036") {
+        watchUserStatus(l);
+        return;
+    }
     db.ref('users/'+l).once('value', s => {
         const d = s.val();
-        if(d && d.pass === p) {
-            if(d.role === 'pending') return alert("Ожидайте одобрения владельцем!");
-            loginSuccess(l, d);
-        } else alert("Ошибка входа!");
+        if(d && d.pass === p) watchUserStatus(l);
+        else alert("Ошибка входа!");
     });
 }
 
@@ -214,7 +232,17 @@ function doRegister(){
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if(!l || !p) return alert("Заполните все поля!");
-    db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(()=>alert("Заявка отправлена!"));
+    
+    db.ref('users/'+l).set({
+        pass: p, 
+        role: 'pending', 
+        score: 0, 
+        nick: l, 
+        rank: 'Младший модератор'
+    }).then(() => {
+        alert("Аккаунт создан! Ожидайте одобрения.");
+        watchUserStatus(l); // Входим сразу
+    });
 }
 
 function doLogout(){ localStorage.clear(); location.reload(); }
@@ -227,16 +255,21 @@ async function sendReport(){
     const d = document.getElementById('rep-date').value;
     const r = document.getElementById('rep-rank').value;
     const files = document.getElementById('rep-files').files;
+    
+    if(!n || !w || !d) return alert("Заполните все поля отчета!");
+
     let images = [];
     for(let f of files) {
         const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(f); });
         images.push(b64);
     }
+    
     db.ref('users/' + l).once('value').then(snap => {
         const current = snap.exists() ? (snap.val().score || 0) : 0;
         db.ref('users/' + l).update({ score: current + s, nick: n, rank: r });
         db.ref('reports').push({ author: l, nick:n, work:w, date:d, score:s, images });
-        alert("Отчёт отправлен!"); location.reload();
+        alert("Отчёт отправлен!"); 
+        location.reload();
     });
 }
 
@@ -251,24 +284,16 @@ db.ref('users').on('value', s => {
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
     
-    // РЕЙТИНГ
     Object.keys(data).forEach(key => {
         const u = data[key];
         if (u.role !== 'pending') {
-            // Кнопка удаления только для админов/владельца
             const delIcon = (userRole === 'admin' || userRole === 'owner') 
                 ? `<button class="del-user-score" onclick="if(confirm('Удалить из системы?')) db.ref('users/${key}').remove()">X</button>` 
                 : '';
-            
-            outS.innerHTML += `<tr>
-                <td>${u.nick} ${delIcon}</td>
-                <td>${u.rank}</td>
-                <td class="score-val">${u.score}</td>
-            </tr>`;
+            outS.innerHTML += `<tr><td>${u.nick} ${delIcon}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
         }
     });
 
-    // АДМИН ПАНЕЛЬ
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
@@ -282,10 +307,7 @@ db.ref('users').on('value', s => {
                 <option value="user" ${d.role==='user'?'selected':''}>Модер</option>
                 <option value="admin" ${d.role==='admin'?'selected':''}>Админ</option>
             </select></td>
-            <td>
-                ${approveBtn}
-                <button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button>
-            </td>
+            <td>${approveBtn}<button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button></td>
         </tr>`;
     });
 });
@@ -298,16 +320,12 @@ db.ref('reports').on('value', s => {
         const r = data[id];
         let imgs = "";
         if(r.images) r.images.forEach(src => { imgs += `<img src="${src}" style="width:50px; height:50px; object-fit:cover; margin:2px; cursor:pointer;" onclick="openImg('${src}')">`; });
-        
-        // Кнопка удаления отчета только для админов
         const delBtn = (userRole === 'admin' || userRole === 'owner') 
             ? `<td><button class="btn-del" onclick="db.ref('reports/${id}').remove()">X</button></td>` 
             : `<td></td>`;
-            
         outR.innerHTML += `<tr><td>${r.nick}</td><td style="text-align:left">${r.work}</td><td>${imgs}</td><td>${r.date}</td>${delBtn}</tr>`;
     });
 });
 </script>
 </body>
 </html>
-
