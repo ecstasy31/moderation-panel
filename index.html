@@ -37,8 +37,8 @@
         p, span, label { color: #ffffff !important; }
 
         input, select, textarea {
-            width: 100%; padding: 14px; margin: 10px 0; background: rgba(255,255,255,0.07);
-            border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.07);
+            border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; box-sizing: border-box; font-size: 14px;
         }
         select option { background-color: #1a1a1a; color: white; }
 
@@ -54,17 +54,19 @@
         .btn-logout { background: var(--danger); color: white !important; width: auto; padding: 6px 12px; font-size: 11px; }
 
         .table-wrap { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 10px; background: rgba(0,0,0,0.4); }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: rgba(0, 230, 118, 0.2); padding: 15px; color: var(--primary); border-bottom: 2px solid var(--border); }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: rgba(0, 230, 118, 0.2); padding: 12px; color: var(--primary); border-bottom: 2px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
         
-        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid var(--primary); margin: 2px; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--primary); margin: 2px; }
         #imgModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        #imgModal img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 30px var(--primary); }
+        #imgModal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
 
-        .btn-del { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
-        .score-val { color: var(--primary); font-weight: bold; }
-        .role-select { padding: 5px; background: #1a1a1a; color: var(--primary); border: 1px solid var(--primary); border-radius: 5px; font-size: 11px; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 5px; border-radius: 5px; cursor: pointer; }
+        .score-val { color: var(--primary); font-weight: bold; font-size: 14px; }
+        
+        /* Инпуты для админки */
+        .admin-edit { background: rgba(255,255,255,0.1); border: 1px solid var(--primary); color: white; padding: 4px; border-radius: 4px; width: 90%; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -79,14 +81,14 @@
         <input type="text" id="in-log-login" placeholder="Логин (Rp NickName)">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doLogin()">Войти</button>
-        <p style="margin-top:20px;">Новый модератор? <span style="color:var(--primary) !important; cursor:pointer; font-weight:bold" onclick="showAuthBox('reg')">Регистрация</span></p>
+        <p>Нет в системе? <span style="color:var(--primary); cursor:pointer;" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
     <div class="container hidden" id="box-reg">
         <h2>Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="Rp NickName">
-        <input type="password" id="in-reg-pass" placeholder="Придумайте Пароль">
+        <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doRegister()">Создать аккаунт</button>
-        <p style="margin-top:20px;">Уже есть аккаунт? <span style="color:var(--primary) !important; cursor:pointer; font-weight:bold" onclick="showAuthBox('log')">Войти</span></p>
+        <p>Уже есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="showAuthBox('log')">Войти</span></p>
     </div>
 </div>
 
@@ -110,26 +112,31 @@
             <option>Модератор</option>
             <option>Старший модератор</option>
         </select>
-        <textarea id="rep-work" rows="3" placeholder="Что сделали за неделю?"></textarea>
-        <input type="number" id="rep-punish" placeholder="Сколько наказании выдали за неделю?(Только число)">
+        <textarea id="rep-work" rows="3" placeholder="Что сделали?"></textarea>
+        <input type="number" id="rep-punish" placeholder="Количество баллов">
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
         <button class="btn-main" onclick="sendReport()">Отправить отчёт</button>
     </div>
 
     <div class="container hidden" id="sec-scores" style="max-width: 800px;">
-        <h3>🏆 Рейтинг</h3>
+        <h3>🏆 Рейтинг баллов</h3>
         <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Ранг</th><th>Баллы</th></tr></thead><tbody id="out-scores"></tbody></table></div>
     </div>
 
     <div class="container hidden" id="sec-base" style="max-width: 98%;">
         <h3>📁 База отчётов</h3>
-        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Работа</th><th>Скрины</th><th>Дата</th><th>Удалить</th></tr></thead><tbody id="out-reports"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Ник</th><th>Работа</th><th>Скрины</th><th>Дата</th><th>X</th></tr></thead><tbody id="out-reports"></tbody></table></div>
     </div>
 
-    <div class="container hidden" id="sec-admin" style="max-width: 95%;">
-        <h3>⚙️ Управление</h3>
-        <div class="table-wrap"><table><thead><tr><th>Логин</th><th>Баллы</th><th>Роль</th><th>Действие</th></tr></thead><tbody id="out-users"></tbody></table></div>
+    <div class="container hidden" id="sec-admin" style="max-width: 98%;">
+        <h3>⚙️ Управление составом</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Ник (Edit)</th><th>Ранг (Edit)</th><th>Баллы</th><th>Доступ</th><th>X</th></tr></thead>
+                <tbody id="out-users"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -144,21 +151,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
 
-// ПРОВЕРКА СЕССИИ (ИСПРАВЛЕНО)
 window.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('ekb_user');
     if (saved) {
-        if (saved === OWNER) {
-            loginSuccess(OWNER, {role: 'owner'});
-        } else {
-            db.ref('users/' + saved).once('value', s => {
-                if (s.exists()) {
-                    loginSuccess(saved, s.val());
-                } else {
-                    localStorage.removeItem('ekb_user');
-                }
-            });
-        }
+        if (saved === OWNER) loginSuccess(OWNER, {role: 'owner'});
+        else db.ref('users/' + saved).once('value', s => { 
+            if (s.exists()) loginSuccess(saved, s.val());
+            else localStorage.removeItem('ekb_user');
+        });
     }
 });
 
@@ -180,7 +180,6 @@ function loginSuccess(l, d){
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('display-user').innerText = l.toUpperCase();
-    
     if(d.role === 'admin' || d.role === 'owner') {
         document.getElementById('nav-admin').classList.remove('hidden');
         document.getElementById('nav-base').classList.remove('hidden');
@@ -192,11 +191,10 @@ function doLogin(){
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
     if(l === OWNER && p === "Ecstasy20036") return loginSuccess(l, {role:'owner'});
-    
     db.ref('users/'+l).once('value', s => {
         const d = s.val();
         if(d && d.pass === p) {
-            if(d.role === 'pending') return alert("Ваш аккаунт ожидает одобрения!");
+            if(d.role === 'pending') return alert("Ожидайте одобрения!");
             loginSuccess(l, d);
         } else alert("Ошибка входа!");
     });
@@ -205,14 +203,11 @@ function doLogin(){
 function doRegister(){
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
-    if(!l || !p) return alert("Заполните поля!");
-    db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(()=>alert("Заявка отправлена!"));
+    if(!l || !p) return alert("Заполни поля!");
+    db.ref('users/'+l).set({pass:p, role:'pending', score:0, nick:l, rank:'Младший модератор'}).then(()=>alert("Заявка ушла!"));
 }
 
-function doLogout(){
-    localStorage.clear();
-    location.reload();
-}
+function doLogout(){ localStorage.clear(); location.reload(); }
 
 async function sendReport(){
     const l = localStorage.getItem('ekb_user');
@@ -233,7 +228,7 @@ async function sendReport(){
         const current = snap.exists() ? (snap.val().score || 0) : 0;
         db.ref('users/' + l).update({ score: current + s, nick: n, rank: r });
         db.ref('reports').push({ author: l, nick:n, work:w, date:d, score:s, images });
-        alert("Отчёт принят!"); location.reload();
+        alert("Отчёт отправлен! Баллы начислены."); location.reload();
     });
 }
 
@@ -242,26 +237,32 @@ function openImg(src) {
     document.getElementById('imgModal').style.display = 'flex';
 }
 
+// ОБНОВЛЕНИЕ ДАННЫХ В РЕАЛЬНОМ ВРЕМЕНИ
 db.ref('users').on('value', s => {
     const data = s.val(); if(!data) return;
     const outS = document.getElementById('out-scores');
     const outU = document.getElementById('out-users');
     outS.innerHTML = ""; outU.innerHTML = "";
+
+    // Рейтинг (Баллы)
     Object.values(data).filter(u => u.role !== 'pending').sort((a,b)=>b.score-a.score).forEach(u => {
         outS.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td class="score-val">${u.score}</td></tr>`;
     });
+
+    // Админка (Редактирование текстов)
     Object.keys(data).forEach(u => {
         if(u === OWNER) return;
         const d = data[u];
         outU.innerHTML += `<tr>
-            <td>${u}</td>
-            <td><input type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))" style="width:45px"></td>
-            <td><select class="role-select" onchange="db.ref('users/${u}/role').set(this.value)">
+            <td><input class="admin-edit" type="text" value="${d.nick}" onchange="db.ref('users/${u}/nick').set(this.value)"></td>
+            <td><input class="admin-edit" type="text" value="${d.rank}" onchange="db.ref('users/${u}/rank').set(this.value)"></td>
+            <td><input class="admin-edit" type="number" value="${d.score}" onchange="db.ref('users/${u}/score').set(parseInt(this.value))" style="width:40px"></td>
+            <td><select class="role-select" onchange="db.ref('users/${u}/role').set(this.value)" style="font-size:10px">
                 <option value="pending" ${d.role==='pending'?'selected':''}>Ожидание</option>
-                <option value="user" ${d.role==='user'?'selected':''}>Модератор</option>
+                <option value="user" ${d.role==='user'?'selected':''}>Модер</option>
                 <option value="admin" ${d.role==='admin'?'selected':''}>Админ</option>
             </select></td>
-            <td><button class="btn-del" onclick="db.ref('users/${u}').remove()">X</button></td>
+            <td><button class="btn-del" onclick="if(confirm('Удалить?')) db.ref('users/${u}').remove()">X</button></td>
         </tr>`;
     });
 });
