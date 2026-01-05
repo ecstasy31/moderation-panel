@@ -173,6 +173,9 @@ let currentUser = "";
 let userRole = "pending";
 
 function nav(id) {
+    // Если пользователь не одобрен, разрешаем видеть ТОЛЬКО профиль
+    if (userRole === 'pending' && id !== 'profile') return;
+    
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById('sec-' + id).classList.remove('hidden');
 }
@@ -209,7 +212,9 @@ function loginSuccess(l, role) {
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('user-tag').innerText = l;
     
-    const isApproved = userRole !== 'pending';
+    const isApproved = (userRole !== 'pending');
+    
+    // Скрываем/Показываем навигацию в зависимости от статуса одобрения
     document.querySelectorAll('.approval-hide').forEach(el => el.classList.toggle('hidden', !isApproved));
     document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
 
@@ -244,8 +249,15 @@ function showProfile(nick) {
         if(nick === currentUser) {
             const isBanned = warns >= 3;
             document.getElementById('banned-msg').classList.toggle('hidden', !isBanned);
-            document.getElementById('nav-rep-btn').classList.toggle('hidden', isBanned);
-            document.getElementById('btn-take-inactive').classList.toggle('hidden', isInactive);
+            
+            // Если роль не одобрена, кнопка отчета скрыта ВСЕГДА
+            if (userRole === 'pending') {
+                document.getElementById('nav-rep-btn').classList.add('hidden');
+            } else {
+                document.getElementById('nav-rep-btn').classList.toggle('hidden', isBanned);
+            }
+            
+            document.getElementById('btn-take-inactive').classList.toggle('hidden', isInactive || userRole === 'pending');
             document.getElementById('btn-stop-inactive').classList.toggle('hidden', !isInactive);
         }
 
@@ -331,6 +343,8 @@ function loadData() {
 }
 
 async function sendReport() {
+    if (userRole === 'pending') return alert("Дождитесь одобрения!");
+    
     const rank = document.getElementById('rep-rank').value;
     const work = document.getElementById('rep-work').value;
     const score = parseInt(document.getElementById('rep-val').value);
