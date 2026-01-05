@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | MANAGEMENT SYSTEM</title>
+    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
@@ -145,8 +145,8 @@
                 <option>Модератор</option>
                 <option>Старший модератор</option>
             </select>
-            <textarea id="rep-work" rows="3" placeholder="Что было сделано?"></textarea>
-            <input type="number" id="rep-punish" placeholder="Количество баллов">
+            <textarea id="rep-work" rows="3" placeholder="Что было сделано за неделю?"></textarea>
+            <input type="number" id="rep-punish" placeholder="Количество наказании выданных за неделю">
             <input type="date" id="rep-date">
             <input type="file" id="rep-files" multiple accept="image/*">
             <button class="btn-main" onclick="sendReport()">ОТПРАВИТЬ ОТЧЕТ</button>
@@ -360,3 +360,4 @@ window.onload = () => { const saved = localStorage.getItem('ekb_user'); if(saved
 </script>
 </body>
 </html>
+
