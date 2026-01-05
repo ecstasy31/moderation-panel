@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>MOD PANEL | GLOBAL</title>
+<title>ЕКБ | ОТЧЕТНОСТЬ</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -17,10 +17,11 @@
 body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#333;}
 .hidden { display:none !important; }
 
+/* Фон с твоей картинкой */
 .overlay {
     position: fixed;
     inset: 0;
-    background: #000 url('https://sun9-33.userapi.com/s/v1/ig2/PItSUlt-hrdc8Yj2l7nvVSL-sqpSIrH1P7T_fZVQOHietbD8GF2qEU1_jwp53uzUL5dNdn1mhRYn0z5Rbzt7bVy5.jpg?quality=95&as=32x8,48x12,72x17,108x26,160x39,240x58,360x87,480x116,540x130,638x154&from=bu&cs=638x0') center/cover no-repeat;
+    background: #000 url('https://sun9-33.userapi.com/s/v1/ig2/PItSUlt-hrdc8Yj2l7nvVSL-sqpSIrH1P7T_fZVQOHietbD8GF2qEU1_jwp53uzUL5dNdn1mhRYn0z5Rbzt7bVy5.jpg?quality=95&from=bu&cs=638x0') center/cover no-repeat;
     filter: brightness(0.35);
     z-index: -1;
 }
@@ -55,24 +56,24 @@ th { background:#f8f8f8; }
 <div id="auth-section">
     <div class="container" id="box-reg">
         <h2 style="margin-top:0">Регистрация</h2>
-        <input type="text" id="in-reg-login" placeholder="Придумайте логин">
-        <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
+        <input type="text" id="in-reg-login" placeholder="Логин">
+        <input type="password" id="in-reg-pass" placeholder="Пароль">
         <button class="btn-main" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
-        <p>Уже есть аккаунт? <span class="auth-link" onclick="showAuthBox('log')">Войти</span></p>
+        <p>Уже есть? <span class="auth-link" onclick="showAuthBox('log')">Войти</span></p>
     </div>
 
     <div class="container hidden" id="box-log">
         <h2 style="margin-top:0">Вход</h2>
         <input type="text" id="in-log-login" placeholder="Логин">
         <input type="password" id="in-log-pass" placeholder="Пароль">
-        <button class="btn-main" onclick="doLogin()">ВОЙТИ В ПАНЕЛЬ</button>
+        <button class="btn-main" onclick="doLogin()">ВОЙТИ</button>
         <p>Нет аккаунта? <span class="auth-link" onclick="showAuthBox('reg')">Регистрация</span></p>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="display-user">Загрузка...</div>
+        <div id="display-user">...</div>
         <div>
             <button class="btn-nav" onclick="nav('report')">ОТЧЁТ</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">БАЗА</button>
@@ -89,14 +90,14 @@ th { background:#f8f8f8; }
             <option>Модератор</option>
             <option>Старший модератор</option>
         </select>
-        <textarea id="rep-work" rows="4" placeholder="Что вы сделали?"></textarea>
+        <textarea id="rep-work" rows="4" placeholder="Описание работы..."></textarea>
         <input type="date" id="rep-date">
         <input type="file" id="rep-files" multiple accept="image/*">
-        <button id="btn-send" class="btn-main" onclick="sendReport()">ОТПРАВИТЬ В БАЗУ</button>
+        <button id="btn-send" class="btn-main" onclick="sendReport()">ОТПРАВИТЬ</button>
     </div>
 
     <div class="container hidden" id="sec-base" style="max-width:95%;">
-        <h3>Все отчёты</h3>
+        <h3>База отчётов</h3>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -108,7 +109,7 @@ th { background:#f8f8f8; }
     </div>
 
     <div class="container hidden" id="sec-users" style="max-width:600px;">
-        <h3>Управление пользователями</h3>
+        <h3>Права доступа</h3>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -121,6 +122,7 @@ th { background:#f8f8f8; }
 </div>
 
 <script>
+// --- КОНФИГ ---
 const firebaseConfig = {
   apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
   authDomain: "modersekb.firebaseapp.com",
@@ -138,72 +140,67 @@ const OWNER_LOGIN = "Ecstasy9988";
 const OWNER_PASS = "Ecstasy20036";
 let userNow = null;
 
+// --- ЗАГРУЗКА ---
 window.onload = function(){
     const saved = localStorage.getItem("session_user");
     if(saved){
-        if(saved === OWNER_LOGIN){
-            loginSuccess(OWNER_LOGIN,{role:'owner'});
-        } else {
-            db.ref('users/'+saved).once('value')
-            .then(s=>{ if(s.exists()) loginSuccess(saved,s.val()); else localStorage.removeItem("session_user"); })
-            .catch(e=>console.log("Ошибка сессии: "+e.message));
-        }
+        if(saved === OWNER_LOGIN) loginSuccess(OWNER_LOGIN,{role:'owner'});
+        else db.ref('users/'+saved).once('value').then(s => { 
+            if(s.exists()) loginSuccess(saved, s.val()); 
+        });
     }
     db.ref('reports').on('value', renderReports);
     db.ref('users').on('value', renderUsers);
-}
+};
 
+// --- ЛОГИКА АВТОРИЗАЦИИ ---
 function showAuthBox(type){
     document.getElementById('box-reg').classList.toggle('hidden', type==='log');
     document.getElementById('box-log').classList.toggle('hidden', type==='reg');
 }
 
 function doRegister(){
-    const l=document.getElementById('in-reg-login').value.trim();
-    const p=document.getElementById('in-reg-pass').value.trim();
-    if(!l||!p) return alert("Заполните все поля!");
-    if(l===OWNER_LOGIN) return alert("Логин зарезервирован!");
+    const l = document.getElementById('in-reg-login').value.trim();
+    const p = document.getElementById('in-reg-pass').value.trim();
+    if(!l || !p) return alert("Заполни поля!");
+    if(l === OWNER_LOGIN) return alert("Логин занят!");
 
-    db.ref('users/'+l).once('value')
-    .then(s=>{
-        if(s.exists()) return alert("Логин уже занят!");
-        const data={pass:p,role:'user'};
-        return db.ref('users/'+l).set(data)
-        .then(()=>{
-            loginSuccess(l,data);
+    db.ref('users/'+l).once('value').then(s => {
+        if(s.exists()) return alert("Логин занят!");
+        const data = {pass:p, role:'user'};
+        db.ref('users/'+l).set(data).then(() => {
+            loginSuccess(l, data);
             alert("Регистрация успешна!");
         });
-    }).catch(e=>alert("Ошибка базы: "+e.message));
+    });
 }
 
 function doLogin(){
-    const l=document.getElementById('in-log-login').value.trim();
-    const p=document.getElementById('in-log-pass').value.trim();
-    if(!l||!p) return alert("Введите логин и пароль!");
+    const l = document.getElementById('in-log-login').value.trim();
+    const p = document.getElementById('in-log-pass').value.trim();
+    if(!l || !p) return alert("Введи данные!");
 
-    if(l===OWNER_LOGIN && p===OWNER_PASS){
-        loginSuccess(OWNER_LOGIN,{role:'owner'});
+    if(l === OWNER_LOGIN && p === OWNER_PASS){
+        loginSuccess(OWNER_LOGIN, {role:'owner'});
         return;
     }
 
-    db.ref('users/'+l).once('value')
-    .then(s=>{
-        const data=s.val();
-        if(data && data.pass===p){
-            loginSuccess(l,data);
-        } else alert("Неверные данные!");
-    }).catch(e=>alert("Ошибка базы: "+e.message));
+    db.ref('users/'+l).once('value').then(s => {
+        const d = s.val();
+        if(d && d.pass === p) loginSuccess(l, d);
+        else alert("Ошибка входа!");
+    });
 }
 
-function loginSuccess(login,data){
-    userNow=login;
-    localStorage.setItem("session_user",login);
+function loginSuccess(login, data){
+    userNow = login;
+    localStorage.setItem("session_user", login);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
-    document.getElementById('display-user').innerText=login+" ("+data.role.toUpperCase()+")";
-
-    document.getElementById('nav-base').classList.toggle('hidden',!(data.role==='admin'||data.role==='owner'));
-    document.getElementById('nav-users').classList.toggle('hidden',data.role!=='owner');
+    document.getElementById('display-user').innerText = login + " (" + data.role.toUpperCase() + ")";
+    
+    document.getElementById('nav-base').classList.toggle('hidden', !(data.role==='admin' || data.role==='owner'));
+    document.getElementById('nav-users').classList.toggle('hidden', data.role!=='owner');
     nav('report');
 }
 
@@ -212,70 +209,80 @@ function doLogout(){
     location.reload();
 }
 
+// --- НАВИГАЦИЯ ---
 function nav(id){
-    ['report','base','users'].forEach(sec=>document.getElementById('sec-'+sec).classList.add('hidden'));
+    ['report','base','users'].forEach(s => document.getElementById('sec-'+s).classList.add('hidden'));
     document.getElementById('sec-'+id).classList.remove('hidden');
 }
 
+// --- ОТЧЕТЫ ---
 async function sendReport(){
-    const nick=document.getElementById('rep-nick').value.trim();
-    const work=document.getElementById('rep-work').value.trim();
-    const date=document.getElementById('rep-date').value;
-    const files=document.getElementById('rep-files').files;
-    if(!nick||!work||!date) return alert("Заполните все поля отчета!");
+    const nick = document.getElementById('rep-nick').value;
+    const work = document.getElementById('rep-work').value;
+    const date = document.getElementById('rep-date').value;
+    const files = document.getElementById('rep-files').files;
+    if(!nick || !work || !date) return alert("Заполни отчет!");
 
-    const btn=document.getElementById('btn-send');
-    btn.disabled=true; btn.innerText="ОТПРАВЛЯЮ...";
-    let images=[];
+    const btn = document.getElementById('btn-send');
+    btn.disabled = true; btn.innerText = "ОТПРАВКА...";
+
+    let images = [];
     for(let f of files){
-        const b64=await new Promise(r=>{
-            const fr=new FileReader();
-            fr.onload=()=>r(fr.result);
+        const b64 = await new Promise(r => {
+            const fr = new FileReader();
+            fr.onload = () => r(fr.result);
             fr.readAsDataURL(f);
         });
         images.push(b64);
     }
 
-    db.ref('reports').push({author:userNow,nick,rank:document.getElementById('rep-rank').value,work,date,images,time:Date.now()})
-      .then(()=>{ alert("Отчёт отправлен!"); document.getElementById('rep-work').value=""; document.getElementById('rep-files').value=""; btn.disabled=false; btn.innerText="ОТПРАВИТЬ В БАЗУ"; })
-      .catch(e=>{ alert("Ошибка отправки: "+e.message); btn.disabled=false; btn.innerText="ОТПРАВИТЬ В БАЗУ"; });
+    db.ref('reports').push({
+        author: userNow, nick, rank: document.getElementById('rep-rank').value,
+        work, date, images, time: Date.now()
+    }).then(() => {
+        alert("Успешно!");
+        document.getElementById('rep-work').value = "";
+        btn.disabled = false; btn.innerText = "ОТПРАВИТЬ";
+    });
 }
 
 function renderReports(snap){
-    const box=document.getElementById('out-reports'); box.innerHTML="";
-    const data=snap.val(); if(!data) return;
-    Object.keys(data).reverse().forEach(id=>{
-        const r=data[id]; let imgs="";
-        if(r.images) r.images.forEach(i=>imgs+=`<img src="${i}" class="preview" onclick="openImg('${i}')">`);
-        box.innerHTML+=`<tr>
+    const box = document.getElementById('out-reports'); box.innerHTML = "";
+    const data = snap.val(); if(!data) return;
+    Object.keys(data).reverse().forEach(id => {
+        const r = data[id];
+        let imgs = "";
+        if(r.images) r.images.forEach(i => {
+            imgs += `<img src="${i}" class="preview" onclick="openImg('${i}')">`;
+        });
+        box.innerHTML += `<tr>
             <td><b>${r.nick}</b><br><small>${r.author}</small></td>
-            <td style="text-align:left">${r.work}</td>
-            <td>${imgs||"нет"}</td>
+            <td>${r.work}</td>
+            <td>${imgs || "нет"}</td>
             <td>${r.date}</td>
-            <td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">УДАЛИТЬ</button></td>
+            <td><button class="btn-danger" onclick="db.ref('reports/${id}').remove()">Удалить</button></td>
         </tr>`;
     });
 }
 
 function renderUsers(snap){
-    const box=document.getElementById('out-users'); box.innerHTML="";
-    const data=snap.val(); if(!data) return;
-    Object.keys(data).forEach(u=>{
-        if(u===OWNER_LOGIN) return;
-        const role=data[u].role;
-        box.innerHTML+=`<tr>
+    const box = document.getElementById('out-users'); box.innerHTML = "";
+    const data = snap.val(); if(!data) return;
+    Object.keys(data).forEach(u => {
+        if(u === OWNER_LOGIN) return;
+        const role = data[u].role;
+        box.innerHTML += `<tr>
             <td>${u}</td><td><b>${role}</b></td>
             <td>
-                <button class="btn-nav" onclick="toggleAdmin('${u}','${role}')">${role==='admin'?'Снять admin':'Выдать admin'}</button>
-                <button class="btn-danger" onclick="db.ref('users/${u}').remove()">Удалить</button>
+                <button class="btn-nav" onclick="toggleAdmin('${u}','${role}')">${role==='admin'?'Снять':'Дать'} Admin</button>
+                <button class="btn-danger" onclick="db.ref('users/${u}').remove()">X</button>
             </td>
         </tr>`;
     });
 }
 
-function toggleAdmin(login,role){
-    const newRole=role==='admin'?'user':'admin';
-    db.ref('users/'+login+'/role').set(newRole);
+function toggleAdmin(l, r){
+    db.ref('users/'+l+'/role').set(r === 'admin' ? 'user' : 'admin');
 }
 
 function openImg(s){ document.getElementById('modal-img').src=s; document.getElementById('modal').classList.remove('hidden'); }
