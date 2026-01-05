@@ -92,6 +92,7 @@
         <h2 id="view-nick">---</h2>
         <div id="view-rank" style="opacity: 0.6; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">---</div>
         
+        <span id="inactive-tag" class="hidden" style="color: #ffd600; font-weight: bold; display: block; margin: 5px;">💤 В НЕАКТИВЕ</span>
         <span class="warn-text" id="view-warns">Выговоры: 0 / 3</span>
 
         <div style="margin-top: 10px;">
@@ -110,9 +111,13 @@
             </div>
         </div>
         
-        <div id="my-profile-controls" class="hidden" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="btn-nav" style="flex:1" onclick="changeAva()">Сменить фото</button>
-            <button class="btn-nav" style="flex:1" onclick="changeNick()">Сменить ник</button>
+        <div id="my-profile-controls" class="hidden" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-nav" style="flex:1" onclick="changeAva()">Сменить фото</button>
+                <button class="btn-nav" style="flex:1" onclick="changeNick()">Сменить ник</button>
+            </div>
+            <button id="btn-take-inactive" class="btn-nav" style="border-color: #ffd600; color: #ffd600;" onclick="takeInactive()">Взять неактив (10б)</button>
+            <button id="btn-stop-inactive" class="btn-nav hidden" style="border-color: #fff; color: #fff;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
         </div>
 
         <div id="admin-warn-controls" class="hidden" style="margin-top: 20px; display: flex; gap: 10px;">
@@ -192,7 +197,7 @@ function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return;
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0 });
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false });
     loginSuccess(l, 'pending');
 }
 
@@ -226,16 +231,22 @@ function showProfile(nick) {
     db.ref('users/' + nick).on('value', s => {
         const d = s.val() || {};
         const warns = d.warns || 0;
+        const isInactive = d.inactive || false;
+        
         document.getElementById('view-nick').innerText = d.nick || nick;
         document.getElementById('view-rank').innerText = d.rank || "Участник";
         document.getElementById('view-score').innerText = d.score || 0;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
         document.getElementById('view-warns').innerText = `Выговоры: ${warns} / 3`;
         
+        document.getElementById('inactive-tag').classList.toggle('hidden', !isInactive);
+
         if(nick === currentUser) {
             const isBanned = warns >= 3;
             document.getElementById('banned-msg').classList.toggle('hidden', !isBanned);
             document.getElementById('nav-rep-btn').classList.toggle('hidden', isBanned);
+            document.getElementById('btn-take-inactive').classList.toggle('hidden', isInactive);
+            document.getElementById('btn-stop-inactive').classList.toggle('hidden', !isInactive);
         }
 
         document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
@@ -245,6 +256,19 @@ function showProfile(nick) {
         const total = d.score || 0;
         document.getElementById('stat-count').innerText = count;
         document.getElementById('stat-avg').innerText = count > 0 ? (total / count).toFixed(1) : 0;
+    });
+}
+
+function takeInactive() {
+    db.ref('users/'+currentUser).once('value', s => {
+        const score = s.val().score || 0;
+        if(score < 10) return alert("Недостаточно баллов! Нужно 10.");
+        if(confirm("Взять неактив за 10 баллов?")) {
+            db.ref('users/'+currentUser).update({
+                score: score - 10,
+                inactive: true
+            });
+        }
     });
 }
 
@@ -278,8 +302,9 @@ function loadData() {
 
             if (u.role !== 'pending') {
                 const tr = document.createElement('tr');
+                const nameDisplay = u.inactive ? `💤 ${u.nick || id}` : (u.nick || id);
                 tr.innerHTML = `
-                    <td onclick="showProfile('${id}')" style="cursor:pointer; color:var(--primary)">${u.nick || id}</td>
+                    <td onclick="showProfile('${id}')" style="cursor:pointer; color:${u.inactive ? '#ffd600' : 'var(--primary)'}">${nameDisplay}</td>
                     <td>${isAdmin ? `<input style="width:80px" value="${u.rank}" onchange="db.ref('users/${id}/rank').set(this.value)">` : u.rank}</td>
                     <td>${isAdmin ? `<input style="width:50px" type="number" value="${u.score}" onchange="db.ref('users/${id}/score').set(parseInt(this.value))">` : u.score}</td>
                     <td class="${isAdmin ? '' : 'hidden'}">${id !== OWNER ? `<button class="btn-logout" style="padding:2px 5px;" onclick="if(confirm('Скрыть из ТОПа?')) db.ref('users/${id}/role').set('pending')">❌</button>` : '👑'}</td>
