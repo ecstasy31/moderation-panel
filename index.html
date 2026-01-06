@@ -34,17 +34,17 @@
         /* Добавление медведей по бокам на все страницы */
         body::before, body::after {
             content: "";
-            position: fixed; /* Фиксирует картинки при скролле */
+            position: fixed; 
             top: 50%;
             transform: translateY(-50%);
-            width: 350px; /* Размер картинок */
-            height: 350px;
+            width: 320px; 
+            height: 320px;
             background-image: url('https://i.postimg.cc/mDByfF8G/image-6a7e8b.png');
             background-size: contain;
             background-repeat: no-repeat;
-            z-index: -1; /* Чтобы были под контентом */
-            pointer-events: none; /* Чтобы не мешали нажимать кнопки */
-            opacity: 0.6; /* Небольшая прозрачность для стиля */
+            z-index: -1; 
+            pointer-events: none; 
+            opacity: 0.5; 
         }
 
         /* Левый медведь */
@@ -55,10 +55,10 @@
         /* Правый медведь (отраженный) */
         body::after {
             right: 20px;
-            transform: translateY(-50%) scaleX(-1); /* Отражаем по горизонтали */
+            transform: translateY(-50%) scaleX(-1); 
         }
 
-        /* Скрытие медведей на маленьких экранах (телефонах), чтобы не перекрывали текст */
+        /* Скрытие медведей на мобильных устройствах, чтобы не мешали тексту */
         @media (max-width: 1400px) {
             body::before, body::after {
                 display: none;
