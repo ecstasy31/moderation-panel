@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -18,107 +19,71 @@
             --border: rgba(255, 255, 255, 0.08);
         }
 
-        * { box-sizing: border-box; }
+        * { transition: all 0.3s ease; box-sizing: border-box; }
 
-        /* ФОН В HTML */
-        html {
-            background: var(--bg);
+        body { 
+            margin: 0; 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: var(--bg); 
             background-image: radial-gradient(circle at 50% -20%, #1a3a2a 0%, #0a0a0c 80%);
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            color: white;
+            color: white; 
             min-height: 100vh;
-            background: transparent;
             position: relative;
-            overflow-x: hidden;
         }
 
-        /* ===== МЕДВЕДИ ===== */
-        body::before,
-        body::after {
+        /* Добавление медведей по бокам на все страницы */
+        body::before, body::after {
             content: "";
-            position: fixed;
+            position: fixed; /* Фиксирует картинки при скролле */
             top: 50%;
             transform: translateY(-50%);
-            width: 350px;
+            width: 350px; /* Размер картинок */
             height: 350px;
-            background-image: url("https://sun9-7.userapi.com/s/v1/ig2/z8OPcmWUI_3505Hov0Z5bbpez5oVXurWA91uoIWTK9_57Kv6hv1o-Wq_1-EhiVMh-uGiGc-9vJgAgOfzYypoIHW8.jpg");
-            background-repeat: no-repeat;
+            background-image: url('https://sun9-7.userapi.com/s/v1/ig2/z8OPcmWUI_3505Hov0Z5bbpez5oVXurWA91uoIWTK9_57Kv6hv1o-Wq_1-EhiVMh-uGiGc-9vJgAgOfzYypoIHW8.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,800x800&from=bu&u=z9wuZlAhAdRBXwrqYNm-y9rEk0GMjlEawJdTVEjWW2U&cs=640x0');
             background-size: contain;
-            opacity: 0.6;
-            z-index: 0;
-            pointer-events: none;
+            background-repeat: no-repeat;
+            z-index: -1; /* Чтобы были под контентом */
+            pointer-events: none; /* Чтобы не мешали нажимать кнопки */
+            opacity: 0.6; /* Небольшая прозрачность для стиля */
         }
 
+        /* Левый медведь */
         body::before {
             left: 20px;
         }
 
+        /* Правый медведь (отраженный) */
         body::after {
             right: 20px;
-            transform: translateY(-50%) scaleX(-1);
+            transform: translateY(-50%) scaleX(-1); /* Отражаем по горизонтали */
         }
 
-        /* Скрытие только на реально маленьких экранах */
-        @media (max-width: 1100px) {
-            body::before,
-            body::after {
+        /* Скрытие медведей на маленьких экранах (телефонах), чтобы не перекрывали текст */
+        @media (max-width: 1400px) {
+            body::before, body::after {
                 display: none;
             }
         }
 
-        /* ===== КОНТЕНТ ===== */
-        .container {
-            position: relative;
-            z-index: 1;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            width: 92%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 30px;
-            border-radius: 24px;
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .container { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px); 
+            width: 92%; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 30px; 
+            border-radius: 24px; 
             border: 1px solid var(--border);
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
 
-        .hidden { display: none !important; }
-
-        .btn-action {
-            background: var(--primary);
-            border: none;
-            color: black;
-            padding: 14px;
-            width: 100%;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-action:hover {
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-    <h2>Проверка отображения</h2>
-    <p>Если ты видишь медведей по бокам — всё работает корректно.</p>
-</div>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
-    authDomain: "modersekb.firebaseapp.com",
-    projectId: "modersekb",
-    databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
-};
-firebase.initializeApp(firebaseConfig);
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .hidden { display: none !important; }
@@ -795,5 +760,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
-
