@@ -136,7 +136,6 @@
             margin-bottom: 20px; 
         }
 
-        /* Стили для уменьшенной админ-панели */
         #admin-full-controls input { padding: 8px 12px; font-size: 12px; margin: 4px 0; }
         #admin-full-controls .btn-action { padding: 10px; font-size: 11px; }
         #admin-full-controls .btn-nav { padding: 6px 10px; font-size: 10px; }
@@ -231,9 +230,6 @@
             
             <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
             <input type="text" id="edit-rank-input" placeholder="Должность">
-            
-            <label style="font-size:9px; color:#666;">КОЛИЧЕСТВО БАЛЛОВ</label>
-            <input type="number" id="edit-score-input" placeholder="Баллы">
 
             <div style="display:flex; gap:8px; margin-top:8px;">
                 <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
@@ -243,11 +239,6 @@
             <div style="display:flex; gap:8px; margin-top:8px;">
                 <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
                 <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
-            </div>
-            
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-nav" style="flex:1;" id="btn-approve-user">Дать Админку</button>
-                <button class="btn-nav" style="flex:1;" id="btn-demote-user">Снять Админку</button>
             </div>
         </div>
     </div>
@@ -360,13 +351,10 @@ function loginSuccess(l, role) {
 
 function showProfile(nick) {
     nav('profile');
-    
-    // Кнопки смены ника/аватарки теперь видны только если смотришь свой профиль
     document.getElementById('profile-edit-controls').classList.toggle('hidden', nick !== currentUser);
     document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
     
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    // Панель видна только админам/владельцу, при условии что они не смотрят профиль владельца (кроме самого владельца)
     const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
     document.getElementById('admin-full-controls').classList.toggle('hidden', !canManage);
 
@@ -393,30 +381,16 @@ function showProfile(nick) {
         if(canManage) {
             document.getElementById('edit-nick-input').value = d.nick || nick;
             document.getElementById('edit-rank-input').value = d.rank || "";
-            document.getElementById('edit-score-input').value = score;
 
             document.getElementById('btn-save-admin').onclick = () => {
                 const newNick = document.getElementById('edit-nick-input').value;
                 const newRank = document.getElementById('edit-rank-input').value;
-                const newScore = parseInt(document.getElementById('edit-score-input').value);
-                db.ref('users/' + nick).update({ nick: newNick, rank: newRank, score: newScore });
+                db.ref('users/' + nick).update({ nick: newNick, rank: newRank });
                 alert("Данные обновлены");
             };
 
             document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
             document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
-            
-            document.getElementById('btn-approve-user').innerText = (d.role === 'pending') ? "Одобрить" : "Дать Админку";
-            document.getElementById('btn-approve-user').onclick = () => {
-                db.ref(`users/${nick}/role`).set('admin');
-                alert("Права администратора выданы");
-            };
-
-            document.getElementById('btn-demote-user').onclick = () => {
-                if(nick === OWNER) return alert("Нельзя снять права с владельца");
-                db.ref(`users/${nick}/role`).set('user');
-                alert("Права администратора сняты");
-            };
             
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
@@ -446,12 +420,28 @@ function loadData() {
             const dotClass = isOnline ? 'dot-green' : 'dot-red';
 
             if (isAdmin) {
+                let adminButtons = "";
+                if(u.role === 'pending') {
+                    adminButtons += `<button class="btn-nav" style="padding: 4px 10px; background:var(--primary); color:black;" onclick="db.ref('users/${id}/role').set('user')">Одобрить заявку</button>`;
+                } else if(u.role !== 'owner') {
+                    if(u.role === 'admin') {
+                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('user')">Снять Админку</button>`;
+                    } else {
+                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('admin')">Выдать Админку</button>`;
+                    }
+                }
+
                 listAdmin.innerHTML += `
-                <div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px; margin-bottom: 10px;">
-                    <span><div class="online-dot ${dotClass}"></div> <b>${u.nick || id}</b> <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small></span>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <button class="btn-nav" style="padding: 4px 10px;" onclick="showProfile('${id}')">Управлять</button>
-                        <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
+                <div class="report-card" style="margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span><div class="online-dot ${dotClass}"></div> <b>${u.nick || id}</b> <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small></span>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button class="btn-nav" style="padding: 4px 10px;" onclick="showProfile('${id}')">Управлять</button>
+                            <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap;">
+                        ${adminButtons}
                     </div>
                 </div>`;
             }
