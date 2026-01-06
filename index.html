@@ -45,11 +45,33 @@
             border: 1px solid var(--border);
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .hidden { display: none !important; }
+
+        /* Стили для баннера */
+        .profile-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(0,230,118,0.1), transparent);
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-content {
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
 
         .header { 
             background: rgba(10, 10, 12, 0.8); 
@@ -85,6 +107,7 @@
             border: 4px solid var(--primary); 
             object-fit: cover; 
             box-shadow: 0 0 30px var(--primary-glow);
+            background: var(--bg);
         }
         
         .mini-avatar {
@@ -198,66 +221,74 @@
     </div>
 
     <div id="sec-profile" class="container" style="text-align:center;">
-        <div id="pending-msg" class="hidden" style="background:rgba(255,82,82,0.1); color:var(--danger); padding:15px; border-radius:12px; margin-bottom:20px; font-size:13px; border:1px solid rgba(255,82,82,0.2);">
-            ⚠️ Аккаунт ожидает подтверждения от Главного Модератора
-        </div>
-        
-        <div class="profile-header">
-            <img id="view-ava" class="avatar" src="">
-            <div id="inactive-tag" class="hidden" style="position:absolute; top:0; right:30%; background:#ffd600; color:black; padding:4px 10px; border-radius:8px; font-weight:bold; font-size:10px;">INACTIVE</div>
-        </div>
+        <div id="view-banner" class="profile-banner"></div>
 
-        <h2 id="view-nick" style="margin:10px 0 5px 0; font-size:28px; letter-spacing:-1px;">---</h2>
-        <div id="view-rank" style="color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;">---</div>
-        <div id="view-lastseen">---</div>
-
-        <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
-        
-        <div class="stat-grid">
-            <div class="stat-card">
-                <span class="stat-val" id="view-score">0</span>
-                <span class="stat-label">Баллы</span>
+        <div class="profile-content">
+            <div id="pending-msg" class="hidden" style="background:rgba(255,82,82,0.1); color:var(--danger); padding:15px; border-radius:12px; margin-bottom:20px; font-size:13px; border:1px solid rgba(255,82,82,0.2);">
+                ⚠️ Аккаунт ожидает подтверждения от Главного Модератора
             </div>
-            <div class="stat-card">
-                <span class="stat-val" id="stat-count">0</span>
-                <span class="stat-label">Отчеты</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-val" id="view-warns-num">0/3</span>
-                <span class="stat-label">Выговоры</span>
-            </div>
-        </div>
-
-        <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
-            <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Сменить фото</button>
-            <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
-            <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
-        </div>
-
-        <div id="my-profile-controls" class="hidden">
-            <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
-            <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
-        </div>
-
-        <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
-            <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:10px;">Панель управления сотрудником</p>
             
-            <label style="font-size:9px; color:#666;">RP NICKNAME</label>
-            <input type="text" id="edit-nick-input" placeholder="Ник">
+            <div class="profile-header" style="position:relative; display:inline-block;">
+                <img id="view-ava" class="avatar" src="">
+                <div id="inactive-tag" class="hidden" style="position:absolute; top:0; right:-20px; background:#ffd600; color:black; padding:4px 10px; border-radius:8px; font-weight:bold; font-size:10px;">INACTIVE</div>
+            </div>
+
+            <h2 id="view-nick" style="margin:10px 0 5px 0; font-size:28px; letter-spacing:-1px;">---</h2>
+            <div id="view-rank" style="color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;">---</div>
+            <div id="view-lastseen">---</div>
+
+            <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
             
-            <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
-            <input type="text" id="edit-rank-input" placeholder="Должность">
-
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
-                <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить</button>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-val" id="view-score">0</span>
+                    <span class="stat-label">Баллы</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="stat-count">0</span>
+                    <span class="stat-label">Отчеты</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="view-warns-num">0/3</span>
+                    <span class="stat-label">Выговоры</span>
+                </div>
             </div>
 
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
-                <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
+            <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom: 10px;">
+                <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Фото</button>
+                <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
+                
+                <button class="btn-nav" onclick="document.getElementById('banner-upload').click()">Баннер</button>
+                <input type="file" id="banner-upload" hidden accept="image/*" onchange="uploadBanner(this)">
+
+                <button class="btn-nav" onclick="changeNick()">Ник</button>
             </div>
-            <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
+
+            <div id="my-profile-controls" class="hidden">
+                <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
+                <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
+            </div>
+
+            <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
+                <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:10px;">Панель управления сотрудником</p>
+                
+                <label style="font-size:9px; color:#666;">RP NICKNAME</label>
+                <input type="text" id="edit-nick-input" placeholder="Ник">
+                
+                <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
+                <input type="text" id="edit-rank-input" placeholder="Должность">
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
+                    <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить</button>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
+                    <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
+                </div>
+                <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
+            </div>
         </div>
     </div>
 
@@ -366,7 +397,7 @@ function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return alert("Заполните все поля");
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', banner: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
     loginSuccess(l, 'pending');
 }
 
@@ -417,6 +448,12 @@ function showProfile(nick) {
         document.getElementById('view-rank').innerText = d.rank || "Участник";
         document.getElementById('view-score').innerText = score;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
+        
+        // Установка баннера
+        const bannerEl = document.getElementById('view-banner');
+        if(d.banner) bannerEl.style.backgroundImage = `url(${d.banner})`;
+        else bannerEl.style.backgroundImage = 'none';
+
         document.getElementById('view-warns-num').innerText = `${warns}/3`;
         document.getElementById('view-lastseen').innerText = `В сети: ${lastSeen}`;
         
@@ -663,6 +700,7 @@ async function sendReport() {
 
 function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
 
+// Обновление фото
 async function uploadAva(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
@@ -675,6 +713,22 @@ async function uploadAva(input) {
         });
         db.ref('users/' + currentUser).update({ avatar: b64 });
         alert("Фото успешно обновлено!");
+    }
+}
+
+// Загрузка баннера
+async function uploadBanner(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) return alert("Файл слишком большой! Лимит 2МБ.");
+        
+        const b64 = await new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(file);
+        });
+        db.ref('users/' + currentUser).update({ banner: b64 });
+        alert("Баннер успешно обновлен!");
     }
 }
 
