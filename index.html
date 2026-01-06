@@ -538,10 +538,16 @@ function loadFullTable() {
         const now = new Date();
 
         Object.entries(s.val() || {}).forEach(([key, row]) => {
-            const start = row.dateStart ? new Date(row.dateStart.split('.').reverse().join('-')) : null;
+            // Расчет дней на посту
             let daysPassed = "0";
-            if (start && !isNaN(start)) {
-                daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+            if (row.dateStart) {
+                const parts = row.dateStart.split('.');
+                if(parts.length === 3) {
+                    const start = new Date(parts[2], parts[1]-1, parts[0]);
+                    if(!isNaN(start)) {
+                        daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+                    }
+                }
             }
 
             const tr = document.createElement('tr');
@@ -549,10 +555,10 @@ function loadFullTable() {
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'dateStart', '${row.dateStart}')">${row.dateStart || '01.01.2024'}</td>
-                <td style="color:var(--primary)">${daysPassed}</td>
+                <td style="color:var(--primary)">${daysPassed} дн.</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'preds', '${row.preds}')">${row.preds || '[0/2]'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'warns', '${row.warns}')">${row.warns || '[0/3]'}</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || 'None'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || '-'}</td>
                 ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
             `;
             tbody.appendChild(tr);
@@ -562,8 +568,8 @@ function loadFullTable() {
 
 function addTableRow() {
     db.ref('full_table').push({
-        nick: 'Новый',
-        rank: 'Мл. Модератор',
+        nick: 'Nick_Name',
+        rank: 'Должность',
         dateStart: new Date().toLocaleDateString('ru-RU'),
         preds: '[0/2]',
         warns: '[0/3]',
