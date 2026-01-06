@@ -47,15 +47,16 @@
             opacity: 0.6; /* Небольшая прозрачность для стиля */
         }
 
-        /* Левый медведь */
         body::before {
-            left: 20px;
-        }
+    left: 20px;
+    transform: translateY(-50%) scaleX(-1);
+}
 
-        /* Правый медведь (отраженный) */
-        body::before {
-            left: 20px;
-        }
+body::after {
+    right: 20px;
+    transform: translateY(-50%) scaleX(-1);
+}
+
 
         /* Скрытие медведей на маленьких экранах (телефонах), чтобы не перекрывали текст */
         @media (max-width: 1400px) {
@@ -759,6 +760,7 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
 
 
 
