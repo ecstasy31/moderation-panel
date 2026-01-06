@@ -28,6 +28,41 @@
             background-image: radial-gradient(circle at 50% -20%, #1a3a2a 0%, #0a0a0c 80%);
             color: white; 
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* Добавление медведей по бокам на все страницы */
+        body::before, body::after {
+            content: "";
+            position: fixed; /* Фиксирует картинки при скролле */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 350px; /* Размер картинок */
+            height: 350px;
+            background-image: url('https://i.postimg.cc/mDByfF8G/image-6a7e8b.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: -1; /* Чтобы были под контентом */
+            pointer-events: none; /* Чтобы не мешали нажимать кнопки */
+            opacity: 0.6; /* Небольшая прозрачность для стиля */
+        }
+
+        /* Левый медведь */
+        body::before {
+            left: 20px;
+        }
+
+        /* Правый медведь (отраженный) */
+        body::after {
+            right: 20px;
+            transform: translateY(-50%) scaleX(-1); /* Отражаем по горизонтали */
+        }
+
+        /* Скрытие медведей на маленьких экранах (телефонах), чтобы не перекрывали текст */
+        @media (max-width: 1400px) {
+            body::before, body::after {
+                display: none;
+            }
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -53,7 +88,6 @@
 
         .hidden { display: none !important; }
 
-        /* Фиксированный баннер */
         .profile-banner {
             position: absolute;
             top: 0;
@@ -726,4 +760,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
