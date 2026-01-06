@@ -224,19 +224,36 @@
             <button id="btn-stop-inactive" class="btn-nav hidden" style="grid-column: span 2;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
         </div>
 
-        <div id="admin-warn-controls" class="hidden" style="margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
-            <p style="font-size:10px; color:#666; text-transform:uppercase;">Управление наказаниями</p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-add-warn">+ Выговор</button>
-                <button class="btn-action" style="background:#444; color:white; flex:1;" id="btn-rem-warn">Снять</button>
+        <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px; text-align:left;">
+            <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:15px;">Панель управления сотрудником</p>
+            
+            <label style="font-size:10px; color:#666;">RP NICKNAME</label>
+            <input type="text" id="edit-nick-input" placeholder="Ник">
+            
+            <label style="font-size:10px; color:#666;">ДОЛЖНОСТЬ</label>
+            <input type="text" id="edit-rank-input" placeholder="Должность">
+            
+            <label style="font-size:10px; color:#666;">КОЛИЧЕСТВО БАЛЛОВ</label>
+            <input type="number" id="edit-score-input" placeholder="Баллы">
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить изменения</button>
+                <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить из системы</button>
             </div>
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
+                <button class="btn-nav" style="flex:1;" id="btn-rem-warn">Снять выговор</button>
+            </div>
+            
+            <button class="btn-nav" style="width:100%; margin-top:10px;" id="btn-approve-user">Подтвердить аккаунт (Role: Admin)</button>
         </div>
     </div>
 
     <div id="sec-scores" class="container hidden">
         <h3 style="text-align:left; margin-bottom:20px;">🏆 Рейтинг состава</h3>
         <table>
-            <thead><tr><th>Сотрудник</th><th>Ранг</th><th>Баллы</th></tr></thead>
+            <thead><tr><th>NicnName</th><th>Доложность</th><th>Баллы</th></tr></thead>
             <tbody id="list-scores"></tbody>
         </table>
     </div>
@@ -245,7 +262,7 @@
         <h3 style="text-align:left;">Новый отчет</h3>
         <p style="text-align:left; color:#888; font-size:12px; margin-bottom:20px;">Заполните данные о проделанной работе за неделю</p>
         
-        <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАШ ТЕКУЩИЙ РАНГ</label>
+        <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАША ДОЛЖНОСТЬ</label>
         <select id="rep-rank">
             <option value="Младший Модератор">Младший Модератор</option>
             <option value="Модератор">Модератор</option>
@@ -253,7 +270,7 @@
         </select>
         
         <textarea id="rep-work" rows="4" placeholder="Опишите, что именно вы сделали..."></textarea>
-        <input type="number" id="rep-val" placeholder="Количество наказаний (число)">
+        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю (число)">
         <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
         <input type="date" id="rep-date">
         
@@ -272,7 +289,7 @@
 </div>
 
 <script>
-// --- КОНФИГУРАЦИЯ FIREBASE (БЕЗ ИЗМЕНЕНИЙ) ---
+// --- КОНФИГУРАЦИЯ FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
@@ -282,16 +299,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
-const DELETE_CODE = "9988";
 let currentUser = "";
 let userRole = "pending";
 
-// --- ЛОГИКА ОНЛАЙНА ---
 function updateLastSeen() {
     if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
 }
 
-// --- НАВИГАЦИЯ ---
 function nav(id) {
     if (userRole === 'pending' && id !== 'profile') return;
     updateLastSeen();
@@ -305,7 +319,6 @@ function toggleAuth(reg) {
     document.getElementById('box-reg').classList.toggle('hidden', !reg);
 }
 
-// --- АВТОРИЗАЦИЯ ---
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
@@ -347,15 +360,18 @@ function loginSuccess(l, role) {
     setInterval(updateLastSeen, 60000);
 }
 
-// --- ПРОФИЛЬ ---
 function showProfile(nick) {
     nav('profile');
     document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
+    
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    document.getElementById('admin-warn-controls').classList.toggle('hidden', !isAdmin || nick === OWNER);
+    const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
+    document.getElementById('admin-full-controls').classList.toggle('hidden', !canManage);
 
     db.ref('users/' + nick).on('value', s => {
         const d = s.val() || {};
+        if(!s.exists()) return;
+
         const warns = d.warns || 0;
         const score = d.score || 0;
         const isInactive = d.inactive || false;
@@ -368,14 +384,41 @@ function showProfile(nick) {
         document.getElementById('view-warns-num').innerText = `${warns}/3`;
         document.getElementById('view-lastseen').innerText = `В сети: ${lastSeen}`;
         
-        // Визуальный прогресс (каждые 500 баллов - новый этап)
         const progress = (score % 500) / 5;
         document.getElementById('rank-progress').style.width = progress + "%";
         document.getElementById('inactive-tag').classList.toggle('hidden', !isInactive);
 
-        document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
-        document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
-        
+        if(canManage) {
+            document.getElementById('edit-nick-input').value = d.nick || nick;
+            document.getElementById('edit-rank-input').value = d.rank || "";
+            document.getElementById('edit-score-input').value = score;
+
+            document.getElementById('btn-save-admin').onclick = () => {
+                const newNick = document.getElementById('edit-nick-input').value;
+                const newRank = document.getElementById('edit-rank-input').value;
+                const newScore = parseInt(document.getElementById('edit-score-input').value);
+                db.ref('users/' + nick).update({ nick: newNick, rank: newRank, score: newScore });
+                alert("Данные обновлены");
+            };
+
+            document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
+            document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
+            
+            // Восстановлена кнопка одобрения
+            document.getElementById('btn-approve-user').innerText = (d.role === 'pending') ? "Одобрить заявку" : "Выдать права Админа";
+            document.getElementById('btn-approve-user').onclick = () => {
+                db.ref(`users/${nick}/role`).set('admin');
+                alert("Статус изменен");
+            };
+            
+            document.getElementById('btn-delete-user').onclick = () => {
+                if(confirm(`Вы уверены, что хотите УДАЛИТЬ пользователя ${nick}?`)) {
+                    db.ref('users/' + nick).remove();
+                    alert("Пользователь удален");
+                    nav('admin');
+                }
+            };
+        }
         document.getElementById('stat-count').innerText = d.reportsCount || 0;
     });
 }
@@ -395,10 +438,14 @@ function loadData() {
             const dotClass = isOnline ? 'dot-green' : 'dot-red';
 
             if (isAdmin) {
+                // Добавлен крестик удаления прямо в список Менеджера
                 listAdmin.innerHTML += `
                 <div class="report-card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span><div class="online-dot ${dotClass}"></div> <b>${id}</b> <small style="opacity:0.5">${u.role}</small></span>
-                    <button class="btn-nav" onclick="showProfile('${id}')">Управлять</button>
+                    <span><div class="online-dot ${dotClass}"></div> <b>${u.nick || id}</b> <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small></span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button class="btn-nav" onclick="showProfile('${id}')">Управлять</button>
+                        <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
+                    </div>
                 </div>`;
             }
 
@@ -417,14 +464,22 @@ function loadData() {
     db.ref('reports').on('value', s => {
         const container = document.getElementById('list-reports');
         container.innerHTML = "";
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+
         Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
             let imgsHtml = "";
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
+            
+            const delBtn = isAdmin ? `<span onclick="deleteReport('${id}', '${r.author}', ${r.score})" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px; margin-left:10px;">✕</span>` : "";
+
             container.innerHTML += `
             <div class="report-card">
-                <div style="display:flex; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
                     <b>${r.author}</b>
-                    <span style="color:var(--primary)">+${r.score} баллов</span>
+                    <div>
+                        <span style="color:var(--primary)">+${r.score} баллов</span>
+                        ${delBtn}
+                    </div>
                 </div>
                 <div style="font-size:12px; margin:10px 0; color:#ccc;">${r.work}</div>
                 <div>${imgsHtml}</div>
@@ -434,7 +489,31 @@ function loadData() {
     });
 }
 
-// --- ОТПРАВКА ОТЧЕТА ---
+// Функция удаления отчета с вычитанием баллов
+function deleteReport(repId, author, points) {
+    if(confirm(`Удалить этот отчет? У автора (${author}) будет списано ${points} баллов.`)) {
+        // 1. Удаляем сам отчет
+        db.ref('reports/' + repId).remove();
+        // 2. Вычитаем баллы и счетчик у юзера
+        db.ref('users/' + author).transaction(u => {
+            if(u) {
+                u.score = Math.max(0, (u.score || 0) - points);
+                u.reportsCount = Math.max(0, (u.reportsCount || 0) - 1);
+            }
+            return u;
+        });
+        alert("Отчет удален, баллы списаны.");
+    }
+}
+
+// Вспомогательная функция для быстрого удаления крестиком
+function deleteUserSimple(id) {
+    if(id === OWNER) return alert("Нельзя удалить владельца");
+    if(confirm(`Удалить ${id} из системы?`)) {
+        db.ref('users/' + id).remove();
+    }
+}
+
 async function sendReport() {
     if (userRole === 'pending') return;
     const work = document.getElementById('rep-work').value;
@@ -475,4 +554,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
