@@ -240,6 +240,7 @@
                 <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
                 <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
             </div>
+            <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
         </div>
     </div>
 
@@ -392,6 +393,12 @@ function showProfile(nick) {
             document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
             document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
             
+            document.getElementById('btn-toggle-top').onclick = () => {
+                const cur = d.hiddenFromTop || false;
+                db.ref('users/' + nick + '/hiddenFromTop').set(!cur);
+                alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
+            };
+
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
                 if(confirm(`Вы уверены, что хотите УДАЛИТЬ пользователя ${nick}?`)) {
@@ -446,7 +453,7 @@ function loadData() {
                 </div>`;
             }
 
-            if (u.role !== 'pending') {
+            if (u.role !== 'pending' && !u.hiddenFromTop) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td onclick="showProfile('${id}')" style="cursor:pointer;"><div class="online-dot ${dotClass}"></div> ${u.nick || id}</td>
