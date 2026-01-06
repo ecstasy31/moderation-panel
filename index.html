@@ -141,6 +141,14 @@
         #admin-full-controls .btn-nav { padding: 6px 10px; font-size: 10px; }
 
         #view-lastseen { color: #888; font-size: 11px; margin-top: 8px; }
+
+        /* Таблица стили */
+        .full-table { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .full-table table { margin-top: 0; border-spacing: 0; font-size: 12px; }
+        .full-table th { background: rgba(255,255,255,0.05); color: var(--primary); padding: 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .full-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.02); background: none; border-radius: 0; }
+        .editable { cursor: pointer; border-bottom: 1px dashed #444; }
+        .editable:hover { color: var(--primary); }
     </style>
 </head>
 <body>
@@ -174,6 +182,7 @@
         <div class="nav-group">
             <button class="btn-nav" onclick="showProfile(currentUser)">Профиль</button>
             <button class="btn-nav approval-hide" onclick="nav('scores')">Топ</button>
+            <button class="btn-nav approval-hide" onclick="nav('fulltable')">Таблица</button>
             <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">База</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Менеджер</button>
@@ -241,6 +250,30 @@
                 <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
             </div>
             <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
+        </div>
+    </div>
+
+    <div id="sec-fulltable" class="container hidden" style="max-width: 1000px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">📊 Общий список модерации</h3>
+            <button id="add-table-row" class="btn-nav hidden" onclick="addTableRow()" style="background: var(--primary); color: black;">+ Добавить строку</button>
+        </div>
+        <div class="full-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nick_Name</th>
+                        <th>Должность</th>
+                        <th>Дата постановления</th>
+                        <th>Прошло</th>
+                        <th>Пред-я</th>
+                        <th>Выговоры</th>
+                        <th>Посл. повыш-е</th>
+                        <th class="admin-only hidden">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-full"></tbody>
+            </table>
         </div>
     </div>
 
@@ -343,10 +376,13 @@ function loginSuccess(l, role) {
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
     updateLastSeen();
     showProfile(l);
     loadData();
+    loadFullTable();
     setInterval(updateLastSeen, 60000);
 }
 
@@ -491,6 +527,56 @@ function loadData() {
             </div>`;
         });
     });
+}
+
+// Функции для Таблицы
+function loadFullTable() {
+    db.ref('full_table').on('value', s => {
+        const tbody = document.getElementById('tbody-full');
+        tbody.innerHTML = "";
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        const now = new Date();
+
+        Object.entries(s.val() || {}).forEach(([key, row]) => {
+            const start = row.dateStart ? new Date(row.dateStart.split('.').reverse().join('-')) : null;
+            let daysPassed = "0";
+            if (start && !isNaN(start)) {
+                daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'dateStart', '${row.dateStart}')">${row.dateStart || '01.01.2024'}</td>
+                <td style="color:var(--primary)">${daysPassed}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'preds', '${row.preds}')">${row.preds || '[0/2]'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'warns', '${row.warns}')">${row.warns || '[0/3]'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || 'None'}</td>
+                ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function addTableRow() {
+    db.ref('full_table').push({
+        nick: 'Новый',
+        rank: 'Мл. Модератор',
+        dateStart: new Date().toLocaleDateString('ru-RU'),
+        preds: '[0/2]',
+        warns: '[0/3]',
+        lastUp: '-'
+    });
+}
+
+function editCell(key, field, oldVal) {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    const newVal = prompt("Введите новое значение:", oldVal);
+    if (newVal !== null) {
+        db.ref(`full_table/${key}/${field}`).set(newVal);
+    }
 }
 
 function deleteReport(repId, author, points) {
