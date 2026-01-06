@@ -53,14 +53,14 @@
 
         .hidden { display: none !important; }
 
-        /* Стили для баннера */
+        /* Фиксированный баннер */
         .profile-banner {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 120px;
-            background: linear-gradient(to bottom, rgba(0,230,118,0.1), transparent);
+            background-image: url('https://sun9-54.userapi.com/impf/Tgx54DTWLipaB0OQ75pdV4SaneS_2FuKw5DTkw/wtFg474Yp68.jpg?size=1920x768&quality=95&crop=0,0,1920,767&sign=dec3e31e8e9fcee1ee8e2b0c0b7b8b6b&c_uniq_tag=khTbxkvjsazKI2MbS3X42V9A5pauyCljYYt_gkpR838');
             background-size: cover;
             background-position: center;
             z-index: 0;
@@ -221,7 +221,7 @@
     </div>
 
     <div id="sec-profile" class="container" style="text-align:center;">
-        <div id="view-banner" class="profile-banner"></div>
+        <div class="profile-banner"></div>
 
         <div class="profile-content">
             <div id="pending-msg" class="hidden" style="background:rgba(255,82,82,0.1); color:var(--danger); padding:15px; border-radius:12px; margin-bottom:20px; font-size:13px; border:1px solid rgba(255,82,82,0.2);">
@@ -254,14 +254,11 @@
                 </div>
             </div>
 
-            <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom: 10px;">
-                <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Фото</button>
+            <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
+                <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Сменить фото</button>
                 <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
                 
-                <button class="btn-nav" onclick="document.getElementById('banner-upload').click()">Баннер</button>
-                <input type="file" id="banner-upload" hidden accept="image/*" onchange="uploadBanner(this)">
-
-                <button class="btn-nav" onclick="changeNick()">Ник</button>
+                <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
             </div>
 
             <div id="my-profile-controls" class="hidden">
@@ -397,7 +394,7 @@ function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return alert("Заполните все поля");
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', banner: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
     loginSuccess(l, 'pending');
 }
 
@@ -449,11 +446,6 @@ function showProfile(nick) {
         document.getElementById('view-score').innerText = score;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
         
-        // Установка баннера
-        const bannerEl = document.getElementById('view-banner');
-        if(d.banner) bannerEl.style.backgroundImage = `url(${d.banner})`;
-        else bannerEl.style.backgroundImage = 'none';
-
         document.getElementById('view-warns-num').innerText = `${warns}/3`;
         document.getElementById('view-lastseen').innerText = `В сети: ${lastSeen}`;
         
@@ -700,7 +692,6 @@ async function sendReport() {
 
 function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
 
-// Обновление фото
 async function uploadAva(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
@@ -713,22 +704,6 @@ async function uploadAva(input) {
         });
         db.ref('users/' + currentUser).update({ avatar: b64 });
         alert("Фото успешно обновлено!");
-    }
-}
-
-// Загрузка баннера
-async function uploadBanner(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        if (file.size > 2 * 1024 * 1024) return alert("Файл слишком большой! Лимит 2МБ.");
-        
-        const b64 = await new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(file);
-        });
-        db.ref('users/' + currentUser).update({ banner: b64 });
-        alert("Баннер успешно обновлен!");
     }
 }
 
