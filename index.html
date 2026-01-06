@@ -269,7 +269,7 @@
                         <th>Пред-я</th>
                         <th>Выговоры</th>
                         <th>Посл. повыш-е</th>
-                        <th class="admin-only hidden">Действие</th>
+                        <th>Дней с пов-я</th> <th class="admin-only hidden">Действие</th>
                     </tr>
                 </thead>
                 <tbody id="tbody-full"></tbody>
@@ -537,28 +537,31 @@ function loadFullTable() {
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         const now = new Date();
 
-        Object.entries(s.val() || {}).forEach(([key, row]) => {
-            // Расчет дней на посту
-            let daysPassed = "0";
-            if (row.dateStart) {
-                const parts = row.dateStart.split('.');
-                if(parts.length === 3) {
-                    const start = new Date(parts[2], parts[1]-1, parts[0]);
-                    if(!isNaN(start)) {
-                        daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-                    }
-                }
+        // Помощник для расчета дней из строки даты
+        const calcDays = (dateStr) => {
+            if (!dateStr || dateStr === '-') return '0';
+            const parts = dateStr.split('.');
+            if(parts.length === 3) {
+                const d = new Date(parts[2], parts[1]-1, parts[0]);
+                if(!isNaN(d)) return Math.floor((now - d) / (1000 * 60 * 60 * 24));
             }
+            return '0';
+        };
+
+        Object.entries(s.val() || {}).forEach(([key, row]) => {
+            const daysSinceStart = calcDays(row.dateStart);
+            const daysSinceUp = calcDays(row.lastUp);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'dateStart', '${row.dateStart}')">${row.dateStart || '01.01.2024'}</td>
-                <td style="color:var(--primary)">${daysPassed} дн.</td>
+                <td style="color:var(--primary)">${daysSinceStart} дн.</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'preds', '${row.preds}')">${row.preds || '[0/2]'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'warns', '${row.warns}')">${row.warns || '[0/3]'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || '-'}</td>
+                <td style="color:#ffd600">${daysSinceUp} дн.</td>
                 ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
             `;
             tbody.appendChild(tr);
