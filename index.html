@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>MOD EKB | СИСТЕМА УПРАВЛЕНИЯ</title>
+    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
@@ -22,148 +22,334 @@
         * { transition: all 0.3s ease; box-sizing: border-box; }
 
         body { 
-            margin: 0; font-family: 'Inter', sans-serif; 
-            background: var(--bg); color: white; min-height: 100vh;
+            margin: 0; 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: var(--bg); 
             background-image: radial-gradient(circle at 50% -20%, #1a3a2a 0%, #0a0a0c 80%);
+            color: white; 
+            min-height: 100vh;
         }
 
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
         .container { 
-            background: var(--card-bg); backdrop-filter: blur(20px); 
-            width: 92%; max-width: 900px; margin: 20px auto; 
-            padding: 30px; border-radius: 24px; border: 1px solid var(--border);
-            position: relative; overflow: hidden;
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px); 
+            width: 92%; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 30px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .hidden { display: none !important; }
 
-        /* Баннер */
+        /* Фиксированный баннер */
         .profile-banner {
-            position: absolute; top: 0; left: 0; width: 100%; height: 120px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
             background-image: url('https://sun9-54.userapi.com/impf/Tgx54DTWLipaB0OQ75pdV4SaneS_2FuKw5DTkw/wtFg474Yp68.jpg?size=1920x768&quality=95&crop=0,0,1920,767&sign=dec3e31e8e9fcee1ee8e2b0c0b7b8b6b&c_uniq_tag=khTbxkvjsazKI2MbS3X42V9A5pauyCljYYt_gkpR838');
-            background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-content {
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
         }
 
         .header { 
-            background: rgba(10, 10, 12, 0.8); backdrop-filter: blur(10px);
-            padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; 
+            background: rgba(10, 10, 12, 0.8); 
+            backdrop-filter: blur(10px);
+            padding: 15px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
         }
 
         .btn-nav { 
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
-            color: #ccc; padding: 8px 14px; font-size: 11px; cursor: pointer; 
-            border-radius: 8px; font-weight: 600; text-transform: uppercase; margin-left: 5px;
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--border); 
+            color: #ccc; 
+            padding: 8px 16px; 
+            font-size: 11px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            margin-left: 5px; 
+            font-weight: 600;
+            text-transform: uppercase;
         }
-        .btn-nav:hover { background: var(--primary); color: black; }
 
-        /* INFO блоки */
-        .info-block { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
-        .info-title { color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 10px; border-left: 3px solid var(--primary); padding-left: 10px; }
-        .info-text { font-size: 14px; line-height: 1.6; color: #ddd; white-space: pre-wrap; }
-        .info-img { width: 100%; border-radius: 10px; margin: 10px 0; border: 1px solid var(--border); }
-        .edit-area { width: 100%; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 5px; }
+        .btn-nav:hover { background: var(--primary); color: black; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
 
-        /* Профиль */
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); object-fit: cover; margin-top: 40px; position: relative; z-index: 1; }
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .stat-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+        .avatar { 
+            width: 130px; height: 130px; 
+            border-radius: 35% 65% 65% 35% / 30% 30% 70% 70%; 
+            border: 4px solid var(--primary); 
+            object-fit: cover; 
+            box-shadow: 0 0 30px var(--primary-glow);
+            background: var(--bg);
+        }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: white; border-radius: 10px; font-family: inherit; }
-        .btn-action { background: var(--primary); color: black; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; }
+        .mini-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--primary);
+            margin-right: 10px;
+            vertical-align: middle;
+        }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        
-        .report-item { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .mini-img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 5px; cursor: pointer; }
+        .progress-bar { 
+            width: 100%; height: 6px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+            margin: 15px 0; 
+            overflow: hidden; 
+        }
+        .progress-fill { height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); width: 0%; }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
+        .stat-card { background: rgba(255,255,255,0.03); padding: 20px 10px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .stat-val { font-size: 24px; font-weight: 800; color: white; display: block; }
+        .stat-label { font-size: 9px; text-transform: uppercase; color: var(--primary); letter-spacing: 1.5px; margin-top: 5px; opacity: 0.8; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { padding: 15px; text-align: left; font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 1px; border: 1px solid var(--border); }
+        td { padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+
+        input, select, textarea { 
+            width: 100%; padding: 14px; margin: 8px 0; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid var(--border); 
+            color: white; border-radius: 12px; 
+            font-size: 14px;
+        }
+        input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.5); }
+
+        .btn-action { 
+            background: var(--primary); color: black; border: none; 
+            padding: 16px; border-radius: 12px; 
+            font-weight: 800; cursor: pointer; width: 100%; 
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
+
+        .online-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .dot-green { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        .dot-red { background: var(--danger); }
+
+        .report-card { 
+            background: rgba(255,255,255,0.02); 
+            border: 1px solid var(--border); 
+            padding: 20px; border-radius: 18px; 
+            margin-bottom: 20px; 
+        }
+
+        #admin-full-controls input { padding: 8px 12px; font-size: 12px; margin: 4px 0; }
+        #admin-full-controls .btn-action { padding: 10px; font-size: 11px; }
+        #admin-full-controls .btn-nav { padding: 6px 10px; font-size: 10px; }
+
+        #view-lastseen { color: #888; font-size: 11px; margin-top: 8px; }
+
+        .full-table { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .full-table table { margin-top: 0; border-spacing: 0; font-size: 12px; border-collapse: collapse; }
+        .full-table th { background: rgba(255,255,255,0.05); color: var(--primary); padding: 10px; border: 1px solid var(--border); white-space: nowrap; }
+        .full-table td { padding: 10px; border: 1px solid var(--border); background: none; }
+        .editable { cursor: pointer; }
+        .editable:hover { color: var(--primary); background: rgba(255,255,255,0.03); }
     </style>
 </head>
 <body>
 
-<div id="modal" onclick="this.style.display='none'" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px;">
-    <img id="modal-img" style="max-width:100%; max-height:90vh; border-radius:10px;">
+<div id="modal" onclick="this.style.display='none'" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; display:none; align-items:center; justify-content:center;">
+    <img src="" id="modal-img" style="max-width:90%; max-height:90vh; border-radius:12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
 </div>
 
 <div id="auth-section" class="container" style="max-width:400px; margin-top:10vh;">
-    <h2 style="text-align:center;">Авторизация</h2>
-    <input type="text" id="in-log-login" placeholder="Никнейм">
-    <input type="password" id="in-log-pass" placeholder="Пароль">
-    <button class="btn-action" onclick="doLogin()">Войти</button>
-    <p style="text-align:center; font-size:12px; color:#555; margin-top:15px;" onclick="doRegister()">Нет аккаунта? Зарегистрироваться</p>
+    <div id="box-log">
+        <h2 style="margin-bottom:30px; letter-spacing:-1px;">С возвращением</h2>
+        <input type="text" id="in-log-login" placeholder="Ваш RP NickName">
+        <input type="password" id="in-log-pass" placeholder="Пароль">
+        <button class="btn-action" onclick="doLogin()">Войти в систему</button>
+        <p style="font-size:12px; margin-top:20px; color:#888;">Нет доступа? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(true)">Регистрация</span></p>
+    </div>
+    <div id="box-reg" class="hidden">
+        <h2 style="margin-bottom:30px; letter-spacing:-1px;">Регистрация</h2>
+        <input type="text" id="in-reg-login" placeholder="RP NickName">
+        <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
+        <button class="btn-action" onclick="doRegister()">Создать аккаунт</button>
+        <p style="font-size:12px; margin-top:20px; color:#888;">Уже есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(false)">Войти</span></p>
+    </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header">
-        <div id="user-tag" style="color:var(--primary); font-weight:bold;">...</div>
+        <div id="user-tag" style="font-size: 12px; color: var(--primary); font-weight: 800; display: flex; align-items: center;">
+            <div class="online-dot dot-green"></div> <span>...</span>
+        </div>
         <div class="nav-group">
-            <button class="btn-nav" onclick="nav('info')">INFO</button>
             <button class="btn-nav" onclick="showProfile(currentUser)">Профиль</button>
-            <button class="btn-nav" onclick="nav('scores')">Топ</button>
-            <button class="btn-nav" onclick="nav('report')">Отчет</button>
-            <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Админ</button>
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
+            <button class="btn-nav approval-hide" onclick="nav('scores')">Топ</button>
+            <button class="btn-nav approval-hide" onclick="nav('fulltable')">Таблица</button>
+            <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
+            <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">База</button>
+            <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Менеджер</button>
+            <button class="btn-logout" onclick="logout()" style="background:none; border:none; color:var(--danger); font-size:18px; cursor:pointer; vertical-align:middle; margin-left:10px;">✕</button>
         </div>
     </div>
 
-    <div id="sec-info" class="container hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0;">📚 ИНФОРМАЦИЯ</h2>
-            <button id="btn-edit-info" class="btn-nav hidden" onclick="toggleEditInfo()">РЕДАКТИРОВАТЬ</button>
-        </div>
-        <div id="info-content-display"></div>
-        <div id="info-edit-panel" class="hidden">
-            <button class="btn-action" onclick="saveInfoChanges()" style="margin-bottom:20px;">СОХРАНИТЬ ВСЕ</button>
-            <div id="info-editor-container"></div>
-        </div>
-    </div>
-
-    <div id="sec-profile" class="container hidden" style="text-align:center;">
+    <div id="sec-profile" class="container" style="text-align:center;">
         <div class="profile-banner"></div>
-        <img id="view-ava" class="avatar" src="">
-        <h2 id="view-nick" style="margin:10px 0 5px 0;">---</h2>
-        <div id="view-rank" style="color:var(--primary); font-size:11px; text-transform:uppercase;">---</div>
-        <div class="stat-grid">
-            <div class="stat-card"><b id="view-score">0</b><br><small>Баллы</small></div>
-            <div class="stat-card"><b id="stat-count">0</b><br><small>Отчеты</small></div>
-            <div class="stat-card"><b id="view-warns">0/3</b><br><small>Выговоры</small></div>
+
+        <div class="profile-content">
+            <div id="pending-msg" class="hidden" style="background:rgba(255,82,82,0.1); color:var(--danger); padding:15px; border-radius:12px; margin-bottom:20px; font-size:13px; border:1px solid rgba(255,82,82,0.2);">
+                ⚠️ Аккаунт ожидает подтверждения от Главного Модератора
+            </div>
+            
+            <div class="profile-header" style="position:relative; display:inline-block;">
+                <img id="view-ava" class="avatar" src="">
+                <div id="inactive-tag" class="hidden" style="position:absolute; top:0; right:-20px; background:#ffd600; color:black; padding:4px 10px; border-radius:8px; font-weight:bold; font-size:10px;">INACTIVE</div>
+            </div>
+
+            <h2 id="view-nick" style="margin:10px 0 5px 0; font-size:28px; letter-spacing:-1px;">---</h2>
+            <div id="view-rank" style="color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;">---</div>
+            <div id="view-lastseen">---</div>
+
+            <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-val" id="view-score">0</span>
+                    <span class="stat-label">Баллы</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="stat-count">0</span>
+                    <span class="stat-label">Отчеты</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="view-warns-num">0/3</span>
+                    <span class="stat-label">Выговоры</span>
+                </div>
+            </div>
+
+            <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
+                <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Сменить фото</button>
+                <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
+                
+                <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
+            </div>
+
+            <div id="my-profile-controls" class="hidden">
+                <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
+                <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
+            </div>
+
+            <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
+                <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:10px;">Панель управления сотрудником</p>
+                
+                <label style="font-size:9px; color:#666;">RP NICKNAME</label>
+                <input type="text" id="edit-nick-input" placeholder="Ник">
+                
+                <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
+                <input type="text" id="edit-rank-input" placeholder="Должность">
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
+                    <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить</button>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
+                    <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
+                </div>
+                <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
+            </div>
         </div>
-        <div id="profile-controls">
-            <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Сменить фото</button>
-            <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
-            <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
+    </div>
+
+    <div id="sec-fulltable" class="container hidden" style="max-width: 1000px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">📊 Общий список модерации</h3>
+            <button id="add-table-row" class="btn-nav hidden" onclick="addTableRow()" style="background: var(--primary); color: black;">+ Добавить строку</button>
+        </div>
+        <div class="full-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nick_Name</th>
+                        <th>Должность</th>
+                        <th>Дата постановления</th>
+                        <th>Прошло</th>
+                        <th>Пред-я</th>
+                        <th>Выговоры</th>
+                        <th>Посл. повыш-е</th>
+                        <th>Дней с пов-я</th>
+                        <th class="admin-only hidden">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-full"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="sec-scores" class="container hidden">
-        <h2>🏆 РЕЙТИНГ</h2>
+        <h3 style="text-align:left; margin-bottom:20px;">🏆 Рейтинг состава</h3>
         <table>
-            <thead><tr><th>НИК</th><th>РАНГ</th><th>БАЛЛЫ</th></tr></thead>
+            <thead><tr><th>NicnName</th><th>Доложность</th><th>Баллы</th></tr></thead>
             <tbody id="list-scores"></tbody>
         </table>
     </div>
 
     <div id="sec-report" class="container hidden">
-        <h2>ОТПРАВИТЬ ОТЧЕТ</h2>
-        <input type="text" id="rep-rank" placeholder="Ваш текущий ранг">
-        <textarea id="rep-work" rows="4" placeholder="Что было сделано?"></textarea>
-        <input type="number" id="rep-val" placeholder="Количество баллов (число)">
-        <label style="font-size:11px; color:#666;">ДОКАЗАТЕЛЬСТВА (СКРИНШОТЫ):</label>
-        <input type="file" id="rep-files" multiple accept="image/*">
-        <button class="btn-action" onclick="sendReport()">ОТПРАВИТЬ НА ПРОВЕРКУ</button>
+        <h3 style="text-align:left;">Новый отчет</h3>
+        <p style="text-align:left; color:#888; font-size:12px; margin-bottom:20px;">Заполните данные о проделанной работе за неделю</p>
+        <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАША ДОЛЖНОСТЬ</label>
+        <select id="rep-rank">
+            <option value="Младший Модератор">Младший Модератор</option>
+            <option value="Модератор">Модератор</option>
+            <option value="Старший Модератор">Старший Модератор</option>
+        </select>
+        <textarea id="rep-work" rows="4" placeholder="Опишите, что именно вы сделали..."></textarea>
+        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю (число)">
+        <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
+        <input type="date" id="rep-date">
+        <button class="btn-action" onclick="sendReport()">Отправить на проверку</button>
+    </div>
+
+    <div id="sec-base" class="container hidden">
+        <h3 style="text-align:left; margin-bottom:20px;">📁 Архив всех отчетов</h3>
+        <div id="list-reports"></div>
     </div>
 
     <div id="sec-admin" class="container hidden">
-        <h2>⚙️ УПРАВЛЕНИЕ</h2>
+        <h3 style="text-align:left; margin-bottom:20px;">⚙️ Менеджер состава</h3>
         <div id="list-users-admin"></div>
-        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-        <h3>ПОСЛЕДНИЕ ОТЧЕТЫ</h3>
-        <div id="list-reports-admin"></div>
     </div>
 </div>
 
 <script>
-// FIREBASE CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
@@ -172,211 +358,372 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
 const OWNER = "Ecstasy9988";
 let currentUser = "";
-let userRole = "user";
-let isEditingInfo = false;
+let userRole = "pending";
 
-// INFO DATA
-const defaultInfo = [
-    { title: "ВК БЕСЕДЫ", text: "1. INFO - Новости\n2. FLOOD - Общение\n3. ОТЧЕТНОСТЬ - Работа", img: "" },
-    { title: "ИЕРАРХИЯ", text: "9. Руководитель\n... \n1. Младший модератор", img: "" },
-    { title: "СИСТЕМА ПОВЫШЕНИЯ", text: "ММ -> М: 150 баллов + 7 дней", img: "" },
-    { title: "ПРАВИЛА", text: "Запрещено игнорировать норму.\nЗапрещено неадекватное поведение.", img: "" }
-];
+function updateLastSeen() {
+    if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
+}
 
-// NAVIGATION
 function nav(id) {
+    if (userRole === 'pending' && id !== 'profile') return;
+    updateLastSeen();
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById('sec-' + id).classList.remove('hidden');
     window.scrollTo(0,0);
 }
 
-// AUTH
+function toggleAuth(reg) {
+    document.getElementById('box-log').classList.toggle('hidden', reg);
+    document.getElementById('box-reg').classList.toggle('hidden', !reg);
+}
+
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === "Ecstasy20036") loginSuccess(l, 'owner');
-    else db.ref('users/' + l).once('value', s => {
+    if (l === OWNER && p === "Ecstasy20036") { loginSuccess(l, 'owner'); return; }
+    db.ref('users/' + l).once('value', s => {
         const d = s.val();
         if (d && d.pass === p) loginSuccess(l, d.role);
-        else alert("Неверные данные!");
+        else alert("Неверный логин или пароль");
     });
 }
 
 function doRegister() {
-    const l = prompt("Введите ник для регистрации:");
-    const p = prompt("Введите пароль:");
-    if(l && p) {
-        db.ref('users/' + l).set({ pass: p, nick: l, role: 'user', score: 0, rank: 'Младший Модератор', warns: 0, reportsCount: 0 });
-        alert("Успешно! Теперь войдите.");
-    }
+    const l = document.getElementById('in-reg-login').value.trim();
+    const p = document.getElementById('in-reg-pass').value.trim();
+    if (!l || !p) return alert("Заполните все поля");
+    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
+    loginSuccess(l, 'pending');
 }
 
 function loginSuccess(l, role) {
     currentUser = l;
-    userRole = role;
+    userRole = (l === OWNER) ? 'owner' : (role || 'pending');
+    localStorage.setItem('mod_user', l);
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
-    document.querySelector('#user-tag').innerText = l;
+    document.querySelector('#user-tag span').innerText = l;
     
-    if (role === 'admin' || role === 'owner') {
-        document.getElementById('nav-admin').classList.remove('hidden');
-        document.getElementById('btn-edit-info').classList.remove('hidden');
-    }
-    loadInfo();
+    const isApproved = (userRole !== 'pending');
+    document.querySelectorAll('.approval-hide').forEach(el => el.classList.toggle('hidden', !isApproved));
+    document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
+
+    const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
+    document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
+    
+    updateLastSeen();
+    showProfile(l);
     loadData();
-    nav('info');
+    loadFullTable();
+    setInterval(updateLastSeen, 60000);
 }
 
-// INFO SYSTEM
-function loadInfo() {
-    db.ref('site_info').on('value', s => {
-        const data = s.val() || defaultInfo;
-        const display = document.getElementById('info-content-display');
-        const editor = document.getElementById('info-editor-container');
-        display.innerHTML = ""; editor.innerHTML = "";
-
-        data.forEach((item, i) => {
-            display.innerHTML += `<div class="info-block"><div class="info-title">${item.title}</div>${item.img ? `<img src="${item.img}" class="info-img">` : ''}<div class="info-text">${item.text}</div></div>`;
-            editor.innerHTML += `<div class="info-block"><input type="text" id="edit-t-${i}" value="${item.title}" class="edit-area"><input type="text" id="edit-i-${i}" value="${item.img||''}" class="edit-area" placeholder="Ссылка на фото"><textarea id="edit-x-${i}" rows="5" class="edit-area">${item.text}</textarea></div>`;
-        });
-    });
-}
-
-function toggleEditInfo() {
-    isEditingInfo = !isEditingInfo;
-    document.getElementById('info-content-display').classList.toggle('hidden', isEditingInfo);
-    document.getElementById('info-edit-panel').classList.toggle('hidden', !isEditingInfo);
-}
-
-function saveInfoChanges() {
-    const arr = [];
-    for(let i=0; i<4; i++) {
-        arr.push({ title: document.getElementById('edit-t-'+i).value, img: document.getElementById('edit-i-'+i).value, text: document.getElementById('edit-x-'+i).value });
-    }
-    db.ref('site_info').set(arr).then(() => { alert("Сохранено!"); toggleEditInfo(); });
-}
-
-// PROFILE SYSTEM
 function showProfile(nick) {
     nav('profile');
+    document.getElementById('profile-edit-controls').classList.toggle('hidden', nick !== currentUser);
+    document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
+    
+    const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
+    document.getElementById('admin-full-controls').classList.toggle('hidden', !canManage);
+
     db.ref('users/' + nick).on('value', s => {
         const d = s.val() || {};
+        if(!s.exists()) return;
+
+        const warns = d.warns || 0;
+        const score = d.score || 0;
+        const isInactive = d.inactive || false;
+        const lastSeen = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : "Никогда";
+        
         document.getElementById('view-nick').innerText = d.nick || nick;
-        document.getElementById('view-rank').innerText = d.rank || "---";
-        document.getElementById('view-score').innerText = d.score || 0;
-        document.getElementById('view-warns').innerText = (d.warns || 0) + "/3";
-        document.getElementById('stat-count').innerText = d.reportsCount || 0;
+        document.getElementById('view-rank').innerText = d.rank || "Участник";
+        document.getElementById('view-score').innerText = score;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
+        
+        document.getElementById('view-warns-num').innerText = `${warns}/3`;
+        document.getElementById('view-lastseen').innerText = `В сети: ${lastSeen}`;
+        
+        const progress = (score % 500) / 5;
+        document.getElementById('rank-progress').style.width = progress + "%";
+        document.getElementById('inactive-tag').classList.toggle('hidden', !isInactive);
+
+        if(canManage) {
+            document.getElementById('edit-nick-input').value = d.nick || nick;
+            document.getElementById('edit-rank-input').value = d.rank || "";
+
+            document.getElementById('btn-save-admin').onclick = () => {
+                const newNick = document.getElementById('edit-nick-input').value;
+                const newRank = document.getElementById('edit-rank-input').value;
+                db.ref('users/' + nick).update({ nick: newNick, rank: newRank });
+                alert("Данные обновлены");
+            };
+
+            document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
+            document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
+            
+            document.getElementById('btn-toggle-top').onclick = () => {
+                const cur = d.hiddenFromTop || false;
+                db.ref('users/' + nick + '/hiddenFromTop').set(!cur);
+                alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
+            };
+
+            document.getElementById('btn-delete-user').onclick = () => {
+                if(nick === OWNER) return alert("Нельзя удалить владельца");
+                if(confirm(`Вы уверены, что хотите УДАЛИТЬ пользователя ${nick}?`)) {
+                    db.ref('users/' + nick).remove();
+                    alert("Пользователь удален");
+                    nav('admin');
+                }
+            };
+        }
+        document.getElementById('stat-count').innerText = d.reportsCount || 0;
     });
 }
 
-// REPORT SYSTEM
-async function sendReport() {
-    const work = document.getElementById('rep-work').value;
-    const score = parseInt(document.getElementById('rep-val').value);
-    const files = document.getElementById('rep-files').files;
-    if(!work || isNaN(score)) return alert("Заполни все поля!");
-
-    let imgs = [];
-    for(let f of files) {
-        const b64 = await new Promise(res => {
-            const r = new FileReader();
-            r.onload = () => res(r.result);
-            r.readAsDataURL(f);
-        });
-        imgs.push(b64);
-    }
-
-    db.ref('reports').push({ author: currentUser, work, score, imgs, date: new Date().toLocaleString() });
-    db.ref('users/' + currentUser).transaction(u => {
-        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; }
-        return u;
-    });
-    alert("Отчет отправлен!");
-    nav('profile');
-}
-
-// DATA LOAD
 function loadData() {
-    // Top List
     db.ref('users').on('value', s => {
         const users = s.val() || {};
         const listTop = document.getElementById('list-scores');
         const listAdmin = document.getElementById('list-users-admin');
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        const now = Date.now();
+        
         listTop.innerHTML = ""; listAdmin.innerHTML = "";
+        
+        Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
+            const isOnline = u.lastSeen && (now - u.lastSeen < 300000);
+            const dotClass = isOnline ? 'dot-green' : 'dot-red';
+            const userAva = u.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + id;
 
-        Object.entries(users).sort((a,b) => b[1].score - a[1].score).forEach(([id, u]) => {
-            listTop.innerHTML += `<tr><td>${u.nick}</td><td>${u.rank}</td><td style="color:var(--primary)">${u.score}</td></tr>`;
-            
-            if(userRole === 'admin' || userRole === 'owner') {
+            if (isAdmin) {
+                let adminButtons = "";
+                if(u.role === 'pending') {
+                    adminButtons += `<button class="btn-nav" style="padding: 4px 10px; background:var(--primary); color:black;" onclick="db.ref('users/${id}/role').set('user')">Одобрить заявку</button>`;
+                } else if(u.role !== 'owner') {
+                    if(u.role === 'admin') {
+                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('user')">Снять Админку</button>`;
+                    } else {
+                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('admin')">Выдать Админку</button>`;
+                    }
+                }
+
                 listAdmin.innerHTML += `
-                <div class="report-item" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span><b>${u.nick}</b> (${u.score} б.)</span>
-                    <div>
-                        <button class="btn-nav" onclick="editUser('${id}')">Правка</button>
-                        <button class="btn-nav" style="color:var(--danger)" onclick="deleteUser('${id}')">Удалить</button>
+                <div class="report-card" style="margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>
+                            <img src="${userAva}" class="mini-avatar">
+                            <div class="online-dot ${dotClass}"></div> 
+                            <b>${u.nick || id}</b> 
+                            <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small>
+                        </span>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button class="btn-nav" style="padding: 4px 10px;" onclick="showProfile('${id}')">Управлять</button>
+                            <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap;">
+                        ${adminButtons}
                     </div>
                 </div>`;
+            }
+
+            if (u.role !== 'pending' && !u.hiddenFromTop) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td onclick="showProfile('${id}')" style="cursor:pointer;">
+                        <img src="${userAva}" class="mini-avatar">
+                        <div class="online-dot ${dotClass}"></div> ${u.nick || id}
+                    </td>
+                    <td style="font-size:10px; opacity:0.7;">${u.rank}</td>
+                    <td class="${isAdmin ? 'editable' : ''}" style="color:var(--primary); font-weight:bold;" onclick="editUserScore('${id}', ${u.score})">${u.score}</td>
+                `;
+                listTop.appendChild(tr);
             }
         });
     });
 
-    // Admin Reports
-    if(userRole === 'admin' || userRole === 'owner') {
-        db.ref('reports').limitToLast(10).on('value', s => {
-            const list = document.getElementById('list-reports-admin');
-            list.innerHTML = "";
-            Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
-                let imgHtml = "";
-                if(r.imgs) r.imgs.forEach(src => imgHtml += `<img src="${src}" class="mini-img" onclick="openFullImg('${src}')">`);
-                list.innerHTML += `
-                <div class="report-item">
-                    <div style="display:flex; justify-content:space-between;"><b>${r.author}</b> <small>${r.date}</small></div>
-                    <p style="font-size:13px;">${r.work}</p>
-                    <div>${imgHtml}</div>
-                    <button class="btn-nav" style="width:100%; margin-top:10px; color:var(--danger)" onclick="deleteReport('${id}', '${r.author}', ${r.score})">УДАЛИТЬ ОТЧЕТ (ОТКАТ БАЛЛОВ)</button>
-                </div>`;
-            });
+    db.ref('reports').on('value', s => {
+        const container = document.getElementById('list-reports');
+        container.innerHTML = "";
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+
+        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
+            let imgsHtml = "";
+            if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
+            
+            const delBtn = isAdmin ? `<span onclick="deleteReport('${id}', '${r.author}', ${r.score})" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px; margin-left:10px;">✕</span>` : "";
+
+            container.innerHTML += `
+            <div class="report-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b>${r.author}</b>
+                    <div>
+                        <span style="color:var(--primary)">+${r.score} баллов</span>
+                        ${delBtn}
+                    </div>
+                </div>
+                <div style="font-size:12px; margin:10px 0; color:#ccc;">${r.work}</div>
+                <div>${imgsHtml}</div>
+                <div style="font-size:9px; color:#555; margin-top:10px;">Дата: ${r.date}</div>
+            </div>`;
         });
+    });
+}
+
+function loadFullTable() {
+    db.ref('full_table').on('value', s => {
+        const tbody = document.getElementById('tbody-full');
+        tbody.innerHTML = "";
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        const now = new Date();
+
+        const calcDays = (dateStr) => {
+            if (!dateStr || dateStr === '-') return '0';
+            const parts = dateStr.split('.');
+            if(parts.length === 3) {
+                const d = new Date(parts[2], parts[1]-1, parts[0]);
+                if(!isNaN(d)) return Math.floor((now - d) / (1000 * 60 * 60 * 24));
+            }
+            return '0';
+        };
+
+        Object.entries(s.val() || {}).forEach(([key, row]) => {
+            const daysSinceStart = calcDays(row.dateStart);
+            const daysSinceUp = calcDays(row.lastUp);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'dateStart', '${row.dateStart}')">${row.dateStart || '01.01.2024'}</td>
+                <td style="color:var(--primary)">${daysSinceStart} дн.</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'preds', '${row.preds}')">${row.preds || '[0/2]'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'warns', '${row.warns}')">${row.warns || '[0/3]'}</td>
+                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || '-'}</td>
+                <td style="color:#ffd600">${daysSinceUp} дн.</td>
+                ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function addTableRow() {
+    db.ref('full_table').push({
+        nick: 'Nick_Name',
+        rank: 'Должность',
+        dateStart: new Date().toLocaleDateString('ru-RU'),
+        preds: '[0/2]',
+        warns: '[0/3]',
+        lastUp: '-'
+    });
+}
+
+function editCell(key, field, oldVal) {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    const newVal = prompt("Введите новое значение:", oldVal);
+    if (newVal !== null) {
+        db.ref(`full_table/${key}/${field}`).set(newVal);
     }
 }
 
-// ADMIN ACTIONS
-function editUser(id) {
-    const n = prompt("Новый ник:");
-    const r = prompt("Новый ранг:");
-    const s = prompt("Кол-во баллов:");
-    const w = prompt("Выговоры (0-3):");
-    if(n) db.ref('users/'+id).update({ nick: n, rank: r, score: parseInt(s), warns: parseInt(w) });
+function editUserScore(id, oldScore) {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    const newScore = prompt("Введите новое количество баллов для " + id + ":", oldScore);
+    if (newScore !== null && !isNaN(parseInt(newScore))) {
+        db.ref(`users/${id}/score`).set(parseInt(newScore));
+    }
 }
 
-function deleteUser(id) {
-    if(id === OWNER) return alert("Нельзя удалить владельца!");
-    if(confirm("Удалить пользователя?")) db.ref('users/'+id).remove();
-}
-
-function deleteReport(id, author, score) {
-    if(confirm("Удалить отчет и списать баллы?")) {
-        db.ref('reports/'+id).remove();
-        db.ref('users/'+author).transaction(u => {
-            if(u) { u.score = Math.max(0, u.score - score); u.reportsCount = Math.max(0, u.reportsCount - 1); }
+function deleteReport(repId, author, points) {
+    if(confirm(`Удалить этот отчет? У автора (${author}) будет списано ${points} баллов.`)) {
+        db.ref('reports/' + repId).remove();
+        db.ref('users/' + author).transaction(u => {
+            if(u) {
+                u.score = Math.max(0, (u.score || 0) - points);
+                u.reportsCount = Math.max(0, (u.reportsCount || 0) - 1);
+            }
             return u;
         });
+        alert("Отчет удален, баллы списаны.");
     }
 }
 
-// UTILS
-function openFullImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
-async function uploadAva(input) {
-    const f = input.files[0];
-    const r = new FileReader();
-    r.onload = (e) => db.ref('users/' + currentUser).update({ avatar: e.target.result });
-    r.readAsDataURL(f);
+function deleteUserSimple(id) {
+    if(id === OWNER) return alert("Нельзя удалить владельца");
+    if(confirm(`Удалить ${id} из системы?`)) {
+        db.ref('users/' + id).remove();
+    }
 }
-function changeNick() { const n = prompt("Новый ник:"); if(n) db.ref('users/'+currentUser).update({ nick: n }); }
+
+async function sendReport() {
+    if (userRole === 'pending') return;
+    const work = document.getElementById('rep-work').value;
+    const score = parseInt(document.getElementById('rep-val').value);
+    const date = document.getElementById('rep-date').value;
+    const files = document.getElementById('rep-files').files;
+
+    if(!work || isNaN(score) || !date) return alert("Заполните все данные!");
+
+    let imgs = [];
+    for(let f of files) {
+        const b64 = await new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(f);
+        });
+        imgs.push(b64);
+    }
+
+    db.ref('reports').push({ author: currentUser, rank: document.getElementById('rep-rank').value, work, score, date, imgs });
+    db.ref('users/' + currentUser).transaction(u => {
+        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; u.lastReportTime = Date.now(); }
+        return u;
+    });
+    alert("Отчет успешно отправлен!");
+    nav('profile');
+}
+
+function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
+
+async function uploadAva(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 1024 * 1024) return alert("Файл слишком большой! Лимит 1МБ.");
+        
+        const b64 = await new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(file);
+        });
+        db.ref('users/' + currentUser).update({ avatar: b64 });
+        alert("Фото успешно обновлено!");
+    }
+}
+
+function changeNick() { const name = prompt("Ваш новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
+function logout() { localStorage.clear(); location.reload(); }
+
+function takeInactive() {
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
+        db.ref('users/' + currentUser).update({ inactive: true, score: u.score - 10 });
+        alert("Вы взяли неактив");
+    });
+}
+
+window.onload = () => {
+    const saved = localStorage.getItem('mod_user');
+    if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
+};
 </script>
 </body>
 </html>
+
