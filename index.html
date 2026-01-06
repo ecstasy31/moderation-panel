@@ -87,7 +87,6 @@
             box-shadow: 0 0 30px var(--primary-glow);
         }
         
-        /* Мини-аватарка для списка */
         .mini-avatar {
             width: 32px;
             height: 32px;
@@ -151,7 +150,6 @@
 
         #view-lastseen { color: #888; font-size: 11px; margin-top: 8px; }
 
-        /* Таблица стили */
         .full-table { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 12px; border: 1px solid var(--border); }
         .full-table table { margin-top: 0; border-spacing: 0; font-size: 12px; border-collapse: collapse; }
         .full-table th { background: rgba(255,255,255,0.05); color: var(--primary); padding: 10px; border: 1px solid var(--border); white-space: nowrap; }
@@ -514,7 +512,7 @@ function loadData() {
                         <div class="online-dot ${dotClass}"></div> ${u.nick || id}
                     </td>
                     <td style="font-size:10px; opacity:0.7;">${u.rank}</td>
-                    <td style="color:var(--primary); font-weight:bold;">${u.score}</td>
+                    <td class="${isAdmin ? 'editable' : ''}" style="color:var(--primary); font-weight:bold;" onclick="editUserScore('${id}', ${u.score})">${u.score}</td>
                 `;
                 listTop.appendChild(tr);
             }
@@ -606,6 +604,14 @@ function editCell(key, field, oldVal) {
     }
 }
 
+function editUserScore(id, oldScore) {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    const newScore = prompt("Введите новое количество баллов для " + id + ":", oldScore);
+    if (newScore !== null && !isNaN(parseInt(newScore))) {
+        db.ref(`users/${id}/score`).set(parseInt(newScore));
+    }
+}
+
 function deleteReport(repId, author, points) {
     if(confirm(`Удалить этот отчет? У автора (${author}) будет списано ${points} баллов.`)) {
         db.ref('reports/' + repId).remove();
@@ -657,7 +663,6 @@ async function sendReport() {
 
 function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
 
-// Загрузка аватарки из галереи
 async function uploadAva(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
