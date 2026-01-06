@@ -30,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* Красивый скроллбар */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -52,7 +51,6 @@
 
         .hidden { display: none !important; }
 
-        /* Шапка */
         .header { 
             background: rgba(10, 10, 12, 0.8); 
             backdrop-filter: blur(10px);
@@ -81,8 +79,6 @@
 
         .btn-nav:hover { background: var(--primary); color: black; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
 
-        /* Профиль */
-        .profile-header { position: relative; margin-bottom: 30px; }
         .avatar { 
             width: 130px; height: 130px; 
             border-radius: 35% 65% 65% 35% / 30% 30% 70% 70%; 
@@ -100,20 +96,17 @@
         }
         .progress-fill { height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); width: 0%; }
 
-        /* Статистика */
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
         .stat-card { background: rgba(255,255,255,0.03); padding: 20px 10px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
         .stat-val { font-size: 24px; font-weight: 800; color: white; display: block; }
         .stat-label { font-size: 9px; text-transform: uppercase; color: var(--primary); letter-spacing: 1.5px; margin-top: 5px; opacity: 0.8; }
 
-        /* Таблицы */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 15px; }
         th { padding: 15px; text-align: left; font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 1px; }
         td { padding: 15px; background: rgba(255,255,255,0.02); }
         td:first-child { border-radius: 12px 0 0 12px; }
         td:last-child { border-radius: 0 12px 12px 0; }
 
-        /* Формы */
         input, select, textarea { 
             width: 100%; padding: 14px; margin: 8px 0; 
             background: rgba(0,0,0,0.3); 
@@ -132,7 +125,6 @@
         }
         .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
 
-        /* Индикаторы */
         .online-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .dot-green { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
         .dot-red { background: var(--danger); }
@@ -144,8 +136,12 @@
             margin-bottom: 20px; 
         }
 
+        /* Стили для уменьшенной админ-панели */
+        #admin-full-controls input { padding: 8px 12px; font-size: 12px; margin: 4px 0; }
+        #admin-full-controls .btn-action { padding: 10px; font-size: 11px; }
+        #admin-full-controls .btn-nav { padding: 6px 10px; font-size: 10px; }
+
         #view-lastseen { color: #888; font-size: 11px; margin-top: 8px; }
-        .warn-badge { background: var(--danger); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -217,36 +213,42 @@
             </div>
         </div>
 
-        <div id="my-profile-controls" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
             <button class="btn-nav" onclick="changeAva()">Сменить фото</button>
             <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
-            <button id="btn-take-inactive" class="btn-nav" style="grid-column: span 2; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
-            <button id="btn-stop-inactive" class="btn-nav hidden" style="grid-column: span 2;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
         </div>
 
-        <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px; text-align:left;">
-            <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:15px;">Панель управления сотрудником</p>
+        <div id="my-profile-controls" class="hidden">
+            <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
+            <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
+        </div>
+
+        <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
+            <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:10px;">Панель управления сотрудником</p>
             
-            <label style="font-size:10px; color:#666;">RP NICKNAME</label>
+            <label style="font-size:9px; color:#666;">RP NICKNAME</label>
             <input type="text" id="edit-nick-input" placeholder="Ник">
             
-            <label style="font-size:10px; color:#666;">ДОЛЖНОСТЬ</label>
+            <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
             <input type="text" id="edit-rank-input" placeholder="Должность">
             
-            <label style="font-size:10px; color:#666;">КОЛИЧЕСТВО БАЛЛОВ</label>
+            <label style="font-size:9px; color:#666;">КОЛИЧЕСТВО БАЛЛОВ</label>
             <input type="number" id="edit-score-input" placeholder="Баллы">
 
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить изменения</button>
-                <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить из системы</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
+                <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить</button>
             </div>
 
-            <div style="display:flex; gap:10px; margin-top:10px;">
+            <div style="display:flex; gap:8px; margin-top:8px;">
                 <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
-                <button class="btn-nav" style="flex:1;" id="btn-rem-warn">Снять выговор</button>
+                <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
             </div>
             
-            <button class="btn-nav" style="width:100%; margin-top:10px;" id="btn-approve-user">Подтвердить аккаунт (Role: Admin)</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-nav" style="flex:1;" id="btn-approve-user">Дать Админку</button>
+                <button class="btn-nav" style="flex:1;" id="btn-demote-user">Снять Админку</button>
+            </div>
         </div>
     </div>
 
@@ -261,19 +263,16 @@
     <div id="sec-report" class="container hidden">
         <h3 style="text-align:left;">Новый отчет</h3>
         <p style="text-align:left; color:#888; font-size:12px; margin-bottom:20px;">Заполните данные о проделанной работе за неделю</p>
-        
         <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАША ДОЛЖНОСТЬ</label>
         <select id="rep-rank">
             <option value="Младший Модератор">Младший Модератор</option>
             <option value="Модератор">Модератор</option>
             <option value="Старший Модератор">Старший Модератор</option>
         </select>
-        
         <textarea id="rep-work" rows="4" placeholder="Опишите, что именно вы сделали..."></textarea>
         <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю (число)">
         <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
         <input type="date" id="rep-date">
-        
         <button class="btn-action" onclick="sendReport()">Отправить на проверку</button>
     </div>
 
@@ -289,7 +288,6 @@
 </div>
 
 <script>
-// --- КОНФИГУРАЦИЯ FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
@@ -362,9 +360,13 @@ function loginSuccess(l, role) {
 
 function showProfile(nick) {
     nav('profile');
+    
+    // Кнопки смены ника/аватарки теперь видны только если смотришь свой профиль
+    document.getElementById('profile-edit-controls').classList.toggle('hidden', nick !== currentUser);
     document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
     
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    // Панель видна только админам/владельцу, при условии что они не смотрят профиль владельца (кроме самого владельца)
     const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
     document.getElementById('admin-full-controls').classList.toggle('hidden', !canManage);
 
@@ -404,14 +406,20 @@ function showProfile(nick) {
             document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
             document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
             
-            // Восстановлена кнопка одобрения
-            document.getElementById('btn-approve-user').innerText = (d.role === 'pending') ? "Одобрить заявку" : "Выдать права Админа";
+            document.getElementById('btn-approve-user').innerText = (d.role === 'pending') ? "Одобрить" : "Дать Админку";
             document.getElementById('btn-approve-user').onclick = () => {
                 db.ref(`users/${nick}/role`).set('admin');
-                alert("Статус изменен");
+                alert("Права администратора выданы");
+            };
+
+            document.getElementById('btn-demote-user').onclick = () => {
+                if(nick === OWNER) return alert("Нельзя снять права с владельца");
+                db.ref(`users/${nick}/role`).set('user');
+                alert("Права администратора сняты");
             };
             
             document.getElementById('btn-delete-user').onclick = () => {
+                if(nick === OWNER) return alert("Нельзя удалить владельца");
                 if(confirm(`Вы уверены, что хотите УДАЛИТЬ пользователя ${nick}?`)) {
                     db.ref('users/' + nick).remove();
                     alert("Пользователь удален");
@@ -438,12 +446,11 @@ function loadData() {
             const dotClass = isOnline ? 'dot-green' : 'dot-red';
 
             if (isAdmin) {
-                // Добавлен крестик удаления прямо в список Менеджера
                 listAdmin.innerHTML += `
-                <div class="report-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="report-card" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 15px; margin-bottom: 10px;">
                     <span><div class="online-dot ${dotClass}"></div> <b>${u.nick || id}</b> <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small></span>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <button class="btn-nav" onclick="showProfile('${id}')">Управлять</button>
+                        <button class="btn-nav" style="padding: 4px 10px;" onclick="showProfile('${id}')">Управлять</button>
                         <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
                     </div>
                 </div>`;
@@ -489,12 +496,9 @@ function loadData() {
     });
 }
 
-// Функция удаления отчета с вычитанием баллов
 function deleteReport(repId, author, points) {
     if(confirm(`Удалить этот отчет? У автора (${author}) будет списано ${points} баллов.`)) {
-        // 1. Удаляем сам отчет
         db.ref('reports/' + repId).remove();
-        // 2. Вычитаем баллы и счетчик у юзера
         db.ref('users/' + author).transaction(u => {
             if(u) {
                 u.score = Math.max(0, (u.score || 0) - points);
@@ -506,7 +510,6 @@ function deleteReport(repId, author, points) {
     }
 }
 
-// Вспомогательная функция для быстрого удаления крестиком
 function deleteUserSimple(id) {
     if(id === OWNER) return alert("Нельзя удалить владельца");
     if(confirm(`Удалить ${id} из системы?`)) {
@@ -546,6 +549,15 @@ function viewImg(src) { document.getElementById('modal-img').src = src; document
 function changeAva() { const url = prompt("Прямая ссылка на изображение:"); if(url) db.ref('users/' + currentUser).update({ avatar: url }); }
 function changeNick() { const name = prompt("Ваш новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
 function logout() { localStorage.clear(); location.reload(); }
+
+function takeInactive() {
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
+        db.ref('users/' + currentUser).update({ inactive: true, score: u.score - 10 });
+        alert("Вы взяли неактив");
+    });
+}
 
 window.onload = () => {
     const saved = localStorage.getItem('mod_user');
