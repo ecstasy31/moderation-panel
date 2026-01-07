@@ -864,69 +864,83 @@ function loadLogs() {
 
 
 
-<!-- === ADDED BY CHATGPT: LOGS, INACTIVE, INFO === -->
-<div id="logsPanel" style="display:none"></div>
-<div id="infoPanel" style="display:none"></div>
+<!-- ================= FIXED SYSTEMS PATCH ================= -->
+
+<!-- INFO SECTION -->
+<div id="sec-info" class="container hidden">
+  <h3 style="text-align:left; margin-bottom:20px;">ℹ️ ИНФО</h3>
+  <textarea id="info-text" rows="6" placeholder="Текст информации"></textarea>
+  <input type="file" id="info-images" multiple accept="image/*" style="margin-top:10px;">
+  <button class="btn-action" onclick="saveInfo()">Сохранить</button>
+  <div id="info-view" style="margin-top:20px;"></div>
+</div>
 
 <script>
-/* ===== LOG SYSTEM ===== */
-const Logs = {
-  list: JSON.parse(localStorage.getItem('site_logs')||'[]'),
-  add(text){
-    const time = new Date().toLocaleString();
-    this.list.push(`[${time}] ${text}`);
-    localStorage.setItem('site_logs', JSON.stringify(this.list));
-    console.log('LOG:', text);
-  }
-};
-
-function logAction(action, nick){
-  Logs.add(`${nick} модератор - ${action}`);
-}
-
-/* ===== INACTIVE ===== */
-function takeInactive(days, nick){
-  if(days<1||days>7) return alert('От 1 до 7 дней');
-  localStorage.setItem('inactive_until', Date.now()+days*86400000);
-  logAction(`взял неактив на ${days} дней`, nick);
-}
-
-function exitInactive(nick){
-  localStorage.removeItem('inactive_until');
-  logAction(`вышел с неактива`, nick);
-}
-
-/* ===== BUTTON FIXES ===== */
-document.querySelectorAll('button').forEach(b=>{
-  if(b.innerText.includes('ПРОПУСК СОБРАНИЯ')){
-    b.onclick=()=>logAction('пропустил собрание','Ник');
-  }
-  if(b.innerText.includes('СНЯТЬ ВЫГОВОР')){
-    b.onclick=()=>logAction('снял выговор','Ник');
-  }
-});
-
-/* ===== REMOVE DUPLICATES ===== */
-const seen = {};
-document.querySelectorAll('button').forEach(b=>{
-  if(seen[b.innerText]) b.remove();
-  else seen[b.innerText]=true;
-});
-
-/* ===== INFO SECTION ===== */
-const infoPanel=document.getElementById('infoPanel');
-infoPanel.innerHTML=`
-<h2>ИНФО</h2>
-<textarea id="infoText" style="width:100%;height:150px"></textarea>
-<input type="file" id="infoImg" multiple>
-<button onclick="saveInfo()">Сохранить</button>
-<div id="infoView"></div>
-`;
-
+/* ===== INFO ===== */
 function saveInfo(){
-  const t=document.getElementById('infoText').value;
-  localStorage.setItem('info_text',t);
-  logAction('изменил раздел ИНФО','Ник');
+  if(userRole!=='admin' && userRole!=='owner') return alert('Нет прав');
+  const text=document.getElementById('info-text').value;
+  const files=document.getElementById('info-images').files;
+  let imgs=[];
+  const readFile=(f)=>new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(f);});
+  Promise.all([...files].map(readFile)).then(res=>{
+    imgs=res;
+    db.ref('info').set({text, imgs});
+    addLog(`изменил раздел ИНФО`, currentUser);
+    alert('ИНФО сохранено');
+    loadInfo();
+  });
 }
 
+function loadInfo(){
+  db.ref('info').once('value', s=>{
+    const d=s.val(); if(!d) return;
+    const v=document.getElementById('info-view');
+    v.innerHTML=`<p>${d.text||''}</p>`+(d.imgs||[]).map(i=>`<img src="${i}" style="max-width:100%;margin-top:10px;border-radius:12px;">`).join('');
+  });
+}
+
+/* ===== INACTIVE FIX ===== */
+function takeInactive(){
+  const days=parseInt(prompt('На сколько дней взять неактив? (1-7)'));
+  if(isNaN(days)||days<1||days>7) return alert('От 1 до 7 дней');
+  db.ref('users/'+currentUser).once('value',s=>{
+    const u=s.val();
+    if(u.score<10) return alert('Недостаточно баллов');
+    db.ref('users/'+currentUser).update({
+      inactive:true,
+      inactiveUntil:Date.now()+days*86400000,
+      score:u.score-10
+    });
+    addLog(`взял неактив на ${days} дней`, currentUser);
+    alert('Неактив взят');
+  });
+}
+
+function exitInactive(){
+  db.ref('users/'+currentUser).update({inactive:false,inactiveUntil:0});
+  addLog('вышел с неактива', currentUser);
+  alert('Вы вышли с неактива');
+}
+
+/* ===== LOGS FIX ===== */
+function addLog(action, target=currentUser){
+  db.ref('logs').push({
+    action,
+    target,
+    by: currentUser,
+    time: new Date().toLocaleString()
+  });
+}
+
+/* ===== HOOK ACTIONS ===== */
+const _skip=skipMeeting;
+skipMeeting=function(){ _skip(); addLog('пропустил собрание',currentUser); };
+
+const _rem=removeWarn;
+removeWarn=function(){ _rem(); addLog('снял выговор',currentUser); };
+
+window.addEventListener('load',()=>{
+  loadInfo();
+});
 </script>
