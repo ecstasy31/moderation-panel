@@ -6,8 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+function loadLogs() {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    db.ref('logs').limitToLast(200).on('value', s => {
+        const list = document.getElementById('logs-list');
+        list.innerHTML = "";
+        Object.values(s.val() || {}).reverse().forEach(l => {
+            const div = document.createElement('div');
+            div.style.padding = "8px";
+            div.style.borderBottom = "1px solid var(--border)";
+            div.innerHTML = `<b>${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
+            list.appendChild(div);
+        });
+    });
+}
+
+</script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js">
+function loadLogs() {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    db.ref('logs').limitToLast(200).on('value', s => {
+        const list = document.getElementById('logs-list');
+        list.innerHTML = "";
+        Object.values(s.val() || {}).reverse().forEach(l => {
+            const div = document.createElement('div');
+            div.style.padding = "8px";
+            div.style.borderBottom = "1px solid var(--border)";
+            div.innerHTML = `<b>${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
+            list.appendChild(div);
+        });
+    });
+}
+
+</script>
 
     <style>
         :root { 
@@ -253,6 +285,7 @@ body::before {
             <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">База</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Менеджер</button>
+<button class="btn-nav hidden admin-only" onclick="nav('logs')">ЛОГИ</button>
             <button class="btn-logout" onclick="logout()" style="background:none; border:none; color:var(--danger); font-size:18px; cursor:pointer; vertical-align:middle; margin-left:10px;">✕</button>
         </div>
     </div>
@@ -386,7 +419,13 @@ body::before {
     <div id="sec-admin" class="container hidden">
         <h3 style="text-align:left; margin-bottom:20px;">⚙️ Менеджер состава</h3>
         <div id="list-users-admin"></div>
-    </div>
+    
+<div id="sec-logs" class="container hidden">
+    <h3 style="text-align:left; margin-bottom:20px;">📜 Логи действий</h3>
+    <div id="logs-list" style="font-size:12px;"></div>
+</div>
+
+</div>
 </div>
 
 <script>
@@ -459,7 +498,7 @@ function loginSuccess(l, role) {
     updateLastSeen();
     showProfile(l);
     loadData();
-    loadFullTable();
+    loadFullTable(); loadLogs();
     setInterval(updateLastSeen, 60000);
 }
 
@@ -750,12 +789,24 @@ async function uploadAva(input) {
 function changeNick() { const name = prompt("Ваш новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
 function logout() { localStorage.clear(); location.reload(); }
 
+
+function addLog(action, target = currentUser) {
+    const log = {
+        action,
+        target,
+        by: currentUser,
+        time: new Date().toLocaleString()
+    };
+    db.ref('logs').push(log);
+}
+
+
 function skipMeeting() {
     db.ref('users/' + currentUser).once('value', s => {
         const u = s.val();
         if(u.score < 5) return alert("Недостаточно баллов (нужно 5)");
         db.ref('users/' + currentUser).update({ score: u.score - 5 });
-        alert("Пропуск собрания использован");
+        addLog('Пропуск собрания'); alert("Пропуск собрания использован");
     });
 }
 
@@ -768,7 +819,7 @@ function removeWarn() {
             warns: Math.max(0, u.warns - 1),
             score: u.score - 10
         });
-        alert("Выговор снят");
+        addLog('Снят выговор'); alert("Выговор снят");
     });
 }
 
@@ -791,6 +842,24 @@ window.onload = () => {
     const saved = localStorage.getItem('mod_user');
     if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
 };
+
+function loadLogs() {
+    if (userRole !== 'admin' && userRole !== 'owner') return;
+    db.ref('logs').limitToLast(200).on('value', s => {
+        const list = document.getElementById('logs-list');
+        list.innerHTML = "";
+        Object.values(s.val() || {}).reverse().forEach(l => {
+            const div = document.createElement('div');
+            div.style.padding = "8px";
+            div.style.borderBottom = "1px solid var(--border)";
+            div.innerHTML = `<b>${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
+            list.appendChild(div);
+        });
+    });
+}
+
 </script>
 </body>
 </html>
+
+
