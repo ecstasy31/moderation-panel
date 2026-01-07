@@ -845,7 +845,89 @@ document.getElementById('chat-toggle').onclick = () => {
 }
 </style>
 
+
+<!-- ===== FIXED INFO CHANNEL ===== -->
+<section id="info-channel" class="container hidden" data-auth="approved">
+  <h3>Информация</h3>
+  <div id="info-content" contenteditable="false"></div>
+</section>
+
+<!-- ===== CHAT ICON ===== -->
+<div id="chat-fab" data-auth="approved">💬</div>
+<div id="chat-panel" class="hidden" data-auth="approved">
+  <div id="chat-messages"></div>
+  <input id="chat-input" placeholder="Сообщение..." />
+</div>
+
+<!-- ===== SECURITY OVERLAY ===== -->
+<div id="screen-block"></div>
+
+<script>
+/* ===== AUTH STATES ===== */
+const authState = window.AUTH_STATE || "approved"; // register | pending | approved
+const role = window.USER_ROLE || "user"; // user | admin | owner
+
+document.querySelectorAll('[data-auth]').forEach(el => {
+  if (authState !== 'approved') el.remove();
+});
+
+/* ===== INFO CHANNEL ===== */
+if (role === 'admin' || role === 'owner') {
+  document.getElementById('info-content').contentEditable = true;
+}
+
+/* ===== CHAT LOGIC ===== */
+const chatBtn = document.getElementById('chat-fab');
+const chatPanel = document.getElementById('chat-panel');
+chatBtn.onclick = () => chatPanel.classList.toggle('hidden');
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    const msg = document.createElement('div');
+    msg.textContent = e.target.value;
+    document.getElementById('chat-messages').appendChild(msg);
+    e.target.value = '';
+  }
+});
+
+/* ===== SCREENSHOT BLOCK ===== */
+const blocker = document.getElementById('screen-block');
+
+function blockScreen() {
+  blocker.style.display = 'block';
+  setTimeout(() => blocker.style.display = 'none', 1500);
+}
+
+if (role !== 'owner') {
+  ['keyup','keydown','visibilitychange','blur'].forEach(ev => {
+    document.addEventListener(ev, blockScreen);
+  });
+}
+</script>
+
+<style>
+#chat-fab{
+ position:fixed;right:40px;bottom:40px;
+ width:56px;height:56px;border-radius:50%;
+ background:#00e676;color:#000;
+ display:flex;align-items:center;justify-content:center;
+ cursor:pointer;z-index:9999;
+}
+#chat-panel{
+ position:fixed;right:40px;bottom:110px;
+ width:300px;height:400px;background:#111;
+ display:flex;flex-direction:column;z-index:9999;
+}
+#chat-messages{flex:1;overflow:auto;padding:10px}
+#chat-input{border:none;padding:10px;background:#000;color:#fff}
+
+#screen-block{
+ position:fixed;inset:0;
+ background:#000;
+ z-index:10000;
+ display:none;
+}
+</style>
+
 </body>
 </html>
-
-
