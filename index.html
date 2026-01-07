@@ -761,6 +761,90 @@ window.onload = () => {
     if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
 };
 </script>
+
+<!-- === INFO CHANNEL === -->
+<section id="info-channel" class="container hidden">
+    <h3>Информация</h3>
+    <div id="info-content" contenteditable="false">
+        <p>Текст информации</p>
+        <img src="" style="max-width:100%; border-radius:12px; margin-top:10px;">
+    </div>
+    <div class="admin-only hidden" id="info-editor">
+        <input type="file" accept="image/*" onchange="updateInfoImage(this)">
+        <button onclick="toggleInfoEdit()">Вкл/Выкл редактирование</button>
+    </div>
+</section>
+
+<div id="chat-toggle">💬</div>
+<div id="chat-box" class="hidden">
+    <div class="chat-messages"></div>
+    <input type="text" placeholder="Сообщение...">
+</div>
+
+<script>
+const isAdmin = userRole === 'admin' || userRole === 'owner';
+const isOwner = userRole === 'owner';
+
+document.querySelectorAll('.admin-only').forEach(el => {
+    if (!isAdmin) el.remove();
+});
+
+function toggleInfoEdit() {
+    const c = document.getElementById('info-content');
+    const e = document.getElementById('info-editor');
+    c.contentEditable = c.contentEditable !== 'true';
+    e.classList.toggle('hidden');
+}
+
+function updateInfoImage(input) {
+    const f = input.files[0];
+    if (!f) return;
+    document.querySelector('#info-content img').src = URL.createObjectURL(f);
+}
+
+if (!isOwner) {
+    document.addEventListener('keydown', e => {
+        if (e.key === 'PrintScreen') {
+            e.preventDefault();
+            document.body.style.filter = 'blur(10px)';
+            setTimeout(() => document.body.style.filter = 'none', 800);
+        }
+    });
+    document.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+document.getElementById('chat-toggle').onclick = () => {
+    document.getElementById('chat-box').classList.toggle('hidden');
+};
+</script>
+
+<style>
+#chat-toggle{
+    position:fixed;
+    bottom:40px;
+    right:40px;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:#00ff88;
+    color:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:9999;
+}
+#chat-box{
+    position:fixed;
+    bottom:110px;
+    right:40px;
+    width:300px;
+    height:400px;
+    background:#111;
+    z-index:9999;
+}
+</style>
+
 </body>
 </html>
 
