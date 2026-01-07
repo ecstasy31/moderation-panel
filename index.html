@@ -864,67 +864,10 @@ function loadLogs() {
 
 
 
-<!-- ================= FIXED SYSTEMS PATCH ================= -->
-
-<!-- INFO SECTION -->
-<div id="sec-info" class="container hidden">
-  <h3 style="text-align:left; margin-bottom:20px;">ℹ️ ИНФО</h3>
-  <textarea id="info-text" rows="6" placeholder="Текст информации"></textarea>
-  <input type="file" id="info-images" multiple accept="image/*" style="margin-top:10px;">
-  <button class="btn-action" onclick="saveInfo()">Сохранить</button>
-  <div id="info-view" style="margin-top:20px;"></div>
-</div>
-
 <script>
-/* ===== INFO ===== */
-function saveInfo(){
-  if(userRole!=='admin' && userRole!=='owner') return alert('Нет прав');
-  const text=document.getElementById('info-text').value;
-  const files=document.getElementById('info-images').files;
-  let imgs=[];
-  const readFile=(f)=>new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(f);});
-  Promise.all([...files].map(readFile)).then(res=>{
-    imgs=res;
-    db.ref('info').set({text, imgs});
-    addLog(`изменил раздел ИНФО`, currentUser);
-    alert('ИНФО сохранено');
-    loadInfo();
-  });
-}
-
-function loadInfo(){
-  db.ref('info').once('value', s=>{
-    const d=s.val(); if(!d) return;
-    const v=document.getElementById('info-view');
-    v.innerHTML=`<p>${d.text||''}</p>`+(d.imgs||[]).map(i=>`<img src="${i}" style="max-width:100%;margin-top:10px;border-radius:12px;">`).join('');
-  });
-}
-
-/* ===== INACTIVE FIX ===== */
-function takeInactive(){
-  const days=parseInt(prompt('На сколько дней взять неактив? (1-7)'));
-  if(isNaN(days)||days<1||days>7) return alert('От 1 до 7 дней');
-  db.ref('users/'+currentUser).once('value',s=>{
-    const u=s.val();
-    if(u.score<10) return alert('Недостаточно баллов');
-    db.ref('users/'+currentUser).update({
-      inactive:true,
-      inactiveUntil:Date.now()+days*86400000,
-      score:u.score-10
-    });
-    addLog(`взял неактив на ${days} дней`, currentUser);
-    alert('Неактив взят');
-  });
-}
-
-function exitInactive(){
-  db.ref('users/'+currentUser).update({inactive:false,inactiveUntil:0});
-  addLog('вышел с неактива', currentUser);
-  alert('Вы вышли с неактива');
-}
-
-/* ===== LOGS FIX ===== */
+/* ========= SINGLE LOG SYSTEM ========= */
 function addLog(action, target=currentUser){
+  if(!currentUser) return;
   db.ref('logs').push({
     action,
     target,
@@ -933,14 +876,114 @@ function addLog(action, target=currentUser){
   });
 }
 
-/* ===== HOOK ACTIONS ===== */
-const _skip=skipMeeting;
-skipMeeting=function(){ _skip(); addLog('пропустил собрание',currentUser); };
+/* ========= INACTIVE ========= */
+function syncInactiveUI(active){
+  const take = document.getElementById('btn-take-inactive');
+  const stop = document.getElementById('btn-stop-inactive');
+  if(!take || !stop) return;
+  take.style.display = active ? 'none' : 'block';
+  stop.style.display = active ? 'block' : 'none';
+}
 
-const _rem=removeWarn;
-removeWarn=function(){ _rem(); addLog('снял выговор',currentUser); };
+function takeInactive(){
+  const days = parseInt(prompt('На сколько дней взять неактив? (1–7)'));
+  if(isNaN(days) || days < 1 || days > 7) return alert('От 1 до 7 дней');
 
-window.addEventListener('load',()=>{
+  db.ref('users/'+currentUser).once('value', s=>{
+    const u = s.val();
+    if(u.score < 10) return alert('Недостаточно баллов');
+
+    db.ref('users/'+currentUser).update({
+      inactive: true,
+      inactiveUntil: Date.now() + days*86400000,
+      score: u.score - 10
+    });
+
+    addLog(`взял неактив на ${days} дней`);
+    syncInactiveUI(true);
+  });
+}
+
+function exitInactive(){
+  db.ref('users/'+currentUser).update({
+    inactive:false,
+    inactiveUntil:0
+  });
+  addLog('вышел с неактива');
+  syncInactiveUI(false);
+}
+
+/* ========= REMOVE DUPLICATES ========= */
+window.addEventListener('load', ()=>{
+  const seen = {};
+  document.querySelectorAll('#my-profile-controls button').forEach(b=>{
+    const key = b.innerText.trim();
+    if(seen[key]) b.remove();
+    else seen[key] = true;
+  });
+});
+
+/* ========= ACTION HOOKS ========= */
+const __skip = skipMeeting;
+skipMeeting = function(){
+  __skip();
+  addLog('пропустил собрание');
+};
+
+const __warn = removeWarn;
+removeWarn = function(){
+  __warn();
+  addLog('снял выговор');
+};
+
+/* ========= INFO SECTION ========= */
+function openInfo(){
+  nav('info');
+}
+
+function saveInfo(){
+  if(userRole!=='admin' && userRole!=='owner') return alert('Нет прав');
+
+  const text = document.getElementById('info-text').value;
+  const files = document.getElementById('info-images').files;
+
+  Promise.all([...files].map(f=>new Promise(r=>{
+    const rd=new FileReader();
+    rd.onload=()=>r(rd.result);
+    rd.readAsDataURL(f);
+  }))).then(imgs=>{
+    db.ref('info').set({text, imgs});
+    addLog('изменил раздел ИНФО');
+    loadInfo();
+  });
+}
+
+function loadInfo(){
+  db.ref('info').on('value', s=>{
+    const d = s.val(); if(!d) return;
+    document.getElementById('info-view').innerHTML =
+      `<p>${d.text||''}</p>` +
+      (d.imgs||[]).map(i=>`<img src="${i}" style="max-width:100%;margin-top:10px;border-radius:12px;">`).join('');
+  });
+}
+
+/* ========= INIT ========= */
+window.addEventListener('load', ()=>{
+  db.ref('users/'+currentUser).once('value', s=>{
+    const u=s.val();
+    syncInactiveUI(u && u.inactiveUntil && Date.now()<u.inactiveUntil);
+  });
   loadInfo();
 });
 </script>
+
+<div id="sec-info" class="container hidden">
+  <h3>ℹ️ ИНФО</h3>
+  <textarea id="info-text" rows="6"></textarea>
+  <input type="file" id="info-images" multiple>
+  <button class="btn-action" onclick="saveInfo()">Сохранить</button>
+  <div id="info-view"></div>
+</div>
+
+</script>
+
