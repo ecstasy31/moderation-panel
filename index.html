@@ -1,763 +1,599 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>MOD EKB | ОТЧЕТНОСТЬ</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <title>MOD EKB | СИСТЕМА ОТЧЕТНОСТИ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://sun9-31.userapi.com/s/v1/ig2/P-9DJRiXns1RThh5B9Yo6rXD6OQIXebFVwPMsJdmF2AwpdQKZKMisyqK9tAmWwfd9whUVN_wtCJfqC2NdNx4wnNs.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,1500x1500&from=bu&cs=1500x0">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <style>
-        :root { 
-            --primary: #00e676; 
-            --primary-glow: rgba(0, 230, 118, 0.4);
-            --danger: #ff5252; 
-            --bg: #0a0a0c;
-            --card-bg: rgba(25, 25, 28, 0.8);
-            --border: rgba(255, 255, 255, 0.08);
-        }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 
-        * { transition: all 0.3s ease; box-sizing: border-box; }
+        :root { 
+            --primary: #00e676; 
+            --primary-glow: rgba(0, 230, 118, 0.4);
+            --danger: #ff5252; 
+            --bg: #0a0a0c;
+            --card-bg: rgba(25, 25, 28, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+        }
 
-        body { 
-            margin: 0; 
-            font-family: 'Inter', 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            background-image: radial-gradient(circle at 50% -20%, #1a3a2a 0%, #0a0a0c 80%);
-            color: white; 
-            min-height: 100vh;
-            position: relative;
-        }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        /* Добавление медведей по бокам на все страницы */
-        body::before, body::after {
-            content: "";
-            position: fixed; /* Фиксирует картинки при скролле */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 350px; /* Размер картинок */
-            height: 350px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: -1; /* Чтобы были под контентом */
-            pointer-events: none; /* Чтобы не мешали нажимать кнопки */
-            opacity: 0.6; /* Небольшая прозрачность для стиля */
-        }
+        body { 
+            background: var(--bg); 
+            background-image: radial-gradient(circle at 50% -20%, #1a3a2a 0%, #0a0a0c 80%);
+            color: var(--text-main); 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-/* Был правый — стал левым */
-body::after {
-    left: 20px;
-    right: auto;
-    transform: translateY(-50%);
-}
+        /* МЕДВЕДИ ПО БОКАМ */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            width: 380px;
+            height: 380px;
+            background-image: url('https://sun9-62.userapi.com/impg/G-vP_3i33YvL7U6Y9z_rL5h7tP5Yn-xOQ-xOQ/image.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.5;
+            filter: drop-shadow(0 0 20px rgba(0, 230, 118, 0.15));
+        }
 
-/* Был левый — стал правым */
-body::before {
-    right: 20px;
-    left: auto;
-    transform: translateY(-50%) scaleX(-1);
-}
+        body::after {
+            content: "";
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%) scaleX(-1);
+            width: 380px;
+            height: 380px;
+            background-image: url('https://sun9-62.userapi.com/impg/G-vP_3i33YvL7U6Y9z_rL5h7tP5Yn-xOQ-xOQ/image.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.5;
+            filter: drop-shadow(0 0 20px rgba(0, 230, 118, 0.15));
+        }
 
-        /* Скрытие медведей на маленьких экранах (телефонах), чтобы не перекрывали текст */
-        @media (max-width: 1400px) {
-            body::before, body::after {
-                display: none;
-            }
-        }
+        @media (max-width: 1500px) {
+            body::before, body::after { width: 250px; height: 250px; opacity: 0.3; }
+        }
+        @media (max-width: 1100px) {
+            body::before, body::after { display: none; }
+        }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        /* ШАПКА */
+        .header { 
+            background: rgba(10, 10, 12, 0.9); 
+            backdrop-filter: blur(15px);
+            padding: 18px 6%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
 
-        .container { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(20px); 
-            width: 92%; 
-            max-width: 800px; 
-            margin: 20px auto; 
-            padding: 30px; 
-            border-radius: 24px; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            animation: fadeIn 0.5s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
+        .header-logo {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-links { display: flex; gap: 12px; }
 
-        .hidden { display: none !important; }
+        .btn-nav { 
+            background: rgba(255, 255, 255, 0.04); 
+            border: 1px solid var(--border); 
+            color: var(--text-dim); 
+            padding: 10px 18px; 
+            font-size: 11px; 
+            cursor: pointer; 
+            border-radius: 10px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-        .profile-banner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            background-image: url('https://sun9-54.userapi.com/impf/Tgx54DTWLipaB0OQ75pdV4SaneS_2FuKw5DTkw/wtFg474Yp68.jpg?size=1920x768&quality=95&crop=0,0,1920,767&sign=dec3e31e8e9fcee1ee8e2b0c0b7b8b6b&c_uniq_tag=khTbxkvjsazKI2MbS3X42V9A5pauyCljYYt_gkpR838');
-            background-size: cover;
-            background-position: center;
-            z-index: 0;
-            border-bottom: 1px solid var(--border);
-        }
+        .btn-nav:hover { 
+            background: var(--primary); 
+            color: #000; 
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
 
-        .profile-content {
-            position: relative;
-            z-index: 1;
-            margin-top: 40px;
-        }
+        .btn-nav.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
 
-        .header { 
-            background: rgba(10, 10, 12, 0.8); 
-            backdrop-filter: blur(10px);
-            padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-        }
+        /* КОНТЕЙНЕРЫ */
+        .container { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(25px); 
+            width: 94%; 
+            max-width: 850px; 
+            margin: 30px auto; 
+            padding: 40px; 
+            border-radius: 28px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.4s ease-out;
+        }
 
-        .btn-nav { 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid var(--border); 
-            color: #ccc; 
-            padding: 8px 16px; 
-            font-size: 11px; 
-            cursor: pointer; 
-            border-radius: 8px; 
-            margin-left: 5px; 
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .btn-nav:hover { background: var(--primary); color: black; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .hidden { display: none !important; }
 
-        .avatar { 
-            width: 130px; height: 130px; 
-            border-radius: 35% 65% 65% 35% / 30% 30% 70% 70%; 
-            border: 4px solid var(--primary); 
-            object-fit: cover; 
-            box-shadow: 0 0 30px var(--primary-glow);
-            background: var(--bg);
-        }
-        
-        .mini-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid var(--primary);
-            margin-right: 10px;
-            vertical-align: middle;
-        }
+        /* ПРОФИЛЬ */
+        .profile-card { position: relative; text-align: center; }
 
-        .progress-bar { 
-            width: 100%; height: 6px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 10px; 
-            margin: 15px 0; 
-            overflow: hidden; 
-        }
-        .progress-fill { height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); width: 0%; }
+        .banner { 
+            position: absolute; 
+            top: -40px; 
+            left: -40px; 
+            right: -40px; 
+            height: 160px;
+            background-image: url('https://sun9-54.userapi.com/impf/Tgx54DTWLipaB0OQ75pdV4SaneS_2FuKw5DTkw/wtFg474Yp68.jpg?size=1920x768&quality=95&crop=0,0,1920,767&sign=dec3e31e8e9fcee1ee8e2b0c0b7b8b6b&c_uniq_tag=khTbxkvjsazKI2MbS3X42V9A5pauyCljYYt_gkpR838');
+            background-size: cover;
+            background-position: center;
+            border-radius: 28px 28px 0 0;
+        }
 
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
-        .stat-card { background: rgba(255,255,255,0.03); padding: 20px 10px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-val { font-size: 24px; font-weight: 800; color: white; display: block; }
-        .stat-label { font-size: 9px; text-transform: uppercase; color: var(--primary); letter-spacing: 1.5px; margin-top: 5px; opacity: 0.8; }
+        .avatar-box { position: relative; margin-top: 60px; margin-bottom: 20px; z-index: 2; }
+        .avatar { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 45px; 
+            border: 6px solid var(--bg); 
+            object-fit: cover; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { padding: 15px; text-align: left; font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 1px; border: 1px solid var(--border); }
-        td { padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+        .nick-name { font-size: 34px; font-weight: 900; margin-bottom: 5px; letter-spacing: -1px; }
+        .rank-name { color: var(--primary); font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
 
-        input, select, textarea { 
-            width: 100%; padding: 14px; margin: 8px 0; 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid var(--border); 
-            color: white; border-radius: 12px; 
-            font-size: 14px;
-        }
-        input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.5); }
+        /* СТАТИСТИКА */
+        .stats-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 35px 0; }
+        .stat-box { 
+            background: rgba(255, 255, 255, 0.02); 
+            padding: 25px; 
+            border-radius: 22px; 
+            border: 1px solid var(--border); 
+            text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 900; display: block; }
+        .stat-title { font-size: 10px; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
-        .btn-action { 
-            background: var(--primary); color: black; border: none; 
-            padding: 16px; border-radius: 12px; 
-            font-weight: 800; cursor: pointer; width: 100%; 
-            text-transform: uppercase; letter-spacing: 1px;
-            margin-top: 10px;
-        }
-        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
+        /* ПРОГРЕСС БАР */
+        .xp-bar-bg { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #b2ff59); box-shadow: 0 0 15px var(--primary-glow); width: 0%; }
 
-        .online-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .dot-green { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-        .dot-red { background: var(--danger); }
+        /* ТАБЛИЦА */
+        .table-container { overflow-x: auto; border-radius: 18px; border: 1px solid var(--border); margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: rgba(0, 0, 0, 0.2); }
+        th { padding: 18px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; text-align: left; border-bottom: 1px solid var(--border); }
+        td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
-        .report-card { 
-            background: rgba(255,255,255,0.02); 
-            border: 1px solid var(--border); 
-            padding: 20px; border-radius: 18px; 
-            margin-bottom: 20px; 
-        }
+        /* ФОРМЫ */
+        .form-group { margin-bottom: 20px; }
+        label { font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        input, select, textarea { 
+            width: 100%; padding: 16px; background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--border); border-radius: 14px; 
+            color: #fff; font-size: 14px; outline: none;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 230, 118, 0.1); }
+        .btn-main { 
+            width: 100%; padding: 18px; background: var(--primary); 
+            color: #000; border: none; border-radius: 14px; 
+            font-weight: 800; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 10px 25px var(--primary-glow);
+        }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 15px 35px var(--primary-glow); }
 
-        #admin-full-controls input { padding: 8px 12px; font-size: 12px; margin: 4px 0; }
-        #admin-full-controls .btn-action { padding: 10px; font-size: 11px; }
-        #admin-full-controls .btn-nav { padding: 6px 10px; font-size: 10px; }
-
-        #view-lastseen { color: #888; font-size: 11px; margin-top: 8px; }
-
-        .full-table { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 12px; border: 1px solid var(--border); }
-        .full-table table { margin-top: 0; border-spacing: 0; font-size: 12px; border-collapse: collapse; }
-        .full-table th { background: rgba(255,255,255,0.05); color: var(--primary); padding: 10px; border: 1px solid var(--border); white-space: nowrap; }
-        .full-table td { padding: 10px; border: 1px solid var(--border); background: none; }
-        .editable { cursor: pointer; }
-        .editable:hover { color: var(--primary); background: rgba(255,255,255,0.03); }
-    </style>
+        /* СКРОЛЛБАР */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    </style>
 </head>
 <body>
 
-<div id="modal" onclick="this.style.display='none'" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; display:none; align-items:center; justify-content:center;">
-    <img src="" id="modal-img" style="max-width:90%; max-height:90vh; border-radius:12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+<div id="auth-page" class="container" style="max-width: 450px; margin-top: 12vh;">
+    <div id="login-form">
+        <h1 style="text-align: center; margin-bottom: 30px; font-weight: 900;">АВТОРИЗАЦИЯ</h1>
+        <div class="form-group">
+            <label>Ваш NickName</label>
+            <input type="text" id="log-nick" placeholder="Введите ник">
+        </div>
+        <div class="form-group">
+            <label>Пароль доступа</label>
+            <input type="password" id="log-pass" placeholder="Введите пароль">
+        </div>
+        <button class="btn-main" onclick="handleLogin()">Войти в систему</button>
+        <p style="text-align: center; margin-top: 25px; font-size: 12px; color: var(--text-dim);">
+            Нет аккаунта? <span style="color: var(--primary); cursor: pointer; font-weight: bold;" onclick="switchAuth(true)">Создать аккаунт</span>
+        </p>
+    </div>
+
+    <div id="reg-form" class="hidden">
+        <h1 style="text-align: center; margin-bottom: 30px; font-weight: 900;">РЕГИСТРАЦИЯ</h1>
+        <div class="form-group">
+            <label>Придумайте NickName</label>
+            <input type="text" id="reg-nick" placeholder="Напр: Ecstasy9988">
+        </div>
+        <div class="form-group">
+            <label>Придумайте пароль</label>
+            <input type="password" id="reg-pass" placeholder="Минимум 6 символов">
+        </div>
+        <button class="btn-main" onclick="handleRegister()">Зарегистрироваться</button>
+        <p style="text-align: center; margin-top: 25px; font-size: 12px; color: var(--text-dim);">
+            Уже есть аккаунт? <span style="color: var(--primary); cursor: pointer; font-weight: bold;" onclick="switchAuth(false)">Войти</span>
+        </p>
+    </div>
 </div>
 
-<div id="auth-section" class="container" style="max-width:400px; margin-top:10vh;">
-    <div id="box-log">
-        <h2 style="margin-bottom:30px; letter-spacing:-1px;">С возвращением</h2>
-        <input type="text" id="in-log-login" placeholder="Ваш RP NickName">
-        <input type="password" id="in-log-pass" placeholder="Пароль">
-        <button class="btn-action" onclick="doLogin()">Войти в систему</button>
-        <p style="font-size:12px; margin-top:20px; color:#888;">Нет доступа? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(true)">Регистрация</span></p>
-    </div>
-    <div id="box-reg" class="hidden">
-        <h2 style="margin-bottom:30px; letter-spacing:-1px;">Регистрация</h2>
-        <input type="text" id="in-reg-login" placeholder="RP NickName">
-        <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
-        <button class="btn-action" onclick="doRegister()">Создать аккаунт</button>
-        <p style="font-size:12px; margin-top:20px; color:#888;">Уже есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(false)">Войти</span></p>
-    </div>
-</div>
+<div id="main-app" class="hidden">
+    <div class="header">
+        <div class="header-logo">MOD EKB</div>
+        <div class="nav-links">
+            <button class="btn-nav" id="nav-profile" onclick="tab('profile')">Профиль</button>
+            <button class="btn-nav" id="nav-scores" onclick="tab('scores')">Рейтинг</button>
+            <button class="btn-nav" id="nav-table" onclick="tab('table')">Состав</button>
+            <button class="btn-nav" id="nav-report" onclick="tab('report')">Подать отчет</button>
+            <button class="btn-nav hidden" id="nav-manager" onclick="tab('manager')">Менеджер</button>
+            <button onclick="exitSession()" style="background: none; border: none; color: var(--danger); font-weight: 900; cursor: pointer; margin-left: 10px;">ВЫХОД</button>
+        </div>
+    </div>
 
-<div id="app-section" class="hidden">
-    <div class="header">
-        <div id="user-tag" style="font-size: 12px; color: var(--primary); font-weight: 800; display: flex; align-items: center;">
-            <div class="online-dot dot-green"></div> <span>...</span>
-        </div>
-        <div class="nav-group">
-            <button class="btn-nav" onclick="showProfile(currentUser)">Профиль</button>
-            <button class="btn-nav approval-hide" onclick="nav('scores')">Топ</button>
-            <button class="btn-nav approval-hide" onclick="nav('fulltable')">Таблица</button>
-            <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
-            <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">База</button>
-            <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Менеджер</button>
-            <button class="btn-logout" onclick="logout()" style="background:none; border:none; color:var(--danger); font-size:18px; cursor:pointer; vertical-align:middle; margin-left:10px;">✕</button>
-        </div>
-    </div>
+    <div id="tab-profile" class="container tab-content hidden">
+        <div class="profile-card">
+            <div class="banner"></div>
+            <div class="avatar-box">
+                <img src="" id="p-avatar" class="avatar">
+            </div>
+            <h1 class="nick-name" id="p-nick">NICKNAME</h1>
+            <p class="rank-name" id="p-rank">Младший Модератор</p>
+            
+            <div class="xp-bar-bg">
+                <div class="xp-bar-fill" id="p-xp-bar"></div>
+            </div>
+            <p style="font-size: 10px; color: var(--text-dim); font-weight: 800; margin-bottom: 25px;" id="p-xp-val">0 / 500 XP</p>
 
-    <div id="sec-profile" class="container" style="text-align:center;">
-        <div class="profile-banner"></div>
+            <div class="stats-wrapper">
+                <div class="stat-box">
+                    <span class="stat-value" id="p-score">0</span>
+                    <span class="stat-title">Баллы</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="p-reports">0</span>
+                    <span class="stat-title">Отчеты</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="p-warns" style="color: var(--danger)">0/3</span>
+                    <span class="stat-title">Варны</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="profile-content">
-            <div id="pending-msg" class="hidden" style="background:rgba(255,82,82,0.1); color:var(--danger); padding:15px; border-radius:12px; margin-bottom:20px; font-size:13px; border:1px solid rgba(255,82,82,0.2);">
-                ⚠️ Аккаунт ожидает подтверждения от Главного Модератора
-            </div>
-            
-            <div class="profile-header" style="position:relative; display:inline-block;">
-                <img id="view-ava" class="avatar" src="">
-                <div id="inactive-tag" class="hidden" style="position:absolute; top:0; right:-20px; background:#ffd600; color:black; padding:4px 10px; border-radius:8px; font-weight:bold; font-size:10px;">INACTIVE</div>
-            </div>
+    <div id="tab-scores" class="container tab-content hidden">
+        <h2 style="font-weight: 900; margin-bottom: 25px;">ТАБЛИЦА ЛИДЕРОВ</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Место</th>
+                        <th>Модератор</th>
+                        <th style="text-align: right;">Опыт (XP)</th>
+                    </tr>
+                </thead>
+                <tbody id="top-scores-body"></tbody>
+            </table>
+        </div>
+    </div>
 
-            <h2 id="view-nick" style="margin:10px 0 5px 0; font-size:28px; letter-spacing:-1px;">---</h2>
-            <div id="view-rank" style="color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;">---</div>
-            <div id="view-lastseen">---</div>
+    <div id="tab-table" class="container tab-content hidden" style="max-width: 1000px;">
+        <h2 style="font-weight: 900; margin-bottom: 25px;">АКТУАЛЬНЫЙ СОСТАВ</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>NickName</th>
+                        <th>Ранг</th>
+                        <th>Дата вступления</th>
+                        <th>Дней в составе</th>
+                        <th>Варны</th>
+                    </tr>
+                </thead>
+                <tbody id="staff-table-body"></tbody>
+            </table>
+        </div>
+    </div>
 
-            <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
-            
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <span class="stat-val" id="view-score">0</span>
-                    <span class="stat-label">Баллы</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-val" id="stat-count">0</span>
-                    <span class="stat-label">Отчеты</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-val" id="view-warns-num">0/3</span>
-                    <span class="stat-label">Выговоры</span>
-                </div>
-            </div>
+    <div id="tab-report" class="container tab-content hidden">
+        <h2 style="font-weight: 900; margin-bottom: 30px;">ПОДАТЬ ОТЧЕТ</h2>
+        <div class="form-group">
+            <label>Описание проделанной работы</label>
+            <textarea id="rep-desc" placeholder="Напр: Отыграл 3 часа, проверил 15 жалоб..." style="height: 120px;"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Количество баллов (XP)</label>
+            <input type="number" id="rep-xp" placeholder="Укажите количество баллов">
+        </div>
+        <div class="form-group">
+            <label>Ссылка на доказательства</label>
+            <input type="text" id="rep-proof" placeholder="Imgur / YouTube / VK">
+        </div>
+        <button class="btn-main" onclick="sendReportData()">Отправить на проверку</button>
+    </div>
 
-            <div id="profile-edit-controls" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
-                <button class="btn-nav" onclick="document.getElementById('ava-upload').click()">Сменить фото</button>
-                <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
-                
-                <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
-            </div>
-
-            <div id="my-profile-controls" class="hidden">
-                <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
-                <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
-            </div>
-
-            <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
-                <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold; margin-bottom:10px;">Панель управления сотрудником</p>
-                
-                <label style="font-size:9px; color:#666;">RP NICKNAME</label>
-                <input type="text" id="edit-nick-input" placeholder="Ник">
-                
-                <label style="font-size:9px; color:#666;">ДОЛЖНОСТЬ</label>
-                <input type="text" id="edit-rank-input" placeholder="Должность">
-
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
-                    <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Удалить</button>
-                </div>
-
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button class="btn-nav" style="flex:1; background:var(--danger); color:white;" id="btn-add-warn">+ Выговор</button>
-                    <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
-                </div>
-                <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="sec-fulltable" class="container hidden" style="max-width: 1000px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0;">📊 Общий список модерации</h3>
-            <button id="add-table-row" class="btn-nav hidden" onclick="addTableRow()" style="background: var(--primary); color: black;">+ Добавить строку</button>
-        </div>
-        <div class="full-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nick_Name</th>
-                        <th>Должность</th>
-                        <th>Дата постановления</th>
-                        <th>Прошло</th>
-                        <th>Пред-я</th>
-                        <th>Выговоры</th>
-                        <th>Посл. повыш-е</th>
-                        <th>Дней с пов-я</th>
-                        <th class="admin-only hidden">Действие</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-full"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="sec-scores" class="container hidden">
-        <h3 style="text-align:left; margin-bottom:20px;">🏆 Рейтинг состава</h3>
-        <table>
-            <thead><tr><th>NicnName</th><th>Доложность</th><th>Баллы</th></tr></thead>
-            <tbody id="list-scores"></tbody>
-        </table>
-    </div>
-
-    <div id="sec-report" class="container hidden">
-        <h3 style="text-align:left;">Новый отчет</h3>
-        <p style="text-align:left; color:#888; font-size:12px; margin-bottom:20px;">Заполните данные о проделанной работе за неделю</p>
-        <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАША ДОЛЖНОСТЬ</label>
-        <select id="rep-rank">
-            <option value="Младший Модератор">Младший Модератор</option>
-            <option value="Модератор">Модератор</option>
-            <option value="Старший Модератор">Старший Модератор</option>
-        </select>
-        <textarea id="rep-work" rows="4" placeholder="Опишите, что именно вы сделали..."></textarea>
-        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю (число)">
-        <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
-        <input type="date" id="rep-date">
-        <button class="btn-action" onclick="sendReport()">Отправить на проверку</button>
-    </div>
-
-    <div id="sec-base" class="container hidden">
-        <h3 style="text-align:left; margin-bottom:20px;">📁 Архив всех отчетов</h3>
-        <div id="list-reports"></div>
-    </div>
-
-    <div id="sec-admin" class="container hidden">
-        <h3 style="text-align:left; margin-bottom:20px;">⚙️ Менеджер состава</h3>
-        <div id="list-users-admin"></div>
-    </div>
+    <div id="tab-manager" class="container tab-content hidden">
+        <h2 style="font-weight: 900; margin-bottom: 25px;">УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ</h2>
+        <div id="manager-user-list"></div>
+    </div>
 </div>
 
 <script>
+// --- КОНФИГУРАЦИЯ FIREBASE (ЧАСТЬ 2) ---
 const firebaseConfig = {
-    apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
-    authDomain: "modersekb.firebaseapp.com",
-    projectId: "modersekb",
-    databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
+    authDomain: "modersekb.firebaseapp.com",
+    projectId: "modersekb",
+    databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const OWNER = "Ecstasy9988";
-let currentUser = "";
-let userRole = "pending";
 
-function updateLastSeen() {
-    if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
+let currentNick = "";
+let userData = null;
+
+// АВТОРИЗАЦИЯ
+function switchAuth(isReg) {
+    document.getElementById('login-form').classList.toggle('hidden', isReg);
+    document.getElementById('reg-form').classList.toggle('hidden', !isReg);
 }
 
-function nav(id) {
-    if (userRole === 'pending' && id !== 'profile') return;
-    updateLastSeen();
-    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-    document.getElementById('sec-' + id).classList.remove('hidden');
-    window.scrollTo(0,0);
+function handleLogin() {
+    const nick = document.getElementById('log-nick').value.trim();
+    const pass = document.getElementById('log-pass').value.trim();
+
+    if(nick === "Ecstasy9988" && pass === "Ecstasy20036") {
+        startSession(nick, { role: 'admin', nick: nick });
+        return;
+    }
+
+    db.ref('users/' + nick).once('value', s => {
+        const d = s.val();
+        if(d && d.pass === pass) {
+            startSession(nick, d);
+        } else {
+            alert("Неверные данные для входа!");
+        }
+    });
 }
 
-function toggleAuth(reg) {
-    document.getElementById('box-log').classList.toggle('hidden', reg);
-    document.getElementById('box-reg').classList.toggle('hidden', !reg);
+function handleRegister() {
+    const nick = document.getElementById('reg-nick').value.trim();
+    const pass = document.getElementById('reg-pass').value.trim();
+
+    if(nick.length < 3 || pass.length < 6) {
+        alert("Ник от 3 симв., пароль от 6 симв.");
+        return;
+    }
+
+    db.ref('users/' + nick).once('value', s => {
+        if(s.exists()) {
+            alert("Этот NickName уже занят!");
+        } else {
+            const newUser = {
+                nick: nick,
+                pass: pass,
+                role: 'user',
+                score: 0,
+                reportsCount: 0,
+                warns: 0,
+                rank: 'Младший Модератор',
+                dateJoined: new Date().toLocaleDateString('ru-RU')
+            };
+            db.ref('users/' + nick).set(newUser).then(() => startSession(nick, newUser));
+        }
+    });
 }
 
-function doLogin() {
-    const l = document.getElementById('in-log-login').value.trim();
-    const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === "Ecstasy20036") { loginSuccess(l, 'owner'); return; }
-    db.ref('users/' + l).once('value', s => {
-        const d = s.val();
-        if (d && d.pass === p) loginSuccess(l, d.role);
-        else alert("Неверный логин или пароль");
-    });
+function startSession(nick, data) {
+    currentNick = nick;
+    userData = data;
+    localStorage.setItem('mod_nick', nick);
+    
+    document.getElementById('auth-page').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    
+    if(data.role === 'admin' || nick === "Ecstasy9988") {
+        document.getElementById('nav-manager').classList.remove('hidden');
+    }
+    
+    tab('profile');
+    loadProfileData();
 }
 
-function doRegister() {
-    const l = document.getElementById('in-reg-login').value.trim();
-    const p = document.getElementById('in-reg-pass').value.trim();
-    if (!l || !p) return alert("Заполните все поля");
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
-    loginSuccess(l, 'pending');
+function tab(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.remove('hidden');
+    document.getElementById('nav-' + name).classList.add('active');
+
+    if(name === 'scores') loadScores();
+    if(name === 'table') loadTable();
+    if(name === 'manager') loadManager();
 }
 
-function loginSuccess(l, role) {
-    currentUser = l;
-    userRole = (l === OWNER) ? 'owner' : (role || 'pending');
-    localStorage.setItem('mod_user', l);
-    document.getElementById('auth-section').classList.add('hidden');
-    document.getElementById('app-section').classList.remove('hidden');
-    document.querySelector('#user-tag span').innerText = l;
-    
-    const isApproved = (userRole !== 'pending');
-    document.querySelectorAll('.approval-hide').forEach(el => el.classList.toggle('hidden', !isApproved));
-    document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
-
-    const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
-    document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
-    document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
-    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
-    
-    updateLastSeen();
-    showProfile(l);
-    loadData();
-    loadFullTable();
-    setInterval(updateLastSeen, 60000);
+function loadProfileData() {
+    db.ref('users/' + currentNick).on('value', s => {
+        const d = s.val();
+        if(!d) return;
+        document.getElementById('p-nick').innerText = d.nick;
+        document.getElementById('p-rank').innerText = d.rank;
+        document.getElementById('p-score').innerText = d.score || 0;
+        document.getElementById('p-reports').innerText = d.reportsCount || 0;
+        document.getElementById('p-warns').innerText = (d.warns || 0) + "/3";
+        document.getElementById('p-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${d.nick}`;
+        
+        const xp = (d.score || 0) % 500;
+        document.getElementById('p-xp-val').innerText = `${xp} / 500 XP`;
+        document.getElementById('p-xp-bar').style.width = (xp / 500 * 100) + "%";
+    });
 }
 
-function showProfile(nick) {
-    nav('profile');
-    document.getElementById('profile-edit-controls').classList.toggle('hidden', nick !== currentUser);
-    document.getElementById('my-profile-controls').classList.toggle('hidden', nick !== currentUser);
-    
-    const isAdmin = (userRole === 'admin' || userRole === 'owner');
-    const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
-    document.getElementById('admin-full-controls').classList.toggle('hidden', !canManage);
+function sendReportData() {
+    const desc = document.getElementById('rep-desc').value;
+    const xp = parseInt(document.getElementById('rep-xp').value);
+    const proof = document.getElementById('rep-proof').value;
 
-    db.ref('users/' + nick).on('value', s => {
-        const d = s.val() || {};
-        if(!s.exists()) return;
+    if(!desc || isNaN(xp) || !proof) {
+        alert("Заполните все поля!");
+        return;
+    }
 
-        const warns = d.warns || 0;
-        const score = d.score || 0;
-        const isInactive = d.inactive || false;
-        const lastSeen = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : "Никогда";
-        
-        document.getElementById('view-nick').innerText = d.nick || nick;
-        document.getElementById('view-rank').innerText = d.rank || "Участник";
-        document.getElementById('view-score').innerText = score;
-        document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
-        
-        document.getElementById('view-warns-num').innerText = `${warns}/3`;
-        document.getElementById('view-lastseen').innerText = `В сети: ${lastSeen}`;
-        
-        const progress = (score % 500) / 5;
-        document.getElementById('rank-progress').style.width = progress + "%";
-        document.getElementById('inactive-tag').classList.toggle('hidden', !isInactive);
+    db.ref('users/' + currentNick).transaction(u => {
+        if(u) {
+            u.score = (u.score || 0) + xp;
+            u.reportsCount = (u.reportsCount || 0) + 1;
+        }
+        return u;
+    });
 
-        if(canManage) {
-            document.getElementById('edit-nick-input').value = d.nick || nick;
-            document.getElementById('edit-rank-input').value = d.rank || "";
-
-            document.getElementById('btn-save-admin').onclick = () => {
-                const newNick = document.getElementById('edit-nick-input').value;
-                const newRank = document.getElementById('edit-rank-input').value;
-                db.ref('users/' + nick).update({ nick: newNick, rank: newRank });
-                alert("Данные обновлены");
-            };
-
-            document.getElementById('btn-add-warn').onclick = () => db.ref(`users/${nick}/warns`).set(warns + 1);
-            document.getElementById('btn-rem-warn').onclick = () => db.ref(`users/${nick}/warns`).set(Math.max(0, warns - 1));
-            
-            document.getElementById('btn-toggle-top').onclick = () => {
-                const cur = d.hiddenFromTop || false;
-                db.ref('users/' + nick + '/hiddenFromTop').set(!cur);
-                alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
-            };
-
-            document.getElementById('btn-delete-user').onclick = () => {
-                if(nick === OWNER) return alert("Нельзя удалить владельца");
-                if(confirm(`Вы уверены, что хотите УДАЛИТЬ пользователя ${nick}?`)) {
-                    db.ref('users/' + nick).remove();
-                    alert("Пользователь удален");
-                    nav('admin');
-                }
-            };
-        }
-        document.getElementById('stat-count').innerText = d.reportsCount || 0;
-    });
+    alert("Отчет успешно отправлен!");
+    tab('profile');
 }
 
-function loadData() {
-    db.ref('users').on('value', s => {
-        const users = s.val() || {};
-        const listTop = document.getElementById('list-scores');
-        const listAdmin = document.getElementById('list-users-admin');
-        const isAdmin = (userRole === 'admin' || userRole === 'owner');
-        const now = Date.now();
-        
-        listTop.innerHTML = ""; listAdmin.innerHTML = "";
-        
-        Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
-            const isOnline = u.lastSeen && (now - u.lastSeen < 300000);
-            const dotClass = isOnline ? 'dot-green' : 'dot-red';
-            const userAva = u.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + id;
-
-            if (isAdmin) {
-                let adminButtons = "";
-                if(u.role === 'pending') {
-                    adminButtons += `<button class="btn-nav" style="padding: 4px 10px; background:var(--primary); color:black;" onclick="db.ref('users/${id}/role').set('user')">Одобрить заявку</button>`;
-                } else if(u.role !== 'owner') {
-                    if(u.role === 'admin') {
-                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('user')">Снять Админку</button>`;
-                    } else {
-                        adminButtons += `<button class="btn-nav" style="padding: 4px 10px;" onclick="db.ref('users/${id}/role').set('admin')">Выдать Админку</button>`;
-                    }
-                }
-
-                listAdmin.innerHTML += `
-                <div class="report-card" style="margin-bottom: 10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>
-                            <img src="${userAva}" class="mini-avatar">
-                            <div class="online-dot ${dotClass}"></div> 
-                            <b>${u.nick || id}</b> 
-                            <small style="opacity:0.5; color:${u.role === 'pending' ? 'var(--danger)' : 'inherit'}">(${u.role})</small>
-                        </span>
-                        <div style="display:flex; align-items:center; gap:5px;">
-                            <button class="btn-nav" style="padding: 4px 10px;" onclick="showProfile('${id}')">Управлять</button>
-                            <span onclick="deleteUserSimple('${id}')" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px;">✕</span>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap;">
-                        ${adminButtons}
-                    </div>
-                </div>`;
-            }
-
-            if (u.role !== 'pending' && !u.hiddenFromTop) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td onclick="showProfile('${id}')" style="cursor:pointer;">
-                        <img src="${userAva}" class="mini-avatar">
-                        <div class="online-dot ${dotClass}"></div> ${u.nick || id}
-                    </td>
-                    <td style="font-size:10px; opacity:0.7;">${u.rank}</td>
-                    <td class="${isAdmin ? 'editable' : ''}" style="color:var(--primary); font-weight:bold;" onclick="editUserScore('${id}', ${u.score})">${u.score}</td>
-                `;
-                listTop.appendChild(tr);
-            }
-        });
-    });
-
-    db.ref('reports').on('value', s => {
-        const container = document.getElementById('list-reports');
-        container.innerHTML = "";
-        const isAdmin = (userRole === 'admin' || userRole === 'owner');
-
-        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
-            let imgsHtml = "";
-            if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
-            
-            const delBtn = isAdmin ? `<span onclick="deleteReport('${id}', '${r.author}', ${r.score})" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px; margin-left:10px;">✕</span>` : "";
-
-            container.innerHTML += `
-            <div class="report-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b>${r.author}</b>
-                    <div>
-                        <span style="color:var(--primary)">+${r.score} баллов</span>
-                        ${delBtn}
-                    </div>
-                </div>
-                <div style="font-size:12px; margin:10px 0; color:#ccc;">${r.work}</div>
-                <div>${imgsHtml}</div>
-                <div style="font-size:9px; color:#555; margin-top:10px;">Дата: ${r.date}</div>
-            </div>`;
-        });
-    });
+function loadScores() {
+    db.ref('users').once('value', s => {
+        const body = document.getElementById('top-scores-body');
+        body.innerHTML = "";
+        let list = [];
+        s.forEach(child => list.push(child.val()));
+        list.sort((a,b) => (b.score || 0) - (a.score || 0));
+        
+        list.forEach((u, i) => {
+            body.innerHTML += `
+                <tr>
+                    <td>#${i+1}</td>
+                    <td><b>${u.nick}</b></td>
+                    <td style="text-align: right; color: var(--primary); font-weight: 800;">${u.score || 0}</td>
+                </tr>
+            `;
+        });
+    });
 }
 
-function loadFullTable() {
-    db.ref('full_table').on('value', s => {
-        const tbody = document.getElementById('tbody-full');
-        tbody.innerHTML = "";
-        const isAdmin = (userRole === 'admin' || userRole === 'owner');
-        const now = new Date();
-
-        const calcDays = (dateStr) => {
-            if (!dateStr || dateStr === '-') return '0';
-            const parts = dateStr.split('.');
-            if(parts.length === 3) {
-                const d = new Date(parts[2], parts[1]-1, parts[0]);
-                if(!isNaN(d)) return Math.floor((now - d) / (1000 * 60 * 60 * 24));
-            }
-            return '0';
-        };
-
-        Object.entries(s.val() || {}).forEach(([key, row]) => {
-            const daysSinceStart = calcDays(row.dateStart);
-            const daysSinceUp = calcDays(row.lastUp);
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'dateStart', '${row.dateStart}')">${row.dateStart || '01.01.2024'}</td>
-                <td style="color:var(--primary)">${daysSinceStart} дн.</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'preds', '${row.preds}')">${row.preds || '[0/2]'}</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'warns', '${row.warns}')">${row.warns || '[0/3]'}</td>
-                <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || '-'}</td>
-                <td style="color:#ffd600">${daysSinceUp} дн.</td>
-                ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
-            `;
-            tbody.appendChild(tr);
-        });
-    });
+function loadTable() {
+    db.ref('users').on('value', s => {
+        const body = document.getElementById('staff-table-body');
+        body.innerHTML = "";
+        s.forEach(child => {
+            const u = child.val();
+            body.innerHTML += `
+                <tr>
+                    <td><b>${u.nick}</b></td>
+                    <td>${u.rank}</td>
+                    <td>${u.dateJoined || '---'}</td>
+                    <td>${calcDays(u.dateJoined)} дн.</td>
+                    <td>${u.warns || 0}/3</td>
+                </tr>
+            `;
+        });
+    });
 }
 
-function addTableRow() {
-    db.ref('full_table').push({
-        nick: 'Nick_Name',
-        rank: 'Должность',
-        dateStart: new Date().toLocaleDateString('ru-RU'),
-        preds: '[0/2]',
-        warns: '[0/3]',
-        lastUp: '-'
-    });
+function calcDays(dateStr) {
+    if(!dateStr) return 0;
+    const parts = dateStr.split('.');
+    const start = new Date(parts[2], parts[1]-1, parts[0]);
+    const now = new Date();
+    const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? diff : 0;
 }
 
-function editCell(key, field, oldVal) {
-    if (userRole !== 'admin' && userRole !== 'owner') return;
-    const newVal = prompt("Введите новое значение:", oldVal);
-    if (newVal !== null) {
-        db.ref(`full_table/${key}/${field}`).set(newVal);
-    }
+function loadManager() {
+    db.ref('users').on('value', s => {
+        const list = document.getElementById('manager-user-list');
+        list.innerHTML = "";
+        s.forEach(child => {
+            const u = child.val();
+            if(u.nick === "Ecstasy9988") return;
+            list.innerHTML += `
+                <div class="stat-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left;">
+                    <div>
+                        <b>${u.nick}</b><br>
+                        <small style="color: var(--text-dim)">Ранг: ${u.rank}</small>
+                    </div>
+                    <div>
+                        <button class="btn-nav" onclick="addWarn('${u.nick}')">+ Варн</button>
+                        <button class="btn-nav" style="color: var(--danger)" onclick="deleteUser('${u.nick}')">Удалить</button>
+                    </div>
+                </div>
+            `;
+        });
+    });
 }
 
-function editUserScore(id, oldScore) {
-    if (userRole !== 'admin' && userRole !== 'owner') return;
-    const newScore = prompt("Введите новое количество баллов для " + id + ":", oldScore);
-    if (newScore !== null && !isNaN(parseInt(newScore))) {
-        db.ref(`users/${id}/score`).set(parseInt(newScore));
-    }
+function addWarn(nick) {
+    db.ref('users/' + nick + '/warns').transaction(w => (w || 0) + 1);
 }
 
-function deleteReport(repId, author, points) {
-    if(confirm(`Удалить этот отчет? У автора (${author}) будет списано ${points} баллов.`)) {
-        db.ref('reports/' + repId).remove();
-        db.ref('users/' + author).transaction(u => {
-            if(u) {
-                u.score = Math.max(0, (u.score || 0) - points);
-                u.reportsCount = Math.max(0, (u.reportsCount || 0) - 1);
-            }
-            return u;
-        });
-        alert("Отчет удален, баллы списаны.");
-    }
+function deleteUser(nick) {
+    if(confirm("Удалить модератора " + nick + "?")) {
+        db.ref('users/' + nick).remove();
+    }
 }
 
-function deleteUserSimple(id) {
-    if(id === OWNER) return alert("Нельзя удалить владельца");
-    if(confirm(`Удалить ${id} из системы?`)) {
-        db.ref('users/' + id).remove();
-    }
-}
-
-async function sendReport() {
-    if (userRole === 'pending') return;
-    const work = document.getElementById('rep-work').value;
-    const score = parseInt(document.getElementById('rep-val').value);
-    const date = document.getElementById('rep-date').value;
-    const files = document.getElementById('rep-files').files;
-
-    if(!work || isNaN(score) || !date) return alert("Заполните все данные!");
-
-    let imgs = [];
-    for(let f of files) {
-        const b64 = await new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(f);
-        });
-        imgs.push(b64);
-    }
-
-    db.ref('reports').push({ author: currentUser, rank: document.getElementById('rep-rank').value, work, score, date, imgs });
-    db.ref('users/' + currentUser).transaction(u => {
-        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; u.lastReportTime = Date.now(); }
-        return u;
-    });
-    alert("Отчет успешно отправлен!");
-    nav('profile');
-}
-
-function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
-
-async function uploadAva(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        if (file.size > 1024 * 1024) return alert("Файл слишком большой! Лимит 1МБ.");
-        
-        const b64 = await new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(file);
-        });
-        db.ref('users/' + currentUser).update({ avatar: b64 });
-        alert("Фото успешно обновлено!");
-    }
-}
-
-function changeNick() { const name = prompt("Ваш новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
-function logout() { localStorage.clear(); location.reload(); }
-
-function takeInactive() {
-    db.ref('users/' + currentUser).once('value', s => {
-        const u = s.val();
-        if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
-        db.ref('users/' + currentUser).update({ inactive: true, score: u.score - 10 });
-        alert("Вы взяли неактив");
-    });
+function exitSession() {
+    localStorage.clear();
+    location.reload();
 }
 
 window.onload = () => {
-    const saved = localStorage.getItem('mod_user');
-    if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
+    const savedNick = localStorage.getItem('mod_nick');
+    if(savedNick) {
+        db.ref('users/' + savedNick).once('value', s => {
+            if(s.exists()) startSession(savedNick, s.val());
+            else localStorage.clear();
+        });
+    }
 };
 </script>
 </body>
