@@ -296,11 +296,15 @@ body::before {
                 <input type="file" id="ava-upload" hidden accept="image/*" onchange="uploadAva(this)">
                 
                 <button class="btn-nav" onclick="changeNick()">Сменить ник</button>
+                <button class="btn-nav" style="width:100%;" onclick="skipMeeting()">Пропуск собрания (5 баллов)</button>
+                <button class="btn-nav" style="width:100%;" onclick="removeWarn()">Снять выговор (10 баллов)</button>
             </div>
 
             <div id="my-profile-controls" class="hidden">
                 <button id="btn-take-inactive" class="btn-nav" style="width: 100%; border-color:#ffd600; color:#ffd600;" onclick="takeInactive()">Взять неактив (10 баллов)</button>
                 <button id="btn-stop-inactive" class="btn-nav hidden" style="width: 100%;" onclick="db.ref('users/'+currentUser+'/inactive').set(false)">Выйти из неактива</button>
+                <button class="btn-nav" style="width:100%;" onclick="skipMeeting()">Пропуск собрания (5 баллов)</button>
+                <button class="btn-nav" style="width:100%;" onclick="removeWarn()">Снять выговор (10 баллов)</button>
             </div>
 
             <div id="admin-full-controls" class="hidden" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px; text-align:left;">
@@ -322,6 +326,8 @@ body::before {
                     <button class="btn-nav" style="flex:1;" id="btn-rem-warn">- Выговор</button>
                 </div>
                 <button class="btn-nav" style="width:100%; margin-top:8px;" id="btn-toggle-top">Убрать/Вернуть в Топ</button>
+                <button class="btn-nav" style="width:100%;" onclick="skipMeeting()">Пропуск собрания (5 баллов)</button>
+                <button class="btn-nav" style="width:100%;" onclick="removeWarn()">Снять выговор (10 баллов)</button>
             </div>
         </div>
     </div>
@@ -747,12 +753,40 @@ async function uploadAva(input) {
 function changeNick() { const name = prompt("Ваш новый ник:"); if(name) db.ref('users/' + currentUser).update({ nick: name }); }
 function logout() { localStorage.clear(); location.reload(); }
 
-function takeInactive() {
+function skipMeeting() {
     db.ref('users/' + currentUser).once('value', s => {
         const u = s.val();
+        if(u.score < 5) return alert("Недостаточно баллов (нужно 5)");
+        db.ref('users/' + currentUser).update({ score: u.score - 5 });
+        alert("Пропуск собрания использован");
+    });
+}
+
+function removeWarn() {
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.warns <= 0) return alert("Нет выговоров");
         if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
-        db.ref('users/' + currentUser).update({ inactive: true, score: u.score - 10 });
-        alert("Вы взяли неактив");
+        db.ref('users/' + currentUser).update({
+            warns: Math.max(0, u.warns - 1),
+            score: u.score - 10
+        });
+        alert("Выговор снят");
+    });
+}
+
+function takeInactive() {
+    const week = 7 * 24 * 60 * 60 * 1000;
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.inactiveUntil && Date.now() < u.inactiveUntil) return alert("Неактив уже активен");
+        if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
+        db.ref('users/' + currentUser).update({
+            inactive: true,
+            inactiveUntil: Date.now() + week,
+            score: u.score - 10
+        });
+        alert("Неактив взят на 7 дней");
     });
 }
 
