@@ -863,3 +863,70 @@ function loadLogs() {
 </html>
 
 
+
+<!-- === ADDED BY CHATGPT: LOGS, INACTIVE, INFO === -->
+<div id="logsPanel" style="display:none"></div>
+<div id="infoPanel" style="display:none"></div>
+
+<script>
+/* ===== LOG SYSTEM ===== */
+const Logs = {
+  list: JSON.parse(localStorage.getItem('site_logs')||'[]'),
+  add(text){
+    const time = new Date().toLocaleString();
+    this.list.push(`[${time}] ${text}`);
+    localStorage.setItem('site_logs', JSON.stringify(this.list));
+    console.log('LOG:', text);
+  }
+};
+
+function logAction(action, nick){
+  Logs.add(`${nick} модератор - ${action}`);
+}
+
+/* ===== INACTIVE ===== */
+function takeInactive(days, nick){
+  if(days<1||days>7) return alert('От 1 до 7 дней');
+  localStorage.setItem('inactive_until', Date.now()+days*86400000);
+  logAction(`взял неактив на ${days} дней`, nick);
+}
+
+function exitInactive(nick){
+  localStorage.removeItem('inactive_until');
+  logAction(`вышел с неактива`, nick);
+}
+
+/* ===== BUTTON FIXES ===== */
+document.querySelectorAll('button').forEach(b=>{
+  if(b.innerText.includes('ПРОПУСК СОБРАНИЯ')){
+    b.onclick=()=>logAction('пропустил собрание','Ник');
+  }
+  if(b.innerText.includes('СНЯТЬ ВЫГОВОР')){
+    b.onclick=()=>logAction('снял выговор','Ник');
+  }
+});
+
+/* ===== REMOVE DUPLICATES ===== */
+const seen = {};
+document.querySelectorAll('button').forEach(b=>{
+  if(seen[b.innerText]) b.remove();
+  else seen[b.innerText]=true;
+});
+
+/* ===== INFO SECTION ===== */
+const infoPanel=document.getElementById('infoPanel');
+infoPanel.innerHTML=`
+<h2>ИНФО</h2>
+<textarea id="infoText" style="width:100%;height:150px"></textarea>
+<input type="file" id="infoImg" multiple>
+<button onclick="saveInfo()">Сохранить</button>
+<div id="infoView"></div>
+`;
+
+function saveInfo(){
+  const t=document.getElementById('infoText').value;
+  localStorage.setItem('info_text',t);
+  logAction('изменил раздел ИНФО','Ник');
+}
+
+</script>
