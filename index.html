@@ -219,20 +219,22 @@
             <div id="view-rank" style="color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px;">---</div>
             <div id="view-lastseen">---</div>
 
-            <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
-            
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <span class="stat-val" id="view-score">0</span>
-                    <span class="stat-label">Баллы</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-val" id="stat-count">0</span>
-                    <span class="stat-label">Отчеты</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-val" id="view-warns-num">0/3</span>
-                    <span class="stat-label">Выговоры</span>
+            <div id="profile-stats-container">
+                <div class="progress-bar"><div id="rank-progress" class="progress-fill"></div></div>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-val" id="view-score">0</span>
+                        <span class="stat-label">Баллы</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val" id="stat-count">0</span>
+                        <span class="stat-label">Отчеты</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val" id="view-warns-num">0/3</span>
+                        <span class="stat-label">Выговоры</span>
+                    </div>
                 </div>
             </div>
 
@@ -260,7 +262,7 @@
 
                 <div style="display:flex; gap:8px; margin-top:8px;">
                     <button class="btn-action" style="flex:1;" id="btn-save-admin">Сохранить</button>
-                    <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Кикнуть (Заморозить)</button>
+                    <button class="btn-action" style="background:var(--danger); color:white; flex:1;" id="btn-delete-user">Кикнуть (Удалить)</button>
                 </div>
 
                 <div style="display:flex; gap:8px; margin-top:8px;">
@@ -368,7 +370,7 @@ const db = firebase.database();
 const OWNER = "Ecstasy9988";
 let currentUser = "";
 let userRole = "pending";
-let editingInfoKey = null; // Переменная для редактирования инфо
+let editingInfoKey = null;
 
 function updateLastSeen() {
     if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
@@ -434,30 +436,22 @@ function loginSuccess(l, role) {
     loadInfo();
     setInterval(updateLastSeen, 60000);
 
-    // --- НОВАЯ СЛЕЖКА ЗА СТАТУСОМ (ДЛЯ КИКА) ---
+    // --- СЛЕЖКА ЗА СТАТУСОМ (КИК/БАН) ---
     db.ref('users/' + l).on('value', s => {
         const data = s.val();
         
-        // 1. Если аккаунт удалили полностью
+        // 1. Если аккаунт удалили полностью (КИК)
         if (!data) {
             alert("Ваш аккаунт был удален администратором.");
-            logout();
+            logout(); // Полный выход
             return;
         }
 
-        // 2. Если вас кикнули (роль стала pending, а вы были внутри)
-        if (userRole !== 'pending' && data.role === 'pending') {
-            alert("Вы были исключены из состава. Ваш аккаунт заморожен до одобрения.");
-            location.reload(); // Перезагружаем, чтобы выкинуло на экран ожидания
-        }
-        
         // 3. Обновляем локальную роль (на случай, если выдали админку на лету)
         if (data.role && data.role !== userRole) {
             userRole = data.role;
-            // Обновляем видимость админ кнопок без перезагрузки
-            const newIsAdmin = (userRole === 'admin' || userRole === 'owner');
-            document.getElementById('nav-base').classList.toggle('hidden', !newIsAdmin);
-            document.getElementById('nav-admin').classList.toggle('hidden', !newIsAdmin);
+            // Перерисовываем UI
+            location.reload(); 
         }
     });
 }
@@ -465,7 +459,19 @@ function loginSuccess(l, role) {
 function showProfile(nick) {
     nav('profile');
     const isMe = nick === currentUser;
-    document.getElementById('my-profile-controls').classList.toggle('hidden', !isMe);
+    const isPending = (userRole === 'pending'); // Проверяем, на подтверждении ли я
+
+    // --- ЛОГИКА СКРЫТИЯ ЭЛЕМЕНТОВ ДЛЯ PENDING ---
+    // Если я Pending - скрываем статистику
+    const statsContainer = document.getElementById('profile-stats-container');
+    if (isMe && isPending) {
+        statsContainer.classList.add('hidden');
+    } else {
+        statsContainer.classList.remove('hidden');
+    }
+
+    // Управление профилем: показываем только если это Я, и я НЕ Pending
+    document.getElementById('my-profile-controls').classList.toggle('hidden', !(isMe && !isPending));
     
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
@@ -481,7 +487,7 @@ function showProfile(nick) {
         const lastSeen = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : "Никогда";
         
         document.getElementById('view-nick').innerText = d.nick || nick;
-        document.getElementById('view-rank').innerText = d.rank || "Участник";
+        document.getElementById('view-rank').innerText = (isMe && isPending) ? "Ожидание одобрения" : (d.rank || "Участник");
         document.getElementById('view-score').innerText = score;
         document.getElementById('view-ava').src = d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + nick;
         
@@ -492,7 +498,7 @@ function showProfile(nick) {
         document.getElementById('rank-progress').style.width = progress + "%";
         
         document.getElementById('inactive-tag').classList.toggle('hidden', !isInactive);
-        if (isMe) {
+        if (isMe && !isPending) {
             document.getElementById('btn-take-inactive').classList.toggle('hidden', isInactive);
             document.getElementById('btn-exit-inactive').classList.toggle('hidden', !isInactive);
         }
@@ -523,14 +529,14 @@ function showProfile(nick) {
                 alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
             };
 
-            // ИЗМЕНЕННАЯ ЛОГИКА УДАЛЕНИЯ (ЗАМОРОЗКА)
+            // КНОПКА КИКНУТЬ
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
-                if(confirm(`Вы уверены, что хотите КИКНУТЬ и ЗАМОРОЗИТЬ пользователя ${nick}?`)) {
-                    // Меняем роль на pending вместо удаления
-                    db.ref('users/' + nick).update({ role: 'pending' });
-                    addLog('Кикнул и заморозил', nick);
-                    alert("Пользователь кикнут и переведен в ожидание.");
+                if(confirm(`Вы уверены, что хотите КИКНУТЬ пользователя ${nick}? Его аккаунт будет полностью удален.`)) {
+                    // Удаляем пользователя полностью
+                    db.ref('users/' + nick).remove();
+                    addLog('Кикнул (Удалил)', nick);
+                    alert("Пользователь кикнут и удален.");
                     nav('admin');
                 }
             };
@@ -646,14 +652,12 @@ function loadFullTable() {
             return '0';
         };
 
-        // Преобразуем объект в массив для сортировки по order
         const dataObj = s.val() || {};
         let rows = Object.keys(dataObj).map(key => ({
             key: key,
             ...dataObj[key]
         }));
 
-        // Сортировка по полю order, если его нет - считается 0
         rows.sort((a, b) => (a.order || 0) - (b.order || 0));
 
         rows.forEach((row) => {
@@ -661,7 +665,6 @@ function loadFullTable() {
             const daysSinceStart = calcDays(row.dateStart);
             const daysSinceUp = calcDays(row.lastUp);
 
-            // Кнопки для перемещения
             const moveControls = isAdmin ? `
                 <td style="white-space:nowrap;">
                     <button class="btn-small-icon" onclick="moveRow('${key}', -1)">⬆</button>
@@ -687,33 +690,20 @@ function loadFullTable() {
     });
 }
 
-// Логика перемещения строк
 function moveRow(key, direction) {
     db.ref('full_table').once('value', s => {
         const dataObj = s.val() || {};
         let rows = Object.keys(dataObj).map(k => ({ key: k, ...dataObj[k] }));
-        
-        // Сортируем как при отображении
         rows.sort((a, b) => (a.order || 0) - (b.order || 0));
-
-        // Находим текущий индекс
         const index = rows.findIndex(r => r.key === key);
         if (index === -1) return;
-
         const targetIndex = index + direction;
-        
-        // Проверка границ
         if (targetIndex < 0 || targetIndex >= rows.length) return;
-
-        // Меняем местами в массиве
         [rows[index], rows[targetIndex]] = [rows[targetIndex], rows[index]];
-
-        // Перезаписываем order всем элементам, чтобы сохранить структуру
         const updates = {};
         rows.forEach((row, i) => {
             updates[`full_table/${row.key}/order`] = i;
         });
-
         db.ref().update(updates);
     });
 }
@@ -728,7 +718,7 @@ function addTableRow() {
             preds: '[0/2]',
             warns: '[0/3]',
             lastUp: '-',
-            order: count // Добавляем в конец
+            order: count
         });
     });
 }
@@ -766,10 +756,9 @@ function deleteReport(repId, author, points) {
 
 function deleteUserSimple(id) {
     if(id === OWNER) return alert("Нельзя удалить владельца");
-    if(confirm(`Вы уверены? Пользователь ${id} будет КИКНУТ и переведен в ОЖИДАНИЕ.`)) {
-        // МЕНЯЕМ ЛОГИКУ: вместо remove делаем update role
-        db.ref('users/' + id).update({ role: 'pending' });
-        addLog(`Кикнул и заморозил ${id}`, currentUser);
+    if(confirm(`Вы уверены? Пользователь ${id} будет КИКНУТ и УДАЛЕН.`)) {
+        db.ref('users/' + id).remove();
+        addLog(`Кикнул (Удалил) ${id}`, currentUser);
     }
 }
 
@@ -890,7 +879,6 @@ function exitInactive() {
     }
 }
 
-// --- Новые Функции ИНФО (Редактирование) ---
 async function addInfoPost() {
     const title = document.getElementById('info-new-title').value;
     const text = document.getElementById('info-new-text').value;
@@ -907,21 +895,19 @@ async function addInfoPost() {
         });
     }
 
-    // Если редактируем существующий
     if (editingInfoKey) {
         const updates = { title, text, date: Date.now() };
-        if (img) updates.img = img; // Обновляем картинку только если выбрали новую
+        if (img) updates.img = img;
         
         db.ref('info_posts/' + editingInfoKey).update(updates);
         addLog('Отредактировал пост в ИНФО', currentUser);
         alert("Изменения сохранены");
         cancelEditInfo();
     } else {
-        // Создаем новый
         db.ref('info_posts').push({ title, text, img, date: Date.now() });
         addLog('Добавил пост в ИНФО', currentUser);
         alert("Опубликовано");
-        cancelEditInfo(); // Чистим поля
+        cancelEditInfo();
     }
 }
 
@@ -932,7 +918,6 @@ function editInfo(key) {
         document.getElementById('info-new-text').value = d.text;
         editingInfoKey = key;
         
-        // Меняем интерфейс
         document.getElementById('btn-publish-info').innerText = "Сохранить изменения";
         document.getElementById('btn-cancel-info').classList.remove('hidden');
         document.getElementById('admin-info-controls').scrollIntoView({ behavior: 'smooth' });
