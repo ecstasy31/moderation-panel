@@ -8,7 +8,6 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
     <style>
         :root { 
@@ -364,36 +363,14 @@ const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
     projectId: "modersekb",
-    databaseURL: "https://modersekb-default-rtdb.firebaseio.com",
-    messagingSenderId: "302735757040" // Добавлено из вашего скриншота
+    databaseURL: "https://modersekb-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const messaging = firebase.messaging(); // Инициализация Messaging
-
 const OWNER = "Ecstasy9988";
 let currentUser = "";
 let userRole = "pending";
 let editingInfoKey = null;
-
-// --- ФУНКЦИЯ ДЛЯ УВЕДОМЛЕНИЙ ---
-function initNotifications() {
-    console.log('Запрос прав на уведомления...');
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            // ВАЖНО: Вставьте свой VAPID KEY (Key pair) из скриншота ниже
-            messaging.getToken({ vapidKey: 'ВСТАВЬТЕ_СЮДА_KEY_PAIR_ИЗ_СКРИНШОТА' }).then((currentToken) => {
-                if (currentToken) {
-                    console.log('Токен получен:', currentToken);
-                    // Сохраняем токен пользователю в базу
-                    if(currentUser) {
-                        db.ref('users/' + currentUser + '/fcmToken').set(currentToken);
-                    }
-                }
-            }).catch((err) => console.log('Ошибка токена:', err));
-        }
-    });
-}
 
 function updateLastSeen() {
     if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
@@ -457,21 +434,23 @@ function loginSuccess(l, role) {
     loadFullTable(); 
     loadLogs();
     loadInfo();
-    
-    // Инициализация уведомлений при входе
-    initNotifications();
-
     setInterval(updateLastSeen, 60000);
 
+    // --- СЛЕЖКА ЗА СТАТУСОМ (КИК/БАН) ---
     db.ref('users/' + l).on('value', s => {
         const data = s.val();
+        
+        // 1. Если аккаунт удалили полностью (КИК)
         if (!data) {
             alert("Ваш аккаунт был удален администратором.");
-            logout(); 
+            logout(); // Полный выход
             return;
         }
+
+        // 3. Обновляем локальную роль (на случай, если выдали админку на лету)
         if (data.role && data.role !== userRole) {
             userRole = data.role;
+            // Перерисовываем UI
             location.reload(); 
         }
     });
@@ -480,8 +459,10 @@ function loginSuccess(l, role) {
 function showProfile(nick) {
     nav('profile');
     const isMe = nick === currentUser;
-    const isPending = (userRole === 'pending'); 
+    const isPending = (userRole === 'pending'); // Проверяем, на подтверждении ли я
 
+    // --- ЛОГИКА СКРЫТИЯ ЭЛЕМЕНТОВ ДЛЯ PENDING ---
+    // Если я Pending - скрываем статистику
     const statsContainer = document.getElementById('profile-stats-container');
     if (isMe && isPending) {
         statsContainer.classList.add('hidden');
@@ -489,6 +470,8 @@ function showProfile(nick) {
         statsContainer.classList.remove('hidden');
     }
 
+    // Управление профилем: показываем только если это Я, и я НЕ Pending
+    // ИСПРАВЛЕНИЕ: Теперь явно скрываем блок, если пользователь pending
     const controls = document.getElementById('my-profile-controls');
     if (isMe && !isPending) {
         controls.classList.remove('hidden');
@@ -552,9 +535,11 @@ function showProfile(nick) {
                 alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
             };
 
+            // КНОПКА КИКНУТЬ
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
                 if(confirm(`Вы уверены, что хотите КИКНУТЬ пользователя ${nick}? Его аккаунт будет полностью удален.`)) {
+                    // Удаляем пользователя полностью
                     db.ref('users/' + nick).remove();
                     addLog('Кикнул (Удалил)', nick);
                     alert("Пользователь кикнут и удален.");
