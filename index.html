@@ -159,6 +159,14 @@
         .info-post { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; }
         .info-img { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid var(--border); }
         .info-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+
+        /* Стили Магазина */
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .shop-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 16px; text-align: center; position: relative; }
+        .shop-item:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .shop-price { color: var(--primary); font-weight: 800; font-size: 18px; margin: 10px 0; }
+        .btn-buy { background: rgba(0, 230, 118, 0.1); color: var(--primary); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; width: 100%; }
+        .btn-buy:hover { background: var(--primary); color: black; }
     </style>
 </head>
 <body>
@@ -192,6 +200,7 @@
         <div class="nav-group">
             <button class="btn-nav" onclick="showProfile(currentUser)">Профиль</button>
             <button class="btn-nav approval-hide" onclick="nav('info')">ИНФО</button>
+            <button class="btn-nav approval-hide" onclick="nav('shop')">Магазин</button>
             <button class="btn-nav approval-hide" onclick="nav('scores')">Топ</button>
             <button class="btn-nav approval-hide" onclick="nav('fulltable')">Таблица</button>
             <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
@@ -289,6 +298,19 @@
         </div>
 
         <div id="info-list"></div>
+    </div>
+
+    <div id="sec-shop" class="container hidden">
+        <h3 style="text-align:left; margin-bottom:20px;">💎 Магазин баллов</h3>
+        
+        <div id="admin-shop-controls" class="hidden" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px;">
+            <p style="font-size:10px; color:var(--primary); text-transform:uppercase; font-weight:bold;">Добавить товар</p>
+            <input type="text" id="shop-new-name" placeholder="Название товара">
+            <input type="number" id="shop-new-price" placeholder="Цена в баллах">
+            <button class="btn-action" onclick="addShopItem()">Добавить в магазин</button>
+        </div>
+
+        <div id="shop-items-list" class="shop-grid"></div>
     </div>
 
     <div id="sec-fulltable" class="container hidden" style="max-width: 1000px;">
@@ -427,6 +449,7 @@ function loginSuccess(l, role) {
     document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
     document.getElementById('admin-info-controls').classList.toggle('hidden', !isAdmin);
+    document.getElementById('admin-shop-controls').classList.toggle('hidden', !isAdmin);
 
     updateLastSeen();
     showProfile(l);
@@ -434,23 +457,18 @@ function loginSuccess(l, role) {
     loadFullTable(); 
     loadLogs();
     loadInfo();
+    loadShop();
     setInterval(updateLastSeen, 60000);
 
-    // --- СЛЕЖКА ЗА СТАТУСОМ (КИК/БАН) ---
     db.ref('users/' + l).on('value', s => {
         const data = s.val();
-        
-        // 1. Если аккаунт удалили полностью (КИК)
         if (!data) {
             alert("Ваш аккаунт был удален администратором.");
-            logout(); // Полный выход
+            logout();
             return;
         }
-
-        // 3. Обновляем локальную роль (на случай, если выдали админку на лету)
         if (data.role && data.role !== userRole) {
             userRole = data.role;
-            // Перерисовываем UI
             location.reload(); 
         }
     });
@@ -459,25 +477,15 @@ function loginSuccess(l, role) {
 function showProfile(nick) {
     nav('profile');
     const isMe = nick === currentUser;
-    const isPending = (userRole === 'pending'); // Проверяем, на подтверждении ли я
+    const isPending = (userRole === 'pending');
 
-    // --- ЛОГИКА СКРЫТИЯ ЭЛЕМЕНТОВ ДЛЯ PENDING ---
-    // Если я Pending - скрываем статистику
     const statsContainer = document.getElementById('profile-stats-container');
-    if (isMe && isPending) {
-        statsContainer.classList.add('hidden');
-    } else {
-        statsContainer.classList.remove('hidden');
-    }
+    if (isMe && isPending) statsContainer.classList.add('hidden');
+    else statsContainer.classList.remove('hidden');
 
-    // Управление профилем: показываем только если это Я, и я НЕ Pending
-    // ИСПРАВЛЕНИЕ: Теперь явно скрываем блок, если пользователь pending
     const controls = document.getElementById('my-profile-controls');
-    if (isMe && !isPending) {
-        controls.classList.remove('hidden');
-    } else {
-        controls.classList.add('hidden');
-    }
+    if (isMe && !isPending) controls.classList.remove('hidden');
+    else controls.classList.add('hidden');
     
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
     const canManage = isAdmin && (nick !== OWNER || currentUser === OWNER);
@@ -535,11 +543,9 @@ function showProfile(nick) {
                 alert(!cur ? "Пользователь убран из ТОПа" : "Пользователь возвращен в ТОП");
             };
 
-            // КНОПКА КИКНУТЬ
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
                 if(confirm(`Вы уверены, что хотите КИКНУТЬ пользователя ${nick}? Его аккаунт будет полностью удален.`)) {
-                    // Удаляем пользователя полностью
                     db.ref('users/' + nick).remove();
                     addLog('Кикнул (Удалил)', nick);
                     alert("Пользователь кикнут и удален.");
@@ -707,9 +713,7 @@ function moveRow(key, direction) {
         if (targetIndex < 0 || targetIndex >= rows.length) return;
         [rows[index], rows[targetIndex]] = [rows[targetIndex], rows[index]];
         const updates = {};
-        rows.forEach((row, i) => {
-            updates[`full_table/${row.key}/order`] = i;
-        });
+        rows.forEach((row, i) => { updates[`full_table/${row.key}/order`] = i; });
         db.ref().update(updates);
     });
 }
@@ -732,9 +736,7 @@ function addTableRow() {
 function editCell(key, field, oldVal) {
     if (userRole !== 'admin' && userRole !== 'owner') return;
     const newVal = prompt("Введите новое значение:", oldVal);
-    if (newVal !== null) {
-        db.ref(`full_table/${key}/${field}`).set(newVal);
-    }
+    if (newVal !== null) db.ref(`full_table/${key}/${field}`).set(newVal);
 }
 
 function editUserScore(id, oldScore) {
@@ -803,7 +805,6 @@ async function uploadAva(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         if (file.size > 1024 * 1024) return alert("Файл слишком большой! Лимит 1МБ.");
-        
         const b64 = await new Promise(res => {
             const reader = new FileReader();
             reader.onload = () => res(reader.result);
@@ -824,15 +825,8 @@ function changeNick() {
 
 function logout() { localStorage.clear(); location.reload(); }
 
-
 function addLog(action, target = currentUser) {
-    const log = {
-        action,
-        target,
-        by: currentUser,
-        time: new Date().toLocaleString()
-    };
-    db.ref('logs').push(log);
+    db.ref('logs').push({ action, target, by: currentUser, time: new Date().toLocaleString() });
 }
 
 function skipMeeting() {
@@ -849,10 +843,7 @@ function removeWarn() {
         const u = s.val();
         if(u.warns <= 0) return alert("Нет выговоров");
         if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
-        db.ref('users/' + currentUser).update({
-            warns: Math.max(0, u.warns - 1),
-            score: u.score - 10
-        });
+        db.ref('users/' + currentUser).update({ warns: Math.max(0, u.warns - 1), score: u.score - 10 });
         addLog('Снял выговор себе', currentUser); alert("Выговор снят");
     });
 }
@@ -862,17 +853,11 @@ function takeInactive() {
     if(!days) return;
     const d = parseInt(days);
     if(isNaN(d) || d < 1 || d > 7) return alert("Введите число от 1 до 7");
-
     db.ref('users/' + currentUser).once('value', s => {
         const u = s.val();
         if(u.inactive) return alert("Уже в неактиве");
         if(u.score < 10) return alert("Недостаточно баллов (нужно 10)");
-        
-        db.ref('users/' + currentUser).update({
-            inactive: true,
-            inactiveUntil: Date.now() + (d * 86400000),
-            score: u.score - 10
-        });
+        db.ref('users/' + currentUser).update({ inactive: true, inactiveUntil: Date.now() + (d * 86400000), score: u.score - 10 });
         addLog(`Взял неактив на ${d} дн.`, currentUser);
         alert("Неактив активирован");
     });
@@ -889,9 +874,7 @@ async function addInfoPost() {
     const title = document.getElementById('info-new-title').value;
     const text = document.getElementById('info-new-text').value;
     const file = document.getElementById('info-new-img').files[0];
-    
     if(!title || !text) return alert("Заполните заголовок и текст");
-    
     let img = "";
     if(file) {
         img = await new Promise(res => {
@@ -900,19 +883,15 @@ async function addInfoPost() {
             r.readAsDataURL(file);
         });
     }
-
     if (editingInfoKey) {
         const updates = { title, text, date: Date.now() };
         if (img) updates.img = img;
-        
         db.ref('info_posts/' + editingInfoKey).update(updates);
         addLog('Отредактировал пост в ИНФО', currentUser);
-        alert("Изменения сохранены");
         cancelEditInfo();
     } else {
         db.ref('info_posts').push({ title, text, img, date: Date.now() });
         addLog('Добавил пост в ИНФО', currentUser);
-        alert("Опубликовано");
         cancelEditInfo();
     }
 }
@@ -923,10 +902,8 @@ function editInfo(key) {
         document.getElementById('info-new-title').value = d.title;
         document.getElementById('info-new-text').value = d.text;
         editingInfoKey = key;
-        
         document.getElementById('btn-publish-info').innerText = "Сохранить изменения";
         document.getElementById('btn-cancel-info').classList.remove('hidden');
-        document.getElementById('admin-info-controls').scrollIntoView({ behavior: 'smooth' });
     });
 }
 
@@ -934,7 +911,6 @@ function cancelEditInfo() {
     editingInfoKey = null;
     document.getElementById('info-new-title').value = "";
     document.getElementById('info-new-text').value = "";
-    document.getElementById('info-new-img').value = "";
     document.getElementById('btn-publish-info').innerText = "Опубликовать";
     document.getElementById('btn-cancel-info').classList.add('hidden');
 }
@@ -944,27 +920,50 @@ function loadInfo() {
         const list = document.getElementById('info-list');
         list.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
-        
         Object.entries(s.val() || {}).reverse().forEach(([key, post]) => {
             const imgHtml = post.img ? `<img src="${post.img}" class="info-img" onclick="viewImg('${post.img}')">` : '';
-            
-            let controls = "";
-            if (isAdmin) {
-                controls = `
-                <div class="info-controls">
-                    <button onclick="editInfo('${key}')" class="btn-small-icon">✏️</button>
-                    <button onclick="if(confirm('Удалить?')) db.ref('info_posts/${key}').remove()" class="btn-small-icon" style="color:var(--danger)">✕</button>
-                </div>`;
-            }
+            const controls = isAdmin ? `<div class="info-controls"><button onclick="editInfo('${key}')" class="btn-small-icon">✏️</button><button onclick="if(confirm('Удалить?')) db.ref('info_posts/${key}').remove()" class="btn-small-icon" style="color:var(--danger)">✕</button></div>` : "";
+            list.innerHTML += `<div class="info-post">${controls}<h3 style="margin-top:0; color:var(--primary); padding-right: 50px;">${post.title}</h3><div style="white-space: pre-wrap; font-size:13px; color:#ddd;">${post.text}</div>${imgHtml}</div>`;
+        });
+    });
+}
 
+// --- ЛОГИКА МАГАЗИНА ---
+function addShopItem() {
+    const name = document.getElementById('shop-new-name').value;
+    const price = parseInt(document.getElementById('shop-new-price').value);
+    if(!name || isNaN(price)) return alert("Заполните данные корректно");
+    db.ref('shop_items').push({ name, price });
+    document.getElementById('shop-new-name').value = "";
+    document.getElementById('shop-new-price').value = "";
+}
+
+function loadShop() {
+    db.ref('shop_items').on('value', s => {
+        const list = document.getElementById('shop-items-list');
+        list.innerHTML = "";
+        const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        Object.entries(s.val() || {}).forEach(([key, item]) => {
+            const delBtn = isAdmin ? `<span onclick="db.ref('shop_items/${key}').remove()" style="position:absolute; top:5px; right:5px; color:var(--danger); cursor:pointer;">✕</span>` : "";
             list.innerHTML += `
-            <div class="info-post">
-                ${controls}
-                <h3 style="margin-top:0; color:var(--primary); padding-right: 50px;">${post.title}</h3>
-                <div style="white-space: pre-wrap; font-size:13px; color:#ddd;">${post.text}</div>
-                ${imgHtml}
+            <div class="shop-item">
+                ${delBtn}
+                <div style="font-weight:bold; font-size:14px;">${item.name}</div>
+                <div class="shop-price">${item.price} <small>баллов</small></div>
+                <button class="btn-buy" onclick="buyItem('${key}', ${item.price}, '${item.name}')">Купить</button>
             </div>`;
         });
+    });
+}
+
+function buyItem(key, price, name) {
+    if(!confirm(`Вы уверены, что хотите купить "${name}" за ${price} баллов?`)) return;
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.score < price) return alert("Недостаточно баллов для покупки!");
+        db.ref('users/' + currentUser).update({ score: u.score - price });
+        addLog(`КУПИЛ В МАГАЗИНЕ: ${name}`, currentUser);
+        alert(`Покупка совершена! Списано ${price} баллов. Обратитесь к руководству для получения.`);
     });
 }
 
@@ -975,8 +974,7 @@ function loadLogs() {
         list.innerHTML = "";
         Object.values(s.val() || {}).reverse().forEach(l => {
             const div = document.createElement('div');
-            div.style.padding = "8px";
-            div.style.borderBottom = "1px solid var(--border)";
+            div.style.padding = "8px"; div.style.borderBottom = "1px solid var(--border)";
             div.innerHTML = `<b style="color:var(--primary)">${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
             list.appendChild(div);
         });
