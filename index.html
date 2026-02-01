@@ -155,12 +155,10 @@
         .editable { cursor: pointer; }
         .editable:hover { color: var(--primary); background: rgba(255,255,255,0.03); }
         
-        /* Стили для Инфо постов */
         .info-post { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; }
         .info-img { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid var(--border); }
         .info-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
 
-        /* Стили Магазина и Рулетки */
         .shop-layout { display: flex; gap: 20px; align-items: flex-start; }
         .shop-main { flex: 1; }
         .roulette-side { width: 280px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 18px; padding: 20px; position: sticky; top: 80px; text-align: center; }
@@ -173,7 +171,6 @@
         .btn-buy { background: rgba(0, 230, 118, 0.1); color: var(--primary); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; width: 100%; }
         .btn-buy:hover { background: var(--primary); color: black; }
 
-        /* Рулетка визуально */
         .roulette-window { width: 100%; height: 80px; background: #000; border: 2px solid var(--border); border-radius: 12px; margin: 20px 0; position: relative; overflow: hidden; }
         .roulette-pointer { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--primary); z-index: 5; box-shadow: 0 0 10px var(--primary); transform: translateX(-50%); }
         .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
@@ -418,10 +415,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const OWNER = "Ecstasy9988";
+const OWNER_PASS = "Ecstasy20036";
 let currentUser = "";
 let userRole = "pending";
 let editingInfoKey = null;
 
+// ФУНКЦИЯ ДЛЯ СТАБИЛЬНОСТИ: Обновляет время последнего посещения
 function updateLastSeen() {
     if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
 }
@@ -442,10 +441,10 @@ function toggleAuth(reg) {
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === "Ecstasy20036") { loginSuccess(l, 'owner'); return; }
+    if (l === OWNER && p === OWNER_PASS) { loginSuccess(l, 'owner', p); return; }
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
-        if (d && d.pass === p) loginSuccess(l, d.role);
+        if (d && d.pass === p) loginSuccess(l, d.role, p);
         else alert("Неверный логин или пароль");
     });
 }
@@ -455,13 +454,18 @@ function doRegister() {
     const p = document.getElementById('in-reg-pass').value.trim();
     if (!l || !p) return alert("Заполните все поля");
     db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
-    loginSuccess(l, 'pending');
+    loginSuccess(l, 'pending', p);
 }
 
-function loginSuccess(l, role) {
+// ГЛАВНОЕ: Улучшенный логин с сохранением данных
+function loginSuccess(l, role, p) {
     currentUser = l;
     userRole = (l === OWNER) ? 'owner' : (role || 'pending');
+    
+    // Сохраняем логин и пароль, чтобы не кикало
     localStorage.setItem('mod_user', l);
+    localStorage.setItem('mod_pass', p);
+
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.querySelector('#user-tag span').innerText = l;
@@ -488,14 +492,16 @@ function loginSuccess(l, role) {
     loadShop();
     setInterval(updateLastSeen, 60000);
 
+    // Слушатель изменений профиля (защищен от ложного кика)
     db.ref('users/' + l).on('value', s => {
+        if (!navigator.onLine) return; // Если нет интернета, не выходим
         const data = s.val();
-        if (!data) {
-            alert("Ваш аккаунт был удален администратором.");
+        if (!data && currentUser !== OWNER) {
+            // Только если аккаунт РЕАЛЬНО удален из базы
             logout();
             return;
         }
-        if (data.role && data.role !== userRole) {
+        if (data && data.role && data.role !== userRole) {
             userRole = data.role;
             location.reload(); 
         }
@@ -956,7 +962,6 @@ function loadInfo() {
     });
 }
 
-// --- ЛОГИКА МАГАЗИНА ---
 function addShopItem() {
     const name = document.getElementById('shop-new-name').value;
     const price = parseInt(document.getElementById('shop-new-price').value);
@@ -995,7 +1000,6 @@ function buyItem(key, price, name) {
     });
 }
 
-// --- ЛОГИКА РУЛЕТКИ ---
 let isSpinning = false;
 async function spinRoulette() {
     if (isSpinning) return;
@@ -1008,7 +1012,6 @@ async function spinRoulette() {
     const shopSnap = await db.ref('shop_items').get();
     const items = shopSnap.val() || {};
     
-    // Пул призов
     let prizes = [
         { name: "20 баллов", type: "score", val: 20 },
         { name: "5 баллов", type: "score", val: 5 },
@@ -1020,7 +1023,6 @@ async function spinRoulette() {
     document.getElementById('btn-spin').disabled = true;
     document.getElementById('roulette-result').innerText = "Крутим...";
     
-    // Генерируем ленту (80 элементов)
     const reel = document.getElementById('roulette-reel');
     reel.style.transition = "none";
     reel.style.transform = "translateX(0)";
@@ -1037,16 +1039,14 @@ async function spinRoulette() {
         reel.appendChild(div);
     }
 
-    // Снимаем оплату
     db.ref('users/' + currentUser + '/score').set(userData.score - SPIN_COST);
 
-    // Финальный приз (индекс 75)
     const winIndex = 75;
     const winner = fullList[winIndex];
 
     setTimeout(() => {
         reel.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
-        const shift = winIndex * 100 - (140 - 50); // центровка
+        const shift = winIndex * 100 - (140 - 50); 
         reel.style.transform = `translateX(-${shift}px)`;
     }, 50);
 
@@ -1083,9 +1083,28 @@ function loadLogs() {
     });
 }
 
+// АВТОМАТИЧЕСКИЙ ВХОД ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
 window.onload = () => {
-    const saved = localStorage.getItem('mod_user');
-    if(saved) db.ref('users/' + saved).once('value', s => { if(s.exists()) loginSuccess(saved, s.val().role); });
+    const savedUser = localStorage.getItem('mod_user');
+    const savedPass = localStorage.getItem('mod_pass');
+    
+    if(savedUser && savedPass) {
+        // Проверка владельца напрямую
+        if (savedUser === OWNER && savedPass === OWNER_PASS) {
+            loginSuccess(savedUser, 'owner', savedPass);
+        } else {
+            // Проверка обычного юзера в базе
+            db.ref('users/' + savedUser).once('value', s => { 
+                const d = s.val();
+                if(s.exists() && d.pass === savedPass) {
+                    loginSuccess(savedUser, d.role, savedPass); 
+                } else {
+                    // Если пароль в базе изменился, только тогда чистим сессию
+                    localStorage.clear();
+                }
+            });
+        }
+    }
 };
 </script>
 </body>
