@@ -498,6 +498,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// FIX: Правильная инициализация bcrypt (часто загружается в dcodeIO)
+const bcrypt = window.bcrypt || dcodeIO.bcrypt;
+
 // Инициализация EmailJS
 (function(){
     emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -514,8 +517,14 @@ let editingInfoKey = null;
 // ============================================
 
 function hashPassword(plain) {
-    const salt = bcrypt.genSaltSync(10);
-    return bcrypt.hashSync(plain, salt);
+    try {
+        const salt = bcrypt.genSaltSync(10);
+        return bcrypt.hashSync(plain, salt);
+    } catch(e) {
+        alert("Ошибка модуля шифрования. Перезагрузите страницу.");
+        console.error(e);
+        throw e;
+    }
 }
 
 function checkPassword(plain, stored) {
@@ -530,7 +539,7 @@ function checkPassword(plain, stored) {
 function sendEmailReal(to, subject, body) {
     const templateParams = {
         to_email: to,
-        subject: subject,
+        subject: subject,  // ВАЖНО: В шаблоне EmailJS поле Subject должно быть {{subject}}
         message: body 
     };
     return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
@@ -643,7 +652,7 @@ function doLogin() {
     });
 }
 
-// FIXED: Исправлена кнопка регистрации (асинхронность)
+// FIXED: Исправлена кнопка регистрации (асинхронность и проверки)
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
@@ -651,6 +660,9 @@ function doRegister() {
     
     if (!l || !p || !email) return alert("Все поля обязательны, включая Email");
     if (!email.includes('@')) return alert("Введите корректный Email");
+    
+    // FIX: Firebase запрещает эти символы в путях (ключах)
+    if (l.match(/[.#$[\]]/)) return alert("Никнейм не может содержать символы: . # $ [ ]");
 
     db.ref('users/' + l).once('value', snapshot => {
         if(snapshot.exists()) return alert("Такой пользователь уже существует");
@@ -681,11 +693,12 @@ function doRegister() {
                     loginSuccess(l, 'pending');
                 })
                 .catch(error => {
-                    alert("Ошибка создания аккаунта: " + error.message);
+                    alert("Ошибка создания аккаунта (Firebase): " + error.message);
+                    console.error(error);
                 });
 
         } catch (e) {
-            alert("Ошибка регистрации. Попробуйте еще раз.");
+            alert("Ошибка регистрации. Попробуйте еще раз. Возможно, не прогрузился модуль шифрования.");
             console.error(e);
         }
     });
@@ -1231,6 +1244,8 @@ async function uploadAva(input) {
 function changeNick() { 
     const name = prompt("Ваш новый ник:"); 
     if(name) {
+        // FIX: Проверка ника и здесь
+        if (name.match(/[.#$[\]]/)) return alert("Никнейм не может содержать символы: . # $ [ ]");
         db.ref('users/' + currentUser).update({ nick: name }); 
         addLog('Сменил ник на ' + name, currentUser);
     }
