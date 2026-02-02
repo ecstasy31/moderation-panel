@@ -33,6 +33,7 @@
             position: relative;
         }
 
+        /* Декор фона */
         body::before, body::after {
             content: "";
             position: fixed;
@@ -47,7 +48,6 @@
             pointer-events: none;
             opacity: 0.6;
         }
-
         body::after { left: 20px; right: auto; transform: translateY(-50%); }
         body::before { right: 20px; left: auto; transform: translateY(-50%) scaleX(-1); }
 
@@ -482,7 +482,7 @@
 
 <script>
 // ============================================
-// CONFIGURATION (ВАШИ КЛЮЧИ)
+// CONFIGURATION
 // ============================================
 
 const EMAILJS_PUBLIC_KEY = "6aAwXxv7vopj7e7XR";
@@ -536,7 +536,9 @@ function sendEmailReal(to, subject, body) {
     return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
 }
 
+// ============================================
 // NEW FUNCTION: OWNER SEND EMAIL
+// ============================================
 function sendOwnerEmail() {
     if (currentUser !== OWNER) return alert("Доступ запрещен!");
     
@@ -551,14 +553,14 @@ function sendOwnerEmail() {
     btn.innerText = "Отправка...";
 
     if(to) {
-        // Send single
+        // Отправка одному
         sendEmailReal(to, sub, msg)
             .then(() => alert("Письмо отправлено: " + to))
             .catch(e => alert("Ошибка: " + JSON.stringify(e)))
             .finally(() => { btn.disabled = false; btn.innerText = "Отправить письмо"; });
     } else {
-        // Broadcast (Warning: limits!)
-        if(!confirm("Внимание! Вы не указали получателя. Отправить ВСЕМ пользователям с почтой? Это может занять время и исчерпать лимит EmailJS.")) {
+        // Рассылка (ОПАСНО: Лимиты EmailJS)
+        if(!confirm("Внимание! Вы не указали получателя. Отправить ВСЕМ пользователям с подтвержденной почтой?")) {
             btn.disabled = false; 
             btn.innerText = "Отправить письмо";
             return;
@@ -577,14 +579,14 @@ function sendOwnerEmail() {
                 return alert("Нет пользователей с подтвержденной почтой.");
             }
 
-            // Simple batch loop (EmailJS might rate limit this)
             let sentCount = 0;
+            // Простой цикл (EmailJS может ограничить частоту)
             emails.forEach(email => {
                 sendEmailReal(email, sub, msg);
                 sentCount++;
             });
             
-            alert(`Запущена отправка на ${sentCount} адресов.`);
+            alert(`Команда отправки запущена для ${sentCount} адресов.`);
             btn.disabled = false;
             btn.innerText = "Отправить письмо";
         });
@@ -602,7 +604,6 @@ function updateLastSeen() {
 function nav(id) {
     if (userRole === 'pending' && id !== 'profile') return;
     
-    // Блокировка навигации если почта не подтверждена
     if(currentUser && document.getElementById('email-blocker').style.display === 'flex') {
         return;
     }
@@ -642,6 +643,7 @@ function doLogin() {
     });
 }
 
+// FIXED: Исправлена кнопка регистрации (асинхронность)
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
@@ -653,7 +655,6 @@ function doRegister() {
     db.ref('users/' + l).once('value', snapshot => {
         if(snapshot.exists()) return alert("Такой пользователь уже существует");
         
-        // FIX: Ensure bcrypt is ready and handle async write
         try {
             const hashedPass = hashPassword(p);
             
@@ -673,7 +674,7 @@ function doRegister() {
                 emailVerified: false
             };
 
-            // FIX: Wait for DB write before logging in
+            // WAITING FOR DB WRITE BEFORE LOGIN
             db.ref('users/' + l).set(newUser)
                 .then(() => {
                     alert("Аккаунт успешно создан!");
@@ -684,7 +685,7 @@ function doRegister() {
                 });
 
         } catch (e) {
-            alert("Ошибка шифрования или регистрации. Попробуйте еще раз.");
+            alert("Ошибка регистрации. Попробуйте еще раз.");
             console.error(e);
         }
     });
@@ -708,7 +709,7 @@ function loginSuccess(l, role) {
 
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
-    document.getElementById('nav-mail').classList.toggle('hidden', !isOwner); // Only Owner sees mail
+    document.getElementById('nav-mail').classList.toggle('hidden', !isOwner); // Только Владелец
     document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
     document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
@@ -726,7 +727,6 @@ function loginSuccess(l, role) {
     loadShop();
     setInterval(updateLastSeen, 60000);
 
-    // FIX: Optimized listener to prevent double reload loops
     db.ref('users/' + l).on('value', s => {
         if (!navigator.onLine) return;
         const data = s.val();
@@ -735,7 +735,6 @@ function loginSuccess(l, role) {
             return;
         }
         if (data && data.role && data.role !== userRole) {
-            // Only reload if role ACTUALLY changed to avoid loops
             const oldRole = userRole;
             userRole = data.role;
             if(oldRole !== userRole) location.reload(); 
@@ -747,7 +746,7 @@ function loginSuccess(l, role) {
 }
 
 // ============================================
-// EMAIL VERIFICATION LOGIC (With Real EmailJS)
+// EMAIL VERIFICATION & RESET
 // ============================================
 
 function checkEmailStatus() {
@@ -779,7 +778,6 @@ function sendVerificationCode() {
         email: emailInput,
         verificationCode: code
     }).then(() => {
-        // Отправка через EmailJS
         sendEmailReal(emailInput, "Код подтверждения MOD EKB", `Ваш код доступа: ${code}`)
             .then(() => {
                 alert("Код отправлен на " + emailInput);
@@ -788,7 +786,7 @@ function sendVerificationCode() {
             })
             .catch((err) => {
                 console.error(err);
-                alert("Ошибка отправки письма! Проверьте консоль (F12) и лимиты EmailJS.");
+                alert("Ошибка отправки письма! Проверьте консоль.");
             })
             .finally(() => {
                 btn.disabled = false;
@@ -815,7 +813,6 @@ function confirmEmailCode() {
     });
 }
 
-// Сброс пароля (восстановление)
 let resetEmailTarget = "";
 function initiateReset() {
     const email = document.getElementById('reset-email').value.trim();
@@ -848,7 +845,7 @@ function initiateReset() {
             })
             .catch((err) => {
                 console.error(err);
-                alert("Ошибка отправки. Проверьте консоль.");
+                alert("Ошибка отправки.");
             })
             .finally(() => {
                 btn.disabled = false;
@@ -954,7 +951,7 @@ function showProfile(nick) {
 
             document.getElementById('btn-delete-user').onclick = () => {
                 if(nick === OWNER) return alert("Нельзя удалить владельца");
-                if(confirm(`Вы уверены, что хотите КИКНУТЬ пользователя ${nick}? Его аккаунт будет полностью удален.`)) {
+                if(confirm(`Вы уверены, что хотите КИКНУТЬ пользователя ${nick}?`)) {
                     db.ref('users/' + nick).remove();
                     addLog('Кикнул (Удалил)', nick);
                     alert("Пользователь кикнут и удален.");
@@ -974,7 +971,7 @@ function loadData() {
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         const now = Date.now();
         
-        // OPTIMIZATION: Use arrays instead of innerHTML +=
+        // OPTIMIZATION: Use arrays instead of innerHTML += loops
         let topRows = [];
         let adminRows = [];
         
@@ -1029,6 +1026,7 @@ function loadData() {
             }
         });
         
+        // Single DOM update
         listTop.innerHTML = topRows.join('');
         listAdmin.innerHTML = adminRows.join('');
     });
@@ -1037,9 +1035,7 @@ function loadData() {
         const container = document.getElementById('list-reports');
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         
-        // OPTIMIZATION
         let reportHtml = [];
-
         Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
             let imgsHtml = "";
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
@@ -1088,9 +1084,7 @@ function loadFullTable() {
 
         rows.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        // OPTIMIZATION
         let tableHtml = [];
-
         rows.forEach((row) => {
             const key = row.key;
             const daysSinceStart = calcDays(row.dateStart);
@@ -1457,11 +1451,12 @@ async function spinRoulette() {
     }, 4100);
 }
 
+// OPTIMIZED LOGS RENDERING (Логика данных та же, рендеринг быстрее)
 function loadLogs() {
     if (userRole !== 'admin' && userRole !== 'owner') return;
     db.ref('logs').limitToLast(100).on('value', s => {
         const list = document.getElementById('logs-list');
-        // OPTIMIZATION
+        // OPTIMIZATION: Build string once
         let html = [];
         Object.values(s.val() || {}).reverse().forEach(l => {
             html.push(`<div style="padding:8px; border-bottom:1px solid var(--border);">
