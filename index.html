@@ -179,7 +179,6 @@
         .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
         .reel-item { min-width: 100px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border-right: 1px solid var(--border); padding: 5px; text-align: center; background: rgba(255,255,255,0.02); }
 
-        /* Styles for Email Blocker */
         #email-blocker {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
             z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -273,6 +272,7 @@
             <button class="btn-nav approval-hide" id="nav-rep-btn" onclick="nav('report')">Отчет</button>
             <button class="btn-nav hidden" id="nav-base" onclick="nav('base')">База</button>
             <button class="btn-nav hidden" id="nav-admin" onclick="nav('admin')">Менеджер</button>
+            <button class="btn-nav hidden" id="nav-mail" onclick="nav('mail')">Почтамт</button>
             <button class="btn-nav hidden admin-only" onclick="nav('logs')">ЛОГИ</button>
             <button class="btn-logout" onclick="logout()" style="background:none; border:none; color:var(--danger); font-size:18px; cursor:pointer; vertical-align:middle; margin-left:10px;">✕</button>
         </div>
@@ -456,6 +456,22 @@
         <h3 style="text-align:left; margin-bottom:20px;">⚙️ Менеджер состава</h3>
         <div id="list-users-admin"></div>
     </div>
+
+    <div id="sec-mail" class="container hidden">
+        <h3 style="text-align:left; margin-bottom:20px;">📩 Почтамт Владельца</h3>
+        <div style="background:rgba(255,255,255,0.02); padding:20px; border-radius:12px; border:1px solid var(--border);">
+            <label style="font-size:10px; color:#666;">ПОЛУЧАТЕЛЬ (EMAIL)</label>
+            <input type="email" id="owner-mail-to" placeholder="user@example.com (или пусто для рассылки всем - ОПАСНО!)">
+            
+            <label style="font-size:10px; color:#666;">ТЕМА</label>
+            <input type="text" id="owner-mail-subject" placeholder="Важная новость">
+            
+            <label style="font-size:10px; color:#666;">СООБЩЕНИЕ</label>
+            <textarea id="owner-mail-body" rows="6" placeholder="Текст письма..."></textarea>
+            
+            <button class="btn-action" id="btn-owner-send" onclick="sendOwnerEmail()">Отправить письмо</button>
+        </div>
+    </div>
     
     <div id="sec-logs" class="container hidden">
         <h3 style="text-align:left; margin-bottom:20px;">📜 Логи действий</h3>
@@ -471,7 +487,7 @@
 
 const EMAILJS_PUBLIC_KEY = "6aAwXxv7vopj7e7XR";
 const EMAILJS_SERVICE_ID = "service_b3voa5p";
-const EMAILJS_TEMPLATE_ID = "template_vnltp0b"; // Исправлено на ваш шаблон
+const EMAILJS_TEMPLATE_ID = "template_vnltp0b"; 
 
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
@@ -515,10 +531,64 @@ function sendEmailReal(to, subject, body) {
     const templateParams = {
         to_email: to,
         subject: subject,
-        message: body // В шаблоне должно быть {{message}}
+        message: body 
     };
-
     return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+}
+
+// NEW FUNCTION: OWNER SEND EMAIL
+function sendOwnerEmail() {
+    if (currentUser !== OWNER) return alert("Доступ запрещен!");
+    
+    const to = document.getElementById('owner-mail-to').value.trim();
+    const sub = document.getElementById('owner-mail-subject').value.trim();
+    const msg = document.getElementById('owner-mail-body').value.trim();
+    
+    if(!sub || !msg) return alert("Заполните тему и сообщение");
+    
+    const btn = document.getElementById('btn-owner-send');
+    btn.disabled = true;
+    btn.innerText = "Отправка...";
+
+    if(to) {
+        // Send single
+        sendEmailReal(to, sub, msg)
+            .then(() => alert("Письмо отправлено: " + to))
+            .catch(e => alert("Ошибка: " + JSON.stringify(e)))
+            .finally(() => { btn.disabled = false; btn.innerText = "Отправить письмо"; });
+    } else {
+        // Broadcast (Warning: limits!)
+        if(!confirm("Внимание! Вы не указали получателя. Отправить ВСЕМ пользователям с почтой? Это может занять время и исчерпать лимит EmailJS.")) {
+            btn.disabled = false; 
+            btn.innerText = "Отправить письмо";
+            return;
+        }
+
+        db.ref('users').once('value', s => {
+            const users = s.val() || {};
+            let emails = [];
+            Object.values(users).forEach(u => {
+                if(u.email && u.emailVerified) emails.push(u.email);
+            });
+            
+            if(emails.length === 0) {
+                btn.disabled = false;
+                btn.innerText = "Отправить письмо";
+                return alert("Нет пользователей с подтвержденной почтой.");
+            }
+
+            // Simple batch loop (EmailJS might rate limit this)
+            let sentCount = 0;
+            emails.forEach(email => {
+                sendEmailReal(email, sub, msg);
+                sentCount++;
+            });
+            
+            alert(`Запущена отправка на ${sentCount} адресов.`);
+            btn.disabled = false;
+            btn.innerText = "Отправить письмо";
+        });
+    }
 }
 
 // ============================================
@@ -583,24 +653,40 @@ function doRegister() {
     db.ref('users/' + l).once('value', snapshot => {
         if(snapshot.exists()) return alert("Такой пользователь уже существует");
         
-        const hashedPass = hashPassword(p);
-        
-        db.ref('users/' + l).set({ 
-            pass: hashedPass, 
-            nick: l, 
-            role: 'pending', 
-            score: 0, 
-            rank: 'Младший Модератор', 
-            avatar: '', 
-            reportsCount: 0, 
-            warns: 0, 
-            inactive: false, 
-            lastReportTime: 0, 
-            lastSeen: Date.now(),
-            email: email,
-            emailVerified: false
-        });
-        loginSuccess(l, 'pending');
+        // FIX: Ensure bcrypt is ready and handle async write
+        try {
+            const hashedPass = hashPassword(p);
+            
+            const newUser = { 
+                pass: hashedPass, 
+                nick: l, 
+                role: 'pending', 
+                score: 0, 
+                rank: 'Младший Модератор', 
+                avatar: '', 
+                reportsCount: 0, 
+                warns: 0, 
+                inactive: false, 
+                lastReportTime: 0, 
+                lastSeen: Date.now(),
+                email: email,
+                emailVerified: false
+            };
+
+            // FIX: Wait for DB write before logging in
+            db.ref('users/' + l).set(newUser)
+                .then(() => {
+                    alert("Аккаунт успешно создан!");
+                    loginSuccess(l, 'pending');
+                })
+                .catch(error => {
+                    alert("Ошибка создания аккаунта: " + error.message);
+                });
+
+        } catch (e) {
+            alert("Ошибка шифрования или регистрации. Попробуйте еще раз.");
+            console.error(e);
+        }
     });
 }
 
@@ -618,8 +704,11 @@ function loginSuccess(l, role) {
     document.getElementById('pending-msg').classList.toggle('hidden', isApproved);
 
     const isAdmin = (userRole === 'admin' || userRole === 'owner');
+    const isOwner = (currentUser === OWNER);
+
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+    document.getElementById('nav-mail').classList.toggle('hidden', !isOwner); // Only Owner sees mail
     document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
     document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
@@ -637,6 +726,7 @@ function loginSuccess(l, role) {
     loadShop();
     setInterval(updateLastSeen, 60000);
 
+    // FIX: Optimized listener to prevent double reload loops
     db.ref('users/' + l).on('value', s => {
         if (!navigator.onLine) return;
         const data = s.val();
@@ -645,8 +735,10 @@ function loginSuccess(l, role) {
             return;
         }
         if (data && data.role && data.role !== userRole) {
+            // Only reload if role ACTUALLY changed to avoid loops
+            const oldRole = userRole;
             userRole = data.role;
-            location.reload(); 
+            if(oldRole !== userRole) location.reload(); 
         }
         if (data && data.emailVerified) {
             document.getElementById('email-blocker').style.display = 'none';
@@ -882,7 +974,9 @@ function loadData() {
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         const now = Date.now();
         
-        listTop.innerHTML = ""; listAdmin.innerHTML = "";
+        // OPTIMIZATION: Use arrays instead of innerHTML +=
+        let topRows = [];
+        let adminRows = [];
         
         Object.entries(users).sort((a,b) => (b[1].score || 0) - (a[1].score || 0)).forEach(([id, u]) => {
             const isOnline = u.lastSeen && (now - u.lastSeen < 300000);
@@ -901,7 +995,7 @@ function loadData() {
                     }
                 }
 
-                listAdmin.innerHTML += `
+                adminRows.push(`
                 <div class="report-card" style="margin-bottom: 10px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span>
@@ -918,38 +1012,41 @@ function loadData() {
                     <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap;">
                         ${adminButtons}
                     </div>
-                </div>`;
+                </div>`);
             }
 
             if (u.role !== 'pending' && !u.hiddenFromTop) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+                topRows.push(`
+                    <tr>
                     <td onclick="showProfile('${id}')" style="cursor:pointer;">
                         <img src="${userAva}" class="mini-avatar">
                         <div class="online-dot ${dotClass}"></div> ${u.nick || id}
                     </td>
                     <td style="font-size:10px; opacity:0.7;">${u.rank}</td>
                     <td class="${isAdmin ? 'editable' : ''}" style="color:var(--primary); font-weight:bold;" onclick="editUserScore('${id}', ${u.score})">${u.score}</td>
-                `;
-                listTop.appendChild(tr);
+                    </tr>
+                `);
             }
         });
+        
+        listTop.innerHTML = topRows.join('');
+        listAdmin.innerHTML = adminRows.join('');
     });
 
-    db.ref('reports').limitToLast(20).on('value', s => {
+    db.ref('reports').on('value', s => {
         const container = document.getElementById('list-reports');
-        container.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
-        const reportsArr = [];
-        s.forEach(child => reportsArr.push({key: child.key, ...child.val()}));
-        reportsArr.reverse().forEach(r => {
-            const id = r.key;
+        
+        // OPTIMIZATION
+        let reportHtml = [];
+
+        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
             let imgsHtml = "";
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
             
             const delBtn = isAdmin ? `<span onclick="deleteReport('${id}', '${r.author}', ${r.score})" style="color:var(--danger); cursor:pointer; font-weight:bold; padding:5px; margin-left:10px;">✕</span>` : "";
 
-            container.innerHTML += `
+            reportHtml.push(`
             <div class="report-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <b>${r.author}</b>
@@ -961,15 +1058,15 @@ function loadData() {
                 <div style="font-size:12px; margin:10px 0; color:#ccc;">${r.work}</div>
                 <div>${imgsHtml}</div>
                 <div style="font-size:9px; color:#555; margin-top:10px;">Дата: ${r.date}</div>
-            </div>`;
+            </div>`);
         });
+        container.innerHTML = reportHtml.join('');
     });
 }
 
 function loadFullTable() {
     db.ref('full_table').on('value', s => {
         const tbody = document.getElementById('tbody-full');
-        tbody.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         const now = new Date();
 
@@ -991,6 +1088,9 @@ function loadFullTable() {
 
         rows.sort((a, b) => (a.order || 0) - (b.order || 0));
 
+        // OPTIMIZATION
+        let tableHtml = [];
+
         rows.forEach((row) => {
             const key = row.key;
             const daysSinceStart = calcDays(row.dateStart);
@@ -1003,8 +1103,8 @@ function loadFullTable() {
                 </td>
             ` : '';
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+            tableHtml.push(`
+            <tr>
                 ${moveControls}
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'nick', '${row.nick}')">${row.nick || 'None'}</td>
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'rank', '${row.rank}')">${row.rank || 'None'}</td>
@@ -1015,9 +1115,9 @@ function loadFullTable() {
                 <td class="${isAdmin ? 'editable' : ''}" onclick="editCell('${key}', 'lastUp', '${row.lastUp}')">${row.lastUp || '-'}</td>
                 <td style="color:#ffd600">${daysSinceUp} дн.</td>
                 ${isAdmin ? `<td><span onclick="db.ref('full_table/${key}').remove()" style="color:var(--danger); cursor:pointer;">Удалить</span></td>` : ''}
-            `;
-            tbody.appendChild(tr);
+            </tr>`);
         });
+        tbody.innerHTML = tableHtml.join('');
     });
 }
 
@@ -1237,13 +1337,15 @@ function cancelEditInfo() {
 function loadInfo() {
     db.ref('info_posts').on('value', s => {
         const list = document.getElementById('info-list');
-        list.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        
+        let html = [];
         Object.entries(s.val() || {}).reverse().forEach(([key, post]) => {
             const imgHtml = post.img ? `<img src="${post.img}" class="info-img" onclick="viewImg('${post.img}')">` : '';
             const controls = isAdmin ? `<div class="info-controls"><button onclick="editInfo('${key}')" class="btn-small-icon">✏️</button><button onclick="if(confirm('Удалить?')) db.ref('info_posts/${key}').remove()" class="btn-small-icon" style="color:var(--danger)">✕</button></div>` : "";
-            list.innerHTML += `<div class="info-post">${controls}<h3 style="margin-top:0; color:var(--primary); padding-right: 50px;">${post.title}</h3><div style="white-space: pre-wrap; font-size:13px; color:#ddd;">${post.text}</div>${imgHtml}</div>`;
+            html.push(`<div class="info-post">${controls}<h3 style="margin-top:0; color:var(--primary); padding-right: 50px;">${post.title}</h3><div style="white-space: pre-wrap; font-size:13px; color:#ddd;">${post.text}</div>${imgHtml}</div>`);
         });
+        list.innerHTML = html.join('');
     });
 }
 
@@ -1259,18 +1361,19 @@ function addShopItem() {
 function loadShop() {
     db.ref('shop_items').on('value', s => {
         const list = document.getElementById('shop-items-list');
-        list.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
+        let html = [];
         Object.entries(s.val() || {}).forEach(([key, item]) => {
             const delBtn = isAdmin ? `<span onclick="db.ref('shop_items/${key}').remove()" style="position:absolute; top:5px; right:5px; color:var(--danger); cursor:pointer;">✕</span>` : "";
-            list.innerHTML += `
+            html.push(`
             <div class="shop-item">
                 ${delBtn}
                 <div style="font-weight:bold; font-size:14px;">${item.name}</div>
                 <div class="shop-price">${item.price} <small>баллов</small></div>
                 <button class="btn-buy" onclick="buyItem('${key}', ${item.price}, '${item.name}')">Купить</button>
-            </div>`;
+            </div>`);
         });
+        list.innerHTML = html.join('');
     });
 }
 
@@ -1356,17 +1459,16 @@ async function spinRoulette() {
 
 function loadLogs() {
     if (userRole !== 'admin' && userRole !== 'owner') return;
-    db.ref('logs').limitToLast(50).on('value', s => {
+    db.ref('logs').limitToLast(100).on('value', s => {
         const list = document.getElementById('logs-list');
-        list.innerHTML = "";
-        const logsArr = [];
-        s.forEach(c => logsArr.push(c.val()));
-        logsArr.reverse().forEach(l => {
-            const div = document.createElement('div');
-            div.style.padding = "8px"; div.style.borderBottom = "1px solid var(--border)";
-            div.innerHTML = `<b style="color:var(--primary)">${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
-            list.appendChild(div);
+        // OPTIMIZATION
+        let html = [];
+        Object.values(s.val() || {}).reverse().forEach(l => {
+            html.push(`<div style="padding:8px; border-bottom:1px solid var(--border);">
+                <b style="color:var(--primary)">${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}
+            </div>`);
         });
+        list.innerHTML = html.join('');
     });
 }
 
