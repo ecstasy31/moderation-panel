@@ -8,6 +8,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         :root { 
@@ -131,6 +133,7 @@
             width: 100%; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
         }
         .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
         .btn-small-icon {
             background: none; border: none; color: #888; cursor: pointer; padding: 5px; font-size: 14px;
@@ -175,9 +178,41 @@
         .roulette-pointer { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--primary); z-index: 5; box-shadow: 0 0 10px var(--primary); transform: translateX(-50%); }
         .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
         .reel-item { min-width: 100px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border-right: 1px solid var(--border); padding: 5px; text-align: center; background: rgba(255,255,255,0.02); }
+
+        /* Styles for Email Blocker */
+        #email-blocker {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+            z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #email-blocker-content {
+            background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--primary);
+            width: 90%; max-width: 400px; text-align: center;
+        }
     </style>
 </head>
 <body>
+
+<div id="email-blocker">
+    <div id="email-blocker-content">
+        <h2 style="color:var(--primary); margin-top:0;">⚠️ Подтверждение почты</h2>
+        <p style="font-size:13px; color:#ccc; margin-bottom:20px;">
+            В целях безопасности доступ к системе закрыт до подтверждения E-mail.
+        </p>
+        
+        <div id="step-bind-email">
+            <input type="email" id="bind-email-input" placeholder="Ваша почта (example@mail.ru)">
+            <button class="btn-action" id="btn-send-code" onclick="sendVerificationCode()">Получить код</button>
+        </div>
+
+        <div id="step-verify-code" class="hidden">
+            <p style="font-size:11px; color:var(--primary);">Код отправлен на почту!</p>
+            <input type="text" id="verify-code-input" placeholder="Код из письма (6 цифр)" maxlength="6" style="text-align:center; letter-spacing:5px; font-size:18px;">
+            <button class="btn-action" onclick="confirmEmailCode()">Подтвердить</button>
+            <button class="btn-nav" onclick="document.getElementById('step-verify-code').classList.add('hidden'); document.getElementById('step-bind-email').classList.remove('hidden');" style="margin-top:10px;">Назад</button>
+        </div>
+        <p style="font-size:10px; color:#666; margin-top:15px;">Не приходит код? Проверьте спам.</p>
+    </div>
+</div>
 
 <div id="modal" onclick="this.style.display='none'" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; display:none; align-items:center; justify-content:center;">
     <img src="" id="modal-img" style="max-width:90%; max-height:90vh; border-radius:12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
@@ -189,14 +224,38 @@
         <input type="text" id="in-log-login" placeholder="Ваш RP NickName">
         <input type="password" id="in-log-pass" placeholder="Пароль">
         <button class="btn-action" onclick="doLogin()">Войти в систему</button>
-        <p style="font-size:12px; margin-top:20px; color:#888;">Нет доступа? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(true)">Регистрация</span></p>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:12px;">
+            <span style="color:#888;">Нет доступа? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth('reg')">Регистрация</span></span>
+            <span style="color:var(--danger); cursor:pointer;" onclick="toggleAuth('reset')">Забыли пароль?</span>
+        </div>
     </div>
+    
     <div id="box-reg" class="hidden">
         <h2 style="margin-bottom:30px; letter-spacing:-1px;">Регистрация</h2>
         <input type="text" id="in-reg-login" placeholder="RP NickName">
+        <input type="email" id="in-reg-email" placeholder="E-mail (обязательно)">
         <input type="password" id="in-reg-pass" placeholder="Придумайте пароль">
         <button class="btn-action" onclick="doRegister()">Создать аккаунт</button>
-        <p style="font-size:12px; margin-top:20px; color:#888;">Уже есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth(false)">Войти</span></p>
+        <p style="font-size:12px; margin-top:20px; color:#888;">Уже есть аккаунт? <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth('log')">Войти</span></p>
+    </div>
+
+    <div id="box-reset" class="hidden">
+        <h2 style="margin-bottom:20px; letter-spacing:-1px;">Сброс пароля</h2>
+        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">Введите почту, привязанную к аккаунту.</p>
+        
+        <div id="reset-step-1">
+            <input type="email" id="reset-email" placeholder="Ваш E-mail">
+            <button class="btn-action" id="btn-reset-send" onclick="initiateReset()">Сбросить</button>
+        </div>
+
+        <div id="reset-step-2" class="hidden">
+            <input type="text" id="reset-code" placeholder="Код подтверждения">
+            <input type="password" id="reset-new-pass" placeholder="Новый пароль">
+            <button class="btn-action" onclick="confirmReset()">Сохранить новый пароль</button>
+        </div>
+
+        <p style="font-size:12px; margin-top:20px; color:#888; cursor:pointer;" onclick="toggleAuth('log')">← Вернуться ко входу</p>
     </div>
 </div>
 
@@ -406,6 +465,14 @@
 </div>
 
 <script>
+// ============================================
+// CONFIGURATION (ВАШИ КЛЮЧИ)
+// ============================================
+
+const EMAILJS_PUBLIC_KEY = "6aAwXxv7vopj7e7XR";
+const EMAILJS_SERVICE_ID = "service_b3voa5p";
+const EMAILJS_TEMPLATE_ID = "template_vnltp0b"; // Исправлено на ваш шаблон
+
 const firebaseConfig = {
     apiKey: "AIzaSyAmqtdKfR8ZyMoYA2dBno5sGAtJbhmWJEc",
     authDomain: "modersekb.firebaseapp.com",
@@ -414,57 +481,133 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+// Инициализация EmailJS
+(function(){
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+})();
+
 const OWNER = "Ecstasy9988";
-const OWNER_PASS = "Ecstasy20036";
+const OWNER_PASS_RAW = "Ecstasy20036"; 
 let currentUser = "";
 let userRole = "pending";
 let editingInfoKey = null;
 
-// ФУНКЦИЯ ДЛЯ СТАБИЛЬНОСТИ: Обновляет время последнего посещения
+// ============================================
+// SECURITY HELPERS & EMAIL FUNCTION
+// ============================================
+
+function hashPassword(plain) {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(plain, salt);
+}
+
+function checkPassword(plain, stored) {
+    if (!stored) return false;
+    if (stored.startsWith("$2a$")) {
+        return bcrypt.compareSync(plain, stored);
+    }
+    return plain === stored;
+}
+
+// Реальная отправка письма через EmailJS
+function sendEmailReal(to, subject, body) {
+    const templateParams = {
+        to_email: to,
+        subject: subject,
+        message: body // В шаблоне должно быть {{message}}
+    };
+
+    return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+}
+
+// ============================================
+// CORE AUTH LOGIC
+// ============================================
+
 function updateLastSeen() {
     if(currentUser) db.ref('users/' + currentUser + '/lastSeen').set(Date.now());
 }
 
 function nav(id) {
     if (userRole === 'pending' && id !== 'profile') return;
+    
+    // Блокировка навигации если почта не подтверждена
+    if(currentUser && document.getElementById('email-blocker').style.display === 'flex') {
+        return;
+    }
+
     updateLastSeen();
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById('sec-' + id).classList.remove('hidden');
     window.scrollTo(0,0);
 }
 
-function toggleAuth(reg) {
-    document.getElementById('box-log').classList.toggle('hidden', reg);
-    document.getElementById('box-reg').classList.toggle('hidden', !reg);
+function toggleAuth(mode) {
+    document.getElementById('box-log').classList.toggle('hidden', mode !== 'log');
+    document.getElementById('box-reg').classList.toggle('hidden', mode !== 'reg');
+    document.getElementById('box-reset').classList.toggle('hidden', mode !== 'reset');
 }
 
 function doLogin() {
     const l = document.getElementById('in-log-login').value.trim();
     const p = document.getElementById('in-log-pass').value.trim();
-    if (l === OWNER && p === OWNER_PASS) { loginSuccess(l, 'owner', p); return; }
+    if(!l || !p) return alert("Введите логин и пароль");
+
+    if (l === OWNER && p === OWNER_PASS_RAW) { 
+        loginSuccess(l, 'owner'); 
+        return; 
+    }
+
     db.ref('users/' + l).once('value', s => {
         const d = s.val();
-        if (d && d.pass === p) loginSuccess(l, d.role, p);
-        else alert("Неверный логин или пароль");
+        if (d && checkPassword(p, d.pass)) {
+            if (!d.pass.startsWith("$2a$")) {
+                db.ref('users/' + l + '/pass').set(hashPassword(p));
+            }
+            loginSuccess(l, d.role);
+        } else {
+            alert("Неверный логин или пароль");
+        }
     });
 }
 
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
-    if (!l || !p) return alert("Заполните все поля");
-    db.ref('users/' + l).set({ pass: p, nick: l, role: 'pending', score: 0, rank: 'Младший Модератор', avatar: '', reportsCount: 0, warns: 0, inactive: false, lastReportTime: 0, lastSeen: Date.now() });
-    loginSuccess(l, 'pending', p);
+    const email = document.getElementById('in-reg-email').value.trim();
+    
+    if (!l || !p || !email) return alert("Все поля обязательны, включая Email");
+    if (!email.includes('@')) return alert("Введите корректный Email");
+
+    db.ref('users/' + l).once('value', snapshot => {
+        if(snapshot.exists()) return alert("Такой пользователь уже существует");
+        
+        const hashedPass = hashPassword(p);
+        
+        db.ref('users/' + l).set({ 
+            pass: hashedPass, 
+            nick: l, 
+            role: 'pending', 
+            score: 0, 
+            rank: 'Младший Модератор', 
+            avatar: '', 
+            reportsCount: 0, 
+            warns: 0, 
+            inactive: false, 
+            lastReportTime: 0, 
+            lastSeen: Date.now(),
+            email: email,
+            emailVerified: false
+        });
+        loginSuccess(l, 'pending');
+    });
 }
 
-// ГЛАВНОЕ: Улучшенный логин с сохранением данных
-function loginSuccess(l, role, p) {
+function loginSuccess(l, role) {
     currentUser = l;
     userRole = (l === OWNER) ? 'owner' : (role || 'pending');
-    
-    // Сохраняем логин и пароль, чтобы не кикало
     localStorage.setItem('mod_user', l);
-    localStorage.setItem('mod_pass', p);
 
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
@@ -484,6 +627,8 @@ function loginSuccess(l, role, p) {
     document.getElementById('admin-shop-controls').classList.toggle('hidden', !isAdmin);
 
     updateLastSeen();
+    checkEmailStatus(); 
+    
     showProfile(l);
     loadData();
     loadFullTable(); 
@@ -492,12 +637,10 @@ function loginSuccess(l, role, p) {
     loadShop();
     setInterval(updateLastSeen, 60000);
 
-    // Слушатель изменений профиля (защищен от ложного кика)
     db.ref('users/' + l).on('value', s => {
-        if (!navigator.onLine) return; // Если нет интернета, не выходим
+        if (!navigator.onLine) return;
         const data = s.val();
         if (!data && currentUser !== OWNER) {
-            // Только если аккаунт РЕАЛЬНО удален из базы
             logout();
             return;
         }
@@ -505,8 +648,148 @@ function loginSuccess(l, role, p) {
             userRole = data.role;
             location.reload(); 
         }
+        if (data && data.emailVerified) {
+            document.getElementById('email-blocker').style.display = 'none';
+        }
     });
 }
+
+// ============================================
+// EMAIL VERIFICATION LOGIC (With Real EmailJS)
+// ============================================
+
+function checkEmailStatus() {
+    if(!currentUser) return;
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u && !u.emailVerified) {
+            document.getElementById('email-blocker').style.display = 'flex';
+            if(u.email) {
+                document.getElementById('bind-email-input').value = u.email;
+            }
+        } else {
+            document.getElementById('email-blocker').style.display = 'none';
+        }
+    });
+}
+
+function sendVerificationCode() {
+    const emailInput = document.getElementById('bind-email-input').value.trim();
+    if(!emailInput || !emailInput.includes('@')) return alert("Введите корректный Email");
+
+    const btn = document.getElementById('btn-send-code');
+    btn.disabled = true;
+    btn.innerText = "Отправка...";
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    db.ref('users/' + currentUser).update({
+        email: emailInput,
+        verificationCode: code
+    }).then(() => {
+        // Отправка через EmailJS
+        sendEmailReal(emailInput, "Код подтверждения MOD EKB", `Ваш код доступа: ${code}`)
+            .then(() => {
+                alert("Код отправлен на " + emailInput);
+                document.getElementById('step-bind-email').classList.add('hidden');
+                document.getElementById('step-verify-code').classList.remove('hidden');
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("Ошибка отправки письма! Проверьте консоль (F12) и лимиты EmailJS.");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Получить код";
+            });
+    });
+}
+
+function confirmEmailCode() {
+    const codeInput = document.getElementById('verify-code-input').value.trim();
+    db.ref('users/' + currentUser).once('value', s => {
+        const u = s.val();
+        if(u.verificationCode == codeInput) {
+            db.ref('users/' + currentUser).update({
+                emailVerified: true,
+                verificationCode: null
+            });
+            document.getElementById('email-blocker').style.display = 'none';
+            alert("Почта подтверждена! Доступ открыт.");
+            addLog("Подтвердил почту", currentUser);
+        } else {
+            alert("Неверный код!");
+        }
+    });
+}
+
+// Сброс пароля (восстановление)
+let resetEmailTarget = "";
+function initiateReset() {
+    const email = document.getElementById('reset-email').value.trim();
+    if(!email) return alert("Введите почту");
+    
+    const btn = document.getElementById('btn-reset-send');
+    btn.disabled = true;
+    btn.innerText = "Поиск...";
+
+    db.ref('users').orderByChild('email').equalTo(email).once('value', s => {
+        if(!s.exists()) {
+            btn.disabled = false;
+            btn.innerText = "Сбросить";
+            return alert("Пользователь с такой почтой не найден.");
+        }
+        
+        const uData = s.val();
+        const nick = Object.keys(uData)[0];
+        resetEmailTarget = nick;
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        db.ref('users/' + nick + '/verificationCode').set(code);
+        
+        btn.innerText = "Отправка письма...";
+        
+        sendEmailReal(email, "Сброс пароля MOD EKB", `Код для сброса пароля: ${code}`)
+            .then(() => {
+                document.getElementById('reset-step-1').classList.add('hidden');
+                document.getElementById('reset-step-2').classList.remove('hidden');
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("Ошибка отправки. Проверьте консоль.");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Сбросить";
+            });
+    });
+}
+
+function confirmReset() {
+    const code = document.getElementById('reset-code').value.trim();
+    const newPass = document.getElementById('reset-new-pass').value.trim();
+    
+    if(!code || !newPass) return alert("Заполните поля");
+
+    db.ref('users/' + resetEmailTarget).once('value', s => {
+        const u = s.val();
+        if(u.verificationCode == code) {
+            const hashed = hashPassword(newPass);
+            db.ref('users/' + resetEmailTarget).update({
+                pass: hashed,
+                verificationCode: null
+            });
+            alert("Пароль успешно изменен! Теперь войдите.");
+            location.reload();
+        } else {
+            alert("Неверный код");
+        }
+    });
+}
+
+// ============================================
+// APP LOGIC
+// ============================================
 
 function showProfile(nick) {
     nav('profile');
@@ -653,12 +936,14 @@ function loadData() {
         });
     });
 
-    db.ref('reports').on('value', s => {
+    db.ref('reports').limitToLast(20).on('value', s => {
         const container = document.getElementById('list-reports');
         container.innerHTML = "";
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
-
-        Object.entries(s.val() || {}).reverse().forEach(([id, r]) => {
+        const reportsArr = [];
+        s.forEach(child => reportsArr.push({key: child.key, ...child.val()}));
+        reportsArr.reverse().forEach(r => {
+            const id = r.key;
             let imgsHtml = "";
             if(r.imgs) r.imgs.forEach(src => imgsHtml += `<img src="${src}" onclick="viewImg('${src}')" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin:5px; cursor:pointer; border:1px solid var(--border);">`);
             
@@ -1071,10 +1356,12 @@ async function spinRoulette() {
 
 function loadLogs() {
     if (userRole !== 'admin' && userRole !== 'owner') return;
-    db.ref('logs').limitToLast(100).on('value', s => {
+    db.ref('logs').limitToLast(50).on('value', s => {
         const list = document.getElementById('logs-list');
         list.innerHTML = "";
-        Object.values(s.val() || {}).reverse().forEach(l => {
+        const logsArr = [];
+        s.forEach(c => logsArr.push(c.val()));
+        logsArr.reverse().forEach(l => {
             const div = document.createElement('div');
             div.style.padding = "8px"; div.style.borderBottom = "1px solid var(--border)";
             div.innerHTML = `<b style="color:var(--primary)">${l.action}</b><br>👤 ${l.target}<br>🔧 ${l.by}<br>🕒 ${l.time}`;
@@ -1083,23 +1370,17 @@ function loadLogs() {
     });
 }
 
-// АВТОМАТИЧЕСКИЙ ВХОД ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
 window.onload = () => {
     const savedUser = localStorage.getItem('mod_user');
-    const savedPass = localStorage.getItem('mod_pass');
-    
-    if(savedUser && savedPass) {
-        // Проверка владельца напрямую
-        if (savedUser === OWNER && savedPass === OWNER_PASS) {
-            loginSuccess(savedUser, 'owner', savedPass);
+    if(savedUser) {
+        if (savedUser === OWNER) {
+             loginSuccess(savedUser, 'owner');
         } else {
-            // Проверка обычного юзера в базе
             db.ref('users/' + savedUser).once('value', s => { 
                 const d = s.val();
-                if(s.exists() && d.pass === savedPass) {
-                    loginSuccess(savedUser, d.role, savedPass); 
+                if(s.exists()) {
+                    loginSuccess(savedUser, d.role); 
                 } else {
-                    // Если пароль в базе изменился, только тогда чистим сессию
                     localStorage.clear();
                 }
             });
