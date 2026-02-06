@@ -1525,38 +1525,47 @@ async function sendReport() {
         photoUrl = "https://via.placeholder.com/500"; 
     }
 
-    // 3. Формируем объект отчета для Firebase
+ // Вставь это в блок <script> в самом низу index.html
+async function sendReport() {
+    const role = document.getElementById('rep-rank').value;
+    const work = document.getElementById('rep-work').value;
+    const punishments = document.getElementById('rep-val').value;
+    const date = document.getElementById('rep-date').value;
+    
+    // Проверка: залогинен ли юзер и заполнил ли он работу
+    if (!currentUser) return alert("Сначала войдите в систему!");
+    if (!work) return alert("Опишите проделанную работу!");
+
+    const btn = document.querySelector('#sec-report .btn-action');
+    btn.disabled = true;
+    btn.innerText = "Отправка...";
+
+    // Данные, которые ЖДЕТ бот
     const reportData = {
-        author: currentUser,       // Ваш ник из системы логина
-        nickname: currentUser,
-        role: role,
+        author: currentUser,       // Никнейм (для поиска в /info и начисления баллов)
+        nickname: currentUser,     // Дублируем для надежности
+        role: role || "Не указана",
         work: work,
-        punishments: punishments || 0,
+        punishments: punishments || "0",
         date: date || new Date().toLocaleDateString(),
-        photoUrl: photoUrl,
-        score: 10,                 // Баллы за отчет
-        status: "pending",
-        timestamp: Date.now()      // КРИТИЧЕСКИ ВАЖНО для бота
+        score: 1,                 // Кол-во баллов за отчет
+        status: "pending",         // Статус "ожидает"
+        timestamp: Date.now()      // ТЕКУЩЕЕ ВРЕМЯ (Критично важно!)
     };
 
-    // 4. Сохраняем в базу данных
-    db.ref('reports').push(reportData)
-        .then(() => {
-            alert("✅ Отчет успешно отправлен и передан боту!");
-            // Очищаем поля
-            document.getElementById('rep-work').value = "";
-            document.getElementById('rep-val').value = "";
-            nav('profile'); // Возвращаем пользователя в профиль
-        })
-        .catch(err => {
-            alert("Ошибка базы данных: " + err.message);
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerText = "Отправить на проверку";
-        });
+    try {
+        await db.ref('reports').push(reportData);
+        alert("✅ Отчет отправлен!");
+        document.getElementById('rep-work').value = ""; // Очистить поле
+        nav('profile'); // Вернуться в профиль
+    } catch (e) {
+        alert("Ошибка Firebase: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Отправить на проверку";
+    }
 }
-
 </script>
 </body>
 </html>
+
