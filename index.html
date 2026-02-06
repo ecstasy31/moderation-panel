@@ -432,19 +432,19 @@
     </div>
 
     <div id="sec-report" class="container hidden">
-        <h3 style="text-align:left;">Новый отчет</h3>
-        <p style="text-align:left; color:#888; font-size:12px; margin-bottom:20px;">Заполните данные о проделанной работе за неделю</p>
-        <label style="display:block; text-align:left; font-size:11px; color:#666; margin-left:5px;">ВАША ДОЛЖНОСТЬ</label>
-        <select id="rep-rank">
-            <option value="Младший Модератор">Младший Модератор</option>
-            <option value="Модератор">Модератор</option>
-            <option value="Старший Модератор">Старший Модератор</option>
-        </select>
-        <textarea id="rep-work" rows="4" placeholder="Опишите, что именно вы сделали..."></textarea>
-        <input type="number" id="rep-val" placeholder="Количество выданных наказании за неделю (число)">
-        <input type="file" id="rep-files" multiple accept="image/*" style="padding:10px;">
-        <input type="date" id="rep-date">
-        <button class="btn-action" onclick="sendReport()">Отправить на проверку</button>
+        <div class="report-form" style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; color: white; margin-top: 10px; border: 1px solid var(--border);">
+            <h3 style="margin-top: 0;">Отправить отчет (Для Бота)</h3>
+            <input type="text" id="rep-role" placeholder="Ваша Должность" style="display:block; width:100%; margin-bottom:10px;">
+            <input type="text" id="rep-nick" placeholder="Никнейм" style="display:block; width:100%; margin-bottom:10px;">
+            <textarea id="rep-work" placeholder="Опишите проделанную работу" style="display:block; width:100%; margin-bottom:10px;"></textarea>
+            <input type="number" id="rep-punish" placeholder="Кол-во наказаний" style="display:block; width:100%; margin-bottom:10px;">
+            <input type="date" id="rep-date" style="display:block; width:100%; margin-bottom:10px;">
+            
+            <p style="font-size:12px; color:#aaa; margin-bottom:5px;">Фото (URL):</p>
+            <input type="text" id="rep-photo" placeholder="Ссылка на скриншот (imgur/yapx)" style="display:block; width:100%; margin-bottom:10px;">
+            
+            <button onclick="submitReport()" class="btn-action">Отправить отчет</button>
+        </div>
     </div>
 
     <div id="sec-base" class="container hidden">
@@ -1479,6 +1479,40 @@ function loadLogs() {
             </div>`);
         });
         list.innerHTML = html.join('');
+    });
+}
+
+// НОВАЯ ФУНКЦИЯ ДЛЯ ОТПРАВКИ ОТЧЕТА БОТУ
+function submitReport() {
+    const role = document.getElementById('rep-role').value;
+    const nick = document.getElementById('rep-nick').value;
+    const work = document.getElementById('rep-work').value;
+    const punish = document.getElementById('rep-punish').value;
+    const date = document.getElementById('rep-date').value;
+    const photo = document.getElementById('rep-photo').value;
+
+    if(!role || !nick || !work) {
+        alert("Заполните основные поля!");
+        return;
+    }
+
+    // Сохраняем в специальную ветку 'pending_reports', которую слушает бот
+    db.ref('pending_reports').push({
+        role: role,
+        nickname: nick,
+        work: work,
+        punishments: punish,
+        date: date,
+        photoUrl: photo, // Бот возьмет ссылку и загрузит её как картинку в ВК
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        alert("Отчет отправлен боту!");
+        // Очистить поля (по желанию)
+        document.getElementById('rep-work').value = '';
+        document.getElementById('rep-punish').value = '';
+        document.getElementById('rep-photo').value = '';
+    }).catch(err => {
+        alert("Ошибка: " + err.message);
     });
 }
 
