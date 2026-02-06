@@ -33,7 +33,6 @@
             position: relative;
         }
 
-        /* Декор фона */
         body::before, body::after {
             content: "";
             position: fixed;
@@ -498,7 +497,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// FIX: Правильная инициализация bcrypt (часто загружается в dcodeIO)
 const bcrypt = window.bcrypt || dcodeIO.bcrypt;
 
 // Инициализация EmailJS
@@ -535,19 +533,15 @@ function checkPassword(plain, stored) {
     return plain === stored;
 }
 
-// Реальная отправка письма через EmailJS
 function sendEmailReal(to, subject, body) {
     const templateParams = {
         to_email: to,
-        subject: subject,  // ВАЖНО: В шаблоне EmailJS поле Subject должно быть {{subject}}
+        subject: subject,
         message: body 
     };
     return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
 }
 
-// ============================================
-// NEW FUNCTION: OWNER SEND EMAIL
-// ============================================
 function sendOwnerEmail() {
     if (currentUser !== OWNER) return alert("Доступ запрещен!");
     
@@ -562,13 +556,11 @@ function sendOwnerEmail() {
     btn.innerText = "Отправка...";
 
     if(to) {
-        // Отправка одному
         sendEmailReal(to, sub, msg)
             .then(() => alert("Письмо отправлено: " + to))
             .catch(e => alert("Ошибка: " + JSON.stringify(e)))
             .finally(() => { btn.disabled = false; btn.innerText = "Отправить письмо"; });
     } else {
-        // Рассылка (ОПАСНО: Лимиты EmailJS)
         if(!confirm("Внимание! Вы не указали получателя. Отправить ВСЕМ пользователям с подтвержденной почтой?")) {
             btn.disabled = false; 
             btn.innerText = "Отправить письмо";
@@ -589,7 +581,6 @@ function sendOwnerEmail() {
             }
 
             let sentCount = 0;
-            // Простой цикл (EmailJS может ограничить частоту)
             emails.forEach(email => {
                 sendEmailReal(email, sub, msg);
                 sentCount++;
@@ -652,7 +643,6 @@ function doLogin() {
     });
 }
 
-// FIXED: Исправлена кнопка регистрации (асинхронность и проверки)
 function doRegister() {
     const l = document.getElementById('in-reg-login').value.trim();
     const p = document.getElementById('in-reg-pass').value.trim();
@@ -661,7 +651,6 @@ function doRegister() {
     if (!l || !p || !email) return alert("Все поля обязательны, включая Email");
     if (!email.includes('@')) return alert("Введите корректный Email");
     
-    // FIX: Firebase запрещает эти символы в путях (ключах)
     if (l.match(/[.#$[\]]/)) return alert("Никнейм не может содержать символы: . # $ [ ]");
 
     db.ref('users/' + l).once('value', snapshot => {
@@ -686,7 +675,6 @@ function doRegister() {
                 emailVerified: false
             };
 
-            // WAITING FOR DB WRITE BEFORE LOGIN
             db.ref('users/' + l).set(newUser)
                 .then(() => {
                     alert("Аккаунт успешно создан!");
@@ -722,7 +710,7 @@ function loginSuccess(l, role) {
 
     document.getElementById('nav-base').classList.toggle('hidden', !isAdmin);
     document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
-    document.getElementById('nav-mail').classList.toggle('hidden', !isOwner); // Только Владелец
+    document.getElementById('nav-mail').classList.toggle('hidden', !isOwner);
     document.getElementById('add-table-row').classList.toggle('hidden', !isAdmin);
     document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
     
@@ -984,7 +972,6 @@ function loadData() {
         const isAdmin = (userRole === 'admin' || userRole === 'owner');
         const now = Date.now();
         
-        // OPTIMIZATION: Use arrays instead of innerHTML += loops
         let topRows = [];
         let adminRows = [];
         
@@ -1039,7 +1026,6 @@ function loadData() {
             }
         });
         
-        // Single DOM update
         listTop.innerHTML = topRows.join('');
         listAdmin.innerHTML = adminRows.join('');
     });
@@ -1196,35 +1182,6 @@ function deleteUserSimple(id) {
     }
 }
 
-async function sendReport() {
-    if (userRole === 'pending') return;
-    const work = document.getElementById('rep-work').value;
-    const score = parseInt(document.getElementById('rep-val').value);
-    const date = document.getElementById('rep-date').value;
-    const files = document.getElementById('rep-files').files;
-
-    if(!work || isNaN(score) || !date) return alert("Заполните все данные!");
-
-    let imgs = [];
-    for(let f of files) {
-        const b64 = await new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(f);
-        });
-        imgs.push(b64);
-    }
-
-    db.ref('reports').push({ author: currentUser, rank: document.getElementById('rep-rank').value, work, score, date, imgs });
-    db.ref('users/' + currentUser).transaction(u => {
-        if(u) { u.score = (u.score || 0) + score; u.reportsCount = (u.reportsCount || 0) + 1; u.lastReportTime = Date.now(); }
-        return u;
-    });
-    addLog('Отправил отчет', currentUser);
-    alert("Отчет успешно отправлен!");
-    nav('profile');
-}
-
 function viewImg(src) { document.getElementById('modal-img').src = src; document.getElementById('modal').style.display = 'flex'; }
 
 async function uploadAva(input) {
@@ -1244,7 +1201,6 @@ async function uploadAva(input) {
 function changeNick() { 
     const name = prompt("Ваш новый ник:"); 
     if(name) {
-        // FIX: Проверка ника и здесь
         if (name.match(/[.#$[\]]/)) return alert("Никнейм не может содержать символы: . # $ [ ]");
         db.ref('users/' + currentUser).update({ nick: name }); 
         addLog('Сменил ник на ' + name, currentUser);
@@ -1466,12 +1422,10 @@ async function spinRoulette() {
     }, 4100);
 }
 
-// OPTIMIZED LOGS RENDERING (Логика данных та же, рендеринг быстрее)
 function loadLogs() {
     if (userRole !== 'admin' && userRole !== 'owner') return;
     db.ref('logs').limitToLast(100).on('value', s => {
         const list = document.getElementById('logs-list');
-        // OPTIMIZATION: Build string once
         let html = [];
         Object.values(s.val() || {}).reverse().forEach(l => {
             html.push(`<div style="padding:8px; border-bottom:1px solid var(--border);">
@@ -1480,6 +1434,73 @@ function loadLogs() {
         });
         list.innerHTML = html.join('');
     });
+}
+
+// ==== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ОТЧЕТА ====
+async function sendReport() {
+    try {
+        const role = document.getElementById('rep-rank')?.value || "Не указана";
+        const work = document.getElementById('rep-work')?.value;
+        const punishments = document.getElementById('rep-val')?.value || "0";
+        const date = document.getElementById('rep-date')?.value || new Date().toLocaleDateString();
+        const fileInput = document.getElementById('rep-files');
+
+        if (!currentUser) return alert("❌ Вы не авторизованы!");
+        if (!work) return alert("❌ Опишите проделанную работу!");
+
+        const btn = document.querySelector('#sec-report .btn-action');
+        if (btn) { btn.disabled = true; btn.innerText = "Отправка..."; }
+
+        // Обработка фото
+        let imgs = [];
+        if (fileInput.files) {
+            for(let f of fileInput.files) {
+                const b64 = await new Promise(res => {
+                    const reader = new FileReader();
+                    reader.onload = () => res(reader.result);
+                    reader.readAsDataURL(f);
+                });
+                imgs.push(b64);
+            }
+        }
+
+        const reportData = {
+            author: currentUser,       
+            nickname: currentUser,
+            role: role,
+            work: work,
+            punishments: punishments,
+            date: date,
+            score: 10,                 
+            status: "pending",         
+            imgs: imgs,
+            timestamp: firebase.database.ServerValue.TIMESTAMP // ВАЖНО ДЛЯ БОТА
+        };
+
+        await db.ref('reports').push(reportData);
+
+        // Обновляем статистику пользователя
+        await db.ref('users/' + currentUser).transaction(u => {
+            if(u) { 
+                u.reportsCount = (u.reportsCount || 0) + 1; 
+                u.lastReportTime = Date.now(); 
+            }
+            return u;
+        });
+
+        addLog('Отправил отчет', currentUser);
+        alert("✅ Отчет успешно отправлен и передан боту!");
+        
+        document.getElementById('rep-work').value = "";
+        nav('profile');
+
+    } catch (error) {
+        console.error("Ошибка при отправке:", error);
+        alert("❌ Ошибка отправки: " + error.message);
+    } finally {
+        const btn = document.querySelector('#sec-report .btn-action');
+        if (btn) { btn.disabled = false; btn.innerText = "Отправить на проверку"; }
+    }
 }
 
 window.onload = () => {
@@ -1499,96 +1520,6 @@ window.onload = () => {
         }
     }
 };
-    // Функция отправки отчета (исправленная версия)
-async function sendReport() {
-    // 1. Получаем данные из полей по их реальным ID из вашего HTML
-    const role = document.getElementById('rep-rank').value;
-    const work = document.getElementById('rep-work').value;
-    const punishments = document.getElementById('rep-val').value;
-    const date = document.getElementById('rep-date').value;
-    const fileInput = document.getElementById('rep-files');
-
-    // Проверка на заполнение
-    if (!work || !currentUser) {
-        return alert("⚠️ Опишите работу и убедитесь, что вы авторизованы!");
-    }
-
-    const btn = document.querySelector('#sec-report .btn-action');
-    btn.disabled = true;
-    btn.innerText = "Отправка...";
-
-    // 2. Обработка фото (берем первую картинку, если есть)
-    let photoUrl = "";
-    if (fileInput.files && fileInput.files[0]) {
-        // В идеале тут должна быть загрузка на хостинг, 
-        // но для теста можно использовать временную ссылку или оставить пустым
-        photoUrl = "https://via.placeholder.com/500"; 
-    }
-
- // Вставь это в блок <script> в самом низу index.html
-async function sendReport() {
-    const role = document.getElementById('rep-rank').value;
-    const work = document.getElementById('rep-work').value;
-    const punishments = document.getElementById('rep-val').value;
-    const date = document.getElementById('rep-date').value;
-    
-async function sendReport() {
-    try {
-        // 1. Собираем данные с полей (ID взяты из твоего файла)
-        const role = document.getElementById('rep-rank')?.value || "Не указана";
-        const work = document.getElementById('rep-work')?.value;
-        const punishments = document.getElementById('rep-val')?.value || "0";
-        const date = document.getElementById('rep-date')?.value || new Date().toLocaleDateString();
-
-        // 2. Проверка авторизации и заполнения (currentUser берется из твоего кода логина)
-        if (typeof currentUser === 'undefined' || !currentUser) {
-            return alert("❌ Ошибка: Вы не вошли в систему!");
-        }
-        if (!work) {
-            return alert("❌ Ошибка: Опишите проделанную работу!");
-        }
-
-        const btn = document.querySelector('#sec-report .btn-action');
-        if (btn) {
-            btn.disabled = true;
-            btn.innerText = "Отправка...";
-        }
-
-        // 3. Формируем объект (только то, что нужно боту)
-        const reportData = {
-            author: currentUser,       
-            nickname: currentUser,
-            role: role,
-            work: work,
-            punishments: punishments,
-            date: date,
-            score: 10,                 
-            status: "pending",         
-            timestamp: Date.now()      // Метка времени для бота
-        };
-
-        // 4. Отправка в Firebase (db должна быть инициализирована выше в твоем коде)
-        await db.ref('reports').push(reportData);
-
-        alert("✅ Отчет успешно отправлен и передан боту!");
-        
-        // Очистка и возврат
-        if (document.getElementById('rep-work')) document.getElementById('rep-work').value = "";
-        if (typeof nav === 'function') nav('profile');
-
-    } catch (error) {
-        console.error("Ошибка при отправке:", error);
-        alert("❌ Произошла ошибка. Проверьте консоль браузера.");
-    } finally {
-        const btn = document.querySelector('#sec-report .btn-action');
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "Отправить на проверку";
-        }
-    }
-}
 </script>
 </body>
 </html>
-
-
