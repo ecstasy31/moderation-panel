@@ -33,6 +33,7 @@
             position: relative;
         }
 
+        /* Декор фона */
         body::before, body::after {
             content: "";
             position: fixed;
@@ -1435,8 +1436,7 @@ function loadLogs() {
     });
 }
 
-// ==== ОБНОВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ====
-// Считает баллы как 1 + кол-во наказаний
+// ==== ИСПРАВЛЕННАЯ ФУНКЦИЯ: БАЛЛЫ = НАКАЗАНИЯ ====
 async function sendReport() {
     try {
         const role = document.getElementById('rep-rank')?.value || "Не указана";
@@ -1463,18 +1463,17 @@ async function sendReport() {
             }
         }
 
-        // --- ЛОГИКА ПОДСЧЕТА БАЛЛОВ ---
-        // 1 балл (база) + кол-во наказаний
+        // --- ЛОГИКА БАЛЛОВ: 1 в 1 ---
         const punCount = parseInt(punishmentsInput) || 0;
-        const totalScore = 1 + punCount;
+        const totalScore = punCount; // Строго равно количеству наказаний
 
         const reportData = {
             author: currentUser,       
             nickname: currentUser,
             role: role,
             work: work,
-            punishments: punCount,     // Сохраняем число наказаний
-            score: totalScore,         // Итоговые баллы (для бота и для начисления)
+            punishments: punCount,     
+            score: totalScore,         
             date: date,
             status: "pending",         
             imgs: imgs,
@@ -1483,7 +1482,7 @@ async function sendReport() {
 
         await db.ref('reports').push(reportData);
 
-        // Обновляем статистику (счетчик отчетов)
+        // Обновляем статистику пользователя
         await db.ref('users/' + currentUser).transaction(u => {
             if(u) { 
                 u.reportsCount = (u.reportsCount || 0) + 1; 
@@ -1493,7 +1492,7 @@ async function sendReport() {
         });
 
         addLog('Отправил отчет', currentUser);
-        alert("✅ Отчет отправлен! Баллы: " + totalScore + " (после одобрения)");
+        alert("✅ Отчет отправлен! Баллы к выдаче: " + totalScore);
         
         document.getElementById('rep-work').value = "";
         document.getElementById('rep-val').value = "";
