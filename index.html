@@ -1499,6 +1499,64 @@ window.onload = () => {
         }
     }
 };
+    // Функция отправки отчета (исправленная версия)
+async function sendReport() {
+    // 1. Получаем данные из полей по их реальным ID из вашего HTML
+    const role = document.getElementById('rep-rank').value;
+    const work = document.getElementById('rep-work').value;
+    const punishments = document.getElementById('rep-val').value;
+    const date = document.getElementById('rep-date').value;
+    const fileInput = document.getElementById('rep-files');
+
+    // Проверка на заполнение
+    if (!work || !currentUser) {
+        return alert("⚠️ Опишите работу и убедитесь, что вы авторизованы!");
+    }
+
+    const btn = document.querySelector('#sec-report .btn-action');
+    btn.disabled = true;
+    btn.innerText = "Отправка...";
+
+    // 2. Обработка фото (берем первую картинку, если есть)
+    let photoUrl = "";
+    if (fileInput.files && fileInput.files[0]) {
+        // В идеале тут должна быть загрузка на хостинг, 
+        // но для теста можно использовать временную ссылку или оставить пустым
+        photoUrl = "https://via.placeholder.com/500"; 
+    }
+
+    // 3. Формируем объект отчета для Firebase
+    const reportData = {
+        author: currentUser,       // Ваш ник из системы логина
+        nickname: currentUser,
+        role: role,
+        work: work,
+        punishments: punishments || 0,
+        date: date || new Date().toLocaleDateString(),
+        photoUrl: photoUrl,
+        score: 10,                 // Баллы за отчет
+        status: "pending",
+        timestamp: Date.now()      // КРИТИЧЕСКИ ВАЖНО для бота
+    };
+
+    // 4. Сохраняем в базу данных
+    db.ref('reports').push(reportData)
+        .then(() => {
+            alert("✅ Отчет успешно отправлен и передан боту!");
+            // Очищаем поля
+            document.getElementById('rep-work').value = "";
+            document.getElementById('rep-val').value = "";
+            nav('profile'); // Возвращаем пользователя в профиль
+        })
+        .catch(err => {
+            alert("Ошибка базы данных: " + err.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = "Отправить на проверку";
+        });
+}
+
 </script>
 </body>
 </html>
