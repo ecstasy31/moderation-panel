@@ -1532,40 +1532,63 @@ async function sendReport() {
     const punishments = document.getElementById('rep-val').value;
     const date = document.getElementById('rep-date').value;
     
-    // Проверка: залогинен ли юзер и заполнил ли он работу
-    if (!currentUser) return alert("Сначала войдите в систему!");
-    if (!work) return alert("Опишите проделанную работу!");
-
-    const btn = document.querySelector('#sec-report .btn-action');
-    btn.disabled = true;
-    btn.innerText = "Отправка...";
-
-    // Данные, которые ЖДЕТ бот
-    const reportData = {
-        author: currentUser,       // Никнейм (для поиска в /info и начисления баллов)
-        nickname: currentUser,     // Дублируем для надежности
-        role: role || "Не указана",
-        work: work,
-        punishments: punishments || "0",
-        date: date || new Date().toLocaleDateString(),
-        score: 1,                 // Кол-во баллов за отчет
-        status: "pending",         // Статус "ожидает"
-        timestamp: Date.now()      // ТЕКУЩЕЕ ВРЕМЯ (Критично важно!)
-    };
-
+async function sendReport() {
     try {
+        // 1. Собираем данные с полей (ID взяты из твоего файла)
+        const role = document.getElementById('rep-rank')?.value || "Не указана";
+        const work = document.getElementById('rep-work')?.value;
+        const punishments = document.getElementById('rep-val')?.value || "0";
+        const date = document.getElementById('rep-date')?.value || new Date().toLocaleDateString();
+
+        // 2. Проверка авторизации и заполнения (currentUser берется из твоего кода логина)
+        if (typeof currentUser === 'undefined' || !currentUser) {
+            return alert("❌ Ошибка: Вы не вошли в систему!");
+        }
+        if (!work) {
+            return alert("❌ Ошибка: Опишите проделанную работу!");
+        }
+
+        const btn = document.querySelector('#sec-report .btn-action');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Отправка...";
+        }
+
+        // 3. Формируем объект (только то, что нужно боту)
+        const reportData = {
+            author: currentUser,       
+            nickname: currentUser,
+            role: role,
+            work: work,
+            punishments: punishments,
+            date: date,
+            score: 10,                 
+            status: "pending",         
+            timestamp: Date.now()      // Метка времени для бота
+        };
+
+        // 4. Отправка в Firebase (db должна быть инициализирована выше в твоем коде)
         await db.ref('reports').push(reportData);
-        alert("✅ Отчет отправлен!");
-        document.getElementById('rep-work').value = ""; // Очистить поле
-        nav('profile'); // Вернуться в профиль
-    } catch (e) {
-        alert("Ошибка Firebase: " + e.message);
+
+        alert("✅ Отчет успешно отправлен и передан боту!");
+        
+        // Очистка и возврат
+        if (document.getElementById('rep-work')) document.getElementById('rep-work').value = "";
+        if (typeof nav === 'function') nav('profile');
+
+    } catch (error) {
+        console.error("Ошибка при отправке:", error);
+        alert("❌ Произошла ошибка. Проверьте консоль браузера.");
     } finally {
-        btn.disabled = false;
-        btn.innerText = "Отправить на проверку";
+        const btn = document.querySelector('#sec-report .btn-action');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "Отправить на проверку";
+        }
     }
 }
 </script>
 </body>
 </html>
+
 
