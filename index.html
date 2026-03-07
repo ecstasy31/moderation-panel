@@ -187,115 +187,6 @@
             background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--primary);
             width: 90%; max-width: 400px; text-align: center;
         }
-
-        /* ========== МОБИЛЬНАЯ АДАПТАЦИЯ (только для телефонов) ========== */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                width: 95%;
-            }
-            .header {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            .nav-group {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 5px;
-                width: 100%;
-            }
-            .btn-nav {
-                padding: 12px 12px;
-                font-size: 13px;
-                margin: 2px;
-                flex: 1 0 auto;
-                min-width: 70px;
-                text-align: center;
-                min-height: 44px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .btn-logout {
-                font-size: 24px !important;
-                padding: 0 10px;
-            }
-            #my-profile-controls {
-                grid-template-columns: 1fr !important;
-            }
-            .stat-grid {
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 15px 5px;
-            }
-            .stat-val {
-                font-size: 20px;
-            }
-            .profile-banner {
-                height: 80px;
-            }
-            .avatar {
-                width: 100px;
-                height: 100px;
-            }
-            .shop-grid {
-                grid-template-columns: 1fr;
-            }
-            .full-table {
-                font-size: 11px;
-            }
-            .full-table th, .full-table td {
-                padding: 8px 5px;
-            }
-            .report-card .btn-nav {
-                padding: 8px 8px;
-                font-size: 11px;
-                min-height: 40px;
-            }
-            .btn-action {
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            #list-scores td {
-                font-size: 13px;
-            }
-            .info-post {
-                padding: 15px;
-            }
-            #email-blocker-content {
-                padding: 20px;
-                width: 95%;
-            }
-            /* Корректировка для маленьких экранов, чтобы текст не вылезал */
-            .stat-label {
-                font-size: 8px;
-            }
-            .btn-nav {
-                font-size: 12px;
-            }
-        }
-
-        /* Для совсем узких экранов (до 480px) */
-        @media (max-width: 480px) {
-            .stat-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 5px;
-            }
-            .stat-card {
-                padding: 10px 2px;
-            }
-            .stat-val {
-                font-size: 18px;
-            }
-            .stat-label {
-                font-size: 7px;
-                letter-spacing: 1px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -1264,7 +1155,7 @@ function editCell(key, field, oldVal) {
 function editUserScore(id, oldScore) {
     if (userRole !== 'admin' && userRole !== 'owner') return;
     const newScore = prompt("Введите новое количество баллов для " + id + ":", oldScore);
-    if (newVal !== null && !isNaN(parseInt(newScore))) {
+    if (newScore !== null && !isNaN(parseInt(newScore))) {
         db.ref(`users/${id}/score`).set(parseInt(newScore));
     }
 }
